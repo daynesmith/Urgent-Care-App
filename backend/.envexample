@@ -1,0 +1,6 @@
+DB_USER=database user  //change this
+DB_PASS= database password   //changethis
+DB_NAME=UrgentCareDB          //whatever your db name is
+DB_HOST=127.0.0.1          
+DB_DIALECT=mysql
+PORT=5000
