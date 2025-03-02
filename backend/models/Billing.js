@@ -14,6 +14,14 @@ module.exports = (sequelize, DataTypes) => {
           key: 'patientid',
         },
       },
+      appointmentid: {
+        type: DataTypes.INTEGER,
+        allowNull: false, 
+        references: {
+          model: 'Appointments',
+          key: 'appointmentid',
+        },
+      },
       amount: {
         type: DataTypes.DECIMAL(10, 2), // Example field for amount
         allowNull: false,
@@ -24,6 +32,6 @@ module.exports = (sequelize, DataTypes) => {
         defaultValue: DataTypes.NOW,
       },
     });
-  
+    
     return Billing;
   };

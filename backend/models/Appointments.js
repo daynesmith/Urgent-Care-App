@@ -1,4 +1,4 @@
-module.exports = (sequelize, DataTypes)=>{                      //Appointments table keeps track of an appointment requested by a patient.
+module.exports = (sequelize, DataTypes) => {                      //Appointments table keeps track of an appointment requested by a patient.
     
     const Appointments = sequelize.define("Appointments",{
         appointmentid: {
@@ -32,7 +32,7 @@ module.exports = (sequelize, DataTypes)=>{                      //Appointments t
             allowNull: false
         },
         appointmentstatus: {
-            type: DataTypes.ENUM('requested', 'scheduled', 'completed','cancelled'),
+            type: DataTypes.ENUM('requested', 'scheduled', 'completed', 'cancelled'),
             allowNull: false,
             defaultValue: 'requested'
         },
@@ -67,6 +67,7 @@ module.exports = (sequelize, DataTypes)=>{                      //Appointments t
         if(appointment.changed('appointmentstatus') && appointment.appointmentstatus === 'completed'){
             try{
                 await sequelize.models.Billing.create({
+                    appointmentid: appointment.appointmentid,
                     patientid: appointment.patientid,
                     amount: 100,
                 })
