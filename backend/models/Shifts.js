@@ -6,6 +6,9 @@ module.exports = (sequelize, DataTypes) => {
         autoIncrement: true,
         allowNull: false,
       },
+      /*cliniclocationid{
+        this will hold where the clinic is so that a doctor cant be scheduled at multiple locations on a given day
+      } */
       docotorid: {
         type: DataTypes.INTEGER,
         allowNull: false,

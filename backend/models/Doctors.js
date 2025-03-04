@@ -35,6 +35,11 @@ module.exports = (sequelize, DataTypes)=>{
                 }
             }
         },
+        doctortype: {
+            type: DataTypes.ENUM("PK", "Oncologist", "Neurologist", "Cardiologist"),
+            allowNull: false,
+            defaultValue: "PK"
+        },
         email: {
             type: DataTypes.STRING,
             allowNull: false, // Ensures the email is required

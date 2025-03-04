@@ -37,12 +37,8 @@ module.exports = (sequelize, DataTypes) => {                      //Appointments
             defaultValue: 'requested'
         },
         recommendedspecialist: {
-            type: DataTypes.INTEGER,
+            type: DataTypes.ENUM("Oncologist", "Cardiologist", "Neurologist"),
             allowNull: true,
-            references: {
-                model: 'Specialists',
-                key: 'specialistid'
-            }
         }
     })
 

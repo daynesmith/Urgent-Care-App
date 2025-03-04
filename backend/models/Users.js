@@ -7,11 +7,11 @@ module.exports = (sequelize, DataTypes)=>{
             autoIncrement: true,
             allowNull: false   
         },
-        username: {
+        passwordhash: {
             type: DataTypes.STRING,
             allowNull: false
         },
-        passwordhash: {
+        email:{
             type: DataTypes.STRING,
             allowNull: false
         },
