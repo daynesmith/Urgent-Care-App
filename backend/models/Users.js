@@ -13,7 +13,8 @@ module.exports = (sequelize, DataTypes)=>{
         },
         email:{
             type: DataTypes.STRING,
-            allowNull: false
+            allowNull: false,
+            unique: true
         },
         role: {
             type: DataTypes.ENUM('admin','patient', 'doctor','receptionist'),
