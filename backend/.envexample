@@ -4,4 +4,4 @@ DB_NAME=UrgentCareDB          //whatever your db name is
 DB_HOST=127.0.0.1          
 DB_DIALECT=mysql
 PORT=5000
-jwtsecret = secretkey
+jwtsecret = secretkey  //can be whatever you want
