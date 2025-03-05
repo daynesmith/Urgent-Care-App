@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
+const apiUrl = import.meta.env.VITE_API_URL
 
 function RegistrationForm() {
     const navigate = useNavigate();
@@ -59,12 +61,17 @@ function RegistrationForm() {
     return isValid;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (validateForm()) {
-      console.log('Form Submitted:', formData);
-      // Proceed with form submission logic (e.g., API call)
-      navigate('/login')
+      try{
+        const response = await axios.post(`${apiUrl}/users/register`,formData);
+        alert("Registation Successful")
+        navigate('/login')
+      } catch(error) {
+        alert(error.response.data)
+      }
+      
     }
   };
 

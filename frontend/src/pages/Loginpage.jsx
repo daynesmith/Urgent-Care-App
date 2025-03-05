@@ -1,5 +1,8 @@
 import { useState, useContext } from 'react';
+
 import axios from 'axios';
+const apiUrl = import.meta.env.VITE_API_URL
+
 import {useNavigate} from 'react-router-dom'
 import { UserContext } from '../context/Usercontext';
 
@@ -52,13 +55,14 @@ function LoginPage() {
     e.preventDefault();
     if (validateForm()) {
         try {
-          const response = await axios.post('http://localhost:3001/users/login', formData);
+          const response = await axios.post(`${apiUrl}/users/login`, formData);
           console.log('Form Submitted Successfully:', response.data);
           localStorage.setItem("accessToken", response.data.accessToken)
           localStorage.setItem("role", response.data.userRole)
           setRole(response.data.userRole)
           navigate('/dashboard')
         } catch (error) {
+          alert(error.response.data);
           console.error('There was an error submitting the form:', error);
         }
     }
