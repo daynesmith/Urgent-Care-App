@@ -1,6 +1,12 @@
-import { useState } from 'react';
+import { useState, useContext } from 'react';
+import axios from 'axios';
+import {useNavigate} from 'react-router-dom'
+import { UserContext } from '../context/Usercontext';
 
 function LoginPage() {
+  const navigate = useNavigate()
+  const { setRole } = useContext(UserContext)
+
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -45,7 +51,16 @@ function LoginPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (validateForm()) {
-        console.log('Form Submitted:', formData);
+        try {
+          const response = await axios.post('http://localhost:3001/users/login', formData);
+          console.log('Form Submitted Successfully:', response.data);
+          localStorage.setItem("accessToken", response.data.accessToken)
+          localStorage.setItem("role", response.data.userRole)
+          setRole(response.data.userRole)
+          navigate('/dashboard')
+        } catch (error) {
+          console.error('There was an error submitting the form:', error);
+        }
     }
   };
 

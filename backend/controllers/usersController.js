@@ -1,5 +1,6 @@
+const express = require('express')
 const bcrypt = require('bcrypt');
-const { Users } = require('../models'); // Adjust the path according to your project structure
+const { Users , Patients, Doctors} = require('../models'); // Adjust the path according to your project structure
 const {sign} = require('jsonwebtoken')
 
 
@@ -37,10 +38,15 @@ const loginUser = async (req, res) => {
         const accessToken = sign({ email: user.email, role: user.role, id: user.id }, process.env.jwtsecret, { //session token created stores role id and email
             expiresIn: '1h'
         });
-
+        
+        //return user role to be used for redirection and for context
         const userRole = user.role;
 
-        res.status(200).json({message: "Login successful" ,accessToken, userRole});
+        res.status(200).json({
+            message: "Login successful" ,
+            accessToken, 
+            userRole,
+        });
     } catch (error) {
         console.error(error);
         res.status(500).json("Error logging in user");
