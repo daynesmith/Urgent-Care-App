@@ -1,4 +1,3 @@
-const express = require('express')
 const bcrypt = require('bcrypt');
 const { Users , Patients, Doctors} = require('../models'); // Adjust the path according to your project structure
 const {sign} = require('jsonwebtoken')
