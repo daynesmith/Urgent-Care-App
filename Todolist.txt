@@ -1,0 +1,78 @@
+Things to do:
+
+1. User Authentication
+Secure login system with password hashing
+Role-based access control for different types of users (Patient, Doctor, Receptionist)
+
+2. Data Entry Forms
+Patient registration form
+Appointment scheduling form
+Visit record entry form with the diagnosis and prescriptions
+
+3. Triggers
+Trigger 1: Automatically insert a record into Billing when a Visit is closed.
+Trigger 2: Update appointment status to "Completed" after a visit is logged.
+
+4. Data Queries
+Query 1: Retrieve all upcoming appointments for a specific doctor.
+Query 2: Retrieve the billing status for a specific patient.
+Query 3: Retrieve a patient's appointment history along with visit details (diagnoses, prescriptions).
+
+5. Data Reports
+Report 1: Generate a daily appointment schedule.
+Report 2: List of patients with unpaid bills.
+Report 3: Monthly summary of visit counts and top diagnoses.
+
+Registration - There will be separate registration forms for Patient, Doctor, and Receptionist. Anyone can register as a patient, registering as doctor and receptionist are restricted to those allowed.
+
+Patient view
+Upon Login patient will have a dashboard where they can select from 5 sections that contain and function as follows.
+About Patient- about patient will display the info they have contained in the Patients table and allow them to edit and make changes to that table.
+Schedule an appointment- the patient can select a schedule appointment tab where they will be able to select a date and time for their appointment, along with the doctor they want to see and add notes to their appointment that contains what issues they may be having. Upon submitting this information an appointment row will be created in the table with the status(Requested). Status must be updated to scheduled by a receptionist.
+Upcoming appointments- see what appointments they have scheduled or requested. Update or cancel appointments. 
+Past Appointments - get info on past completed appointments along with the visit info.
+Billing information- the billing information tab will contain outstanding balance for completed appointments
+
+Doctor View
+Upon doctor login they will have a dashboard where they can select from 3 sections that contain and function as follows.
+About Doctor- about doctor will display info contained in the doctors table and allow them to edit their info in the doctors table.
+Scheduled Appointments- Doctors can view upcoming appointments they have. Once they are with the patient they can click begin appointment where it will take them to a visit info page. This is where they will write down all the information needed throughout the actual appointment. Once the visit is closed billing information will be created along with a balance that can be viewed by the receptionist.
+Past Appointments - Doctors can view past appointments and see visitInfo similarly to patients.
+
+Receptionist View
+	Upon doctor login they will have a dashboard where they can select from 3 sections that contain and function as follows.
+Outstanding Billing - any unpaid billing will show up here. Receptionists can change the values within the amount paid attribute to update the attribute. Once amount_due is met payment status is updated to paid and billing will no longer show up in outstanding billing
+Requested Appointments - requested appointments by patient will show up here receptionist can change status to scheduled so that it will show up for doctor and patient.
+Scheduled appointments - this will show all currently scheduled appointments receptionist can cancel appointments.
+Completed Appointments - this will show all completed appointments
+
+
+
+
+Patient portal
+Admin portal
+Doctor portal
+Receptionist portal
+BN Notes
+Patient Portal:
+    See Appointments
+    Be able to register for an Appointment
+    *Will require a form of some sort to take patient information
+    *Maybe trigger? To create an appointment table in database
+    Be able to see their Visits and their prescriptions if they have any
+
+Doctor portal:
+    See Appointments for the day
+    Access to see the patient intake form and information
+    Able to add notes to the patient
+    Be able to write prescriptions for patients
+
+Admin Portal:
+    Be able to see list of doctors and list of patients
+    Be able to change roles of users
+    
+Receptionist portal:
+    be able to schedule and edit Appointments
+    be able to look at patients
+    be able to see list of doctors and specialty
+
