@@ -27,6 +27,7 @@ export default function Navbar(){
             <Link to= '/'>HomePage</Link>
             <Link to= 'login'>Login</Link>
             <Link to= '/register'>Registration</Link>
+            <Link to= '/RoleForm'>Role Form</Link>    {/*Added for testing*/}
             </>
           )}
           {/* logged in links everyone sees*/}
