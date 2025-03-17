@@ -1,7 +1,13 @@
 @import "tailwindcss";
 
+@layer base {
+  html {
+    @apply bg-[#E9ECEF];
+  }
+}
+
 .navbar {
-  background-color: #242424; 
+  background-color: #138fa2; 
   color: white;
   padding: 1em;
   display: flex;
@@ -30,8 +36,8 @@
   justify-content: center;
 }
 
-.home-page{
+/* .home-page{
   display:flex;
   flex-direction: column;
   align-items: center;
-}
+} */
