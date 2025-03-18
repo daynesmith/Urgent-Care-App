@@ -16,11 +16,31 @@ export default function Navbar(){
           {/*links patients see*/}
           {role === 'patient' && (
             <>
-            <Link to= '/dashboard'>Dashboard</Link>
+            <Link to= '/dashboard'>Patient Dashboard</Link>
 
             </>
           )}
-          
+          {/*links Admin see*/}
+          {role === 'admin' && (
+            <>
+            <Link to= '/dashboard'>Admin Dashboard</Link>
+
+            </>
+          )}
+          {/*links doctors see*/}
+          {role === 'doctor' && (
+            <>
+            <Link to= '/dashboard'>Doctor Dashboard</Link>
+
+            </>
+          )}
+          {/*links Receptionists see*/}
+          {role === 'receptionist' && (
+            <>
+            <Link to= '/dashboard'>Receptionist Dashboard</Link>
+
+            </>
+          )}
           {/*links logged in people dont see*/}
           {!role && (
             <>
