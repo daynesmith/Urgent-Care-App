@@ -65,7 +65,7 @@ function RegistrationForm() {
     e.preventDefault();
     if (validateForm()) {
       try{
-        const response = await axios.post(`${apiUrl}/users/register`,formData);
+        await axios.post(`${apiUrl}/users/register`,formData);
         alert("Registation Successful")
         navigate('/login')
       } catch(error) {
@@ -76,49 +76,49 @@ function RegistrationForm() {
   };
 
   return (
-    <div class="bg-[#F8F9FA] m-4 p-8 shadow rounded-lg sm:mx-auto sm:w-full sm:max-w-md mt-8">
-      <h2 class="text-4xl font-serif text-center mb-8">Register your account</h2>
+    <div className="bg-[#F8F9FA] m-4 p-8 shadow rounded-lg sm:mx-auto sm:w-full sm:max-w-md mt-8">
+      <h2 className="text-4xl font-serif text-center mb-8">Register your account</h2>
       <form onSubmit={handleSubmit}>
 
         <div>
-          <label class="block text-sm font-medium text-gray-700 mt-1">Email:</label>
+          <label className="block text-sm font-medium text-gray-700 mt-1">Email:</label>
           <input
             type="email"
             name="email"
             value={formData.email}
             onChange={handleChange}
-            class="w-full border-2 border-gray-300 px-3 py-2 rounded-lg shadow-sm ring-1 focus:outline-sky-500 focus:border-sky-500 focus:ring--sky-500 my-2"
+            className="w-full border-2 border-gray-300 px-3 py-2 rounded-lg shadow-sm ring-1 focus:outline-sky-500 focus:border-sky-500 focus:ring--sky-500 my-2"
           />
           {errors.email && <p style={{ color: 'red' }}>{errors.email}</p>}
         </div>
 
         <div>
-          <label class="block text-sm font-medium text-gray-700" >Password:</label>
+          <label className="block text-sm font-medium text-gray-700" >Password:</label>
           <input
             type="password"
             name="password"
             value={formData.password}
             onChange={handleChange}
-            class="w-full border-2 border-gray-300 px-3 py-2 rounded-lg shadow-sm ring-1 focus:outline-sky-500 focus:border-sky-500 focus:ring--sky-500 my-2"
+            className="w-full border-2 border-gray-300 px-3 py-2 rounded-lg shadow-sm ring-1 focus:outline-sky-500 focus:border-sky-500 focus:ring--sky-500 my-2"
           />
           {errors.password && <p style={{ color: 'red' }}>{errors.password}</p>}
         </div>
 
         <div>
-          <label class="block text-sm font-medium text-gray-700" >Confirm Password:</label>
+          <label className="block text-sm font-medium text-gray-700" >Confirm Password:</label>
           <input
             type="password"
             name="confirmPassword"
             value={formData.confirmPassword}
             onChange={handleChange}
-            class="w-full border-2 border-gray-300 px-3 py-2 rounded-lg shadow-sm ring-1 focus:outline-sky-500 focus:border-sky-500 focus:ring--sky-500 my-2"
+            className="w-full border-2 border-gray-300 px-3 py-2 rounded-lg shadow-sm ring-1 focus:outline-sky-500 focus:border-sky-500 focus:ring--sky-500 my-2"
           />
           {errors.confirmPassword && (
             <p style={{ color: 'red' }}>{errors.confirmPassword}</p>
           )}
         </div>
 
-        <button type= "submit" class="w-full flex justify-center py-2 px-4 border mt-4 border-transparent rounded-md shadow-sm text-sm font-medium bg-[#17A2B8] hover:bg-[#0e7180] focus:outline-none focus:ring-2 focus:ring-offset-2">Register</button>
+        <button type= "submit" className="w-full flex justify-center py-2 px-4 border mt-4 border-transparent rounded-md shadow-sm text-sm font-medium bg-[#17A2B8] hover:bg-[#0e7180] focus:outline-none focus:ring-2 focus:ring-offset-2">Register</button>
       </form>
     </div>
   );

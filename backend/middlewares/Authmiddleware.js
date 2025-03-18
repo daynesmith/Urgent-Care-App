@@ -1,8 +1,8 @@
-const {verify}= require('jsonwebtoken');
+const {verify} = require('jsonwebtoken');
 
 //validatetoken along with the role required for specific route   validatetoken('patient') ensures only patients can access specified route
 const validateToken = (requiredRole) => {
-    (req, res, next) => {
+   return (req, res, next) => {
         const accessToken = req.header("accessToken")
         if(!accessToken) return res.status(401).json({error: "user not logged in"});
 

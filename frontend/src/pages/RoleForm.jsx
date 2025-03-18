@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import axios from 'axios';
 
 const apiUrl = import.meta.env.VITE_API_URL;
@@ -12,7 +12,7 @@ const RoleForm = () => {
     e.preventDefault();
   
     try {
-      const accessToken = localStorage.getItem('accessToken'); // rtrieve access token from login?
+      const accessToken = localStorage.getItem('accessToken'); // retrieve access token from login?
       if (!accessToken) {
         setError('Access token not found. Please log in again.');
         return;
@@ -24,7 +24,7 @@ const RoleForm = () => {
         
         {
           headers: { 
-            Authorization: `Bearer ${accessToken}`  // passing token through header?!
+            accessToken: accessToken  // passing token through header
           }
         }
       );

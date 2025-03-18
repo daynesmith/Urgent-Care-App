@@ -11,6 +11,7 @@ export default function Navbar(){
       localStorage.clear();
       setRole(null)
     }
+    
     return(
         <div className = 'navbar'>
           {/*links patients see*/}
@@ -24,7 +25,7 @@ export default function Navbar(){
           {role === 'admin' && (
             <>
             <Link to= '/dashboard'>Admin Dashboard</Link>
-
+            <Link to = '/roleform'>Change User Role</Link>
             </>
           )}
           {/*links doctors see*/}
@@ -47,7 +48,6 @@ export default function Navbar(){
             <Link to= '/'>HomePage</Link>
             <Link to= 'login'>Login</Link>
             <Link to= '/register'>Registration</Link>
-            <Link to= '/RoleForm'>Role Form</Link>    {/*Added for testing*/}
             </>
           )}
           {/* logged in links everyone sees*/}

@@ -69,11 +69,11 @@ function LoginPage() {
   };
 
   return (
-    <div class="bg-[#F8F9FA] m-4 p-8 shadow rounded-lg sm:mx-auto sm:w-full sm:max-w-md mt-8">
-      <h1 class="text-4xl font-serif text-center mb-8">Login</h1>
+    <div className="bg-[#F8F9FA] m-4 p-8 shadow rounded-lg sm:mx-auto sm:w-full sm:max-w-md mt-8">
+      <h1 className="text-4xl font-serif text-center mb-8">Login</h1>
       <form onSubmit={handleSubmit}>
         <div>
-          <label class="block text-sm font-medium text-gray-700 mt-1">
+          <label className="block text-sm font-medium text-gray-700 mt-1">
             Email address
           </label>
           <div>
@@ -83,7 +83,7 @@ function LoginPage() {
               value={formData.email}
               onChange={handleChange}
               placeholder="Enter your email"
-              class="w-full border-2 border-gray-300 px-3 py-2 rounded-lg shadow-sm ring-1 focus:outline-sky-500 focus:border-sky-500 focus:ring--sky-500 my-2"
+              className="w-full border-2 border-gray-300 px-3 py-2 rounded-lg shadow-sm ring-1 focus:outline-sky-500 focus:border-sky-500 focus:ring--sky-500 my-2"
             />
             {errors.email && <p style={{ color: 'red' }}>{errors.email}</p>}
           </div>
@@ -91,20 +91,20 @@ function LoginPage() {
         </div>
 
         <div>
-          <label class="block text-sm font-medium text-gray-700">Password</label>
+          <label className="block text-sm font-medium text-gray-700">Password</label>
           <input
             type="password"
             name="password"
             value={formData.password}
             onChange={handleChange}
             placeholder="Enter your password"
-            class="w-full border-2 border-gray-300 px-3 py-2 rounded-lg shadow-sm ring-1 focus:outline-sky-500 focus:border-sky-500 focus:ring--sky-500 my-2"
+            className="w-full border-2 border-gray-300 px-3 py-2 rounded-lg shadow-sm ring-1 focus:outline-sky-500 focus:border-sky-500 focus:ring--sky-500 my-2"
 
           />
           {errors.password && <p style={{ color: 'red' }}>{errors.password}</p>}
         </div>
 
-        <button type="submit" class="w-full flex justify-center py-2 px-4 border mt-4 border-transparent rounded-md shadow-sm text-sm font-medium bg-[#17A2B8] hover:bg-[#0e7180] focus:outline-none focus:ring-2 focus:ring-offset-2">Login</button>
+        <button type="submit" className="w-full flex justify-center py-2 px-4 border mt-4 border-transparent rounded-md shadow-sm text-sm font-medium bg-[#17A2B8] hover:bg-[#0e7180] focus:outline-none focus:ring-2 focus:ring-offset-2">Login</button>
       </form>
     </div>
   );

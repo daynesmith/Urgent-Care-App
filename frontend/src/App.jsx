@@ -16,7 +16,7 @@ function App() {
     <UserProvider>  
       <Router>
           <Navbar/>
-        <div class="flex justify-center content-center">
+        <div className="flex justify-center content-center">
           <Routes>
             <Route path = '/' element = {<Homepage/>}/>
             <Route path = '/register' element = {<RegistrationForm/>}/>
