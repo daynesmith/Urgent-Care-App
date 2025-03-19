@@ -56,6 +56,7 @@ function LoginPage() {
     if (validateForm()) {
         try {
           const response = await axios.post(`${apiUrl}/users/login`, formData);
+
           console.log('Form Submitted Successfully:', response.data);
           localStorage.setItem("accessToken", response.data.accessToken)
           localStorage.setItem("role", response.data.userRole)

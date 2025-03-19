@@ -7,6 +7,7 @@ import LoginPage from './pages/Loginpage.jsx'
 import Dashboard from './pages/Dashboard.jsx';
 import { UserProvider } from './context/Usercontext.jsx'
 import RoleForm from './pages/RoleForm.jsx';
+import DoctorInfoForm from './pages/DoctorInfoForm.jsx'
 
 function App() {
 
@@ -23,6 +24,7 @@ function App() {
             <Route path = '/login' element = {<LoginPage/>}/>
             <Route path = '/dashboard' element = {<Dashboard/>}/>
             <Route path = '/roleform' element = {<RoleForm/>}/>   {/*added for testing*/}
+            <Route path = '/fill-doctor-form' element = {<DoctorInfoForm/>}/>
           </Routes>
         </div>
       </Router>    
