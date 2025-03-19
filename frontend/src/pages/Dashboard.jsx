@@ -12,6 +12,7 @@ const apiUrl = import.meta.env.VITE_API_URL; // Ensure your .env file is correct
 export default function Dashboard() {
     const [role, setRole] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
 
     useEffect(() => {
         const fetchUserRole = async () => {
@@ -21,10 +22,20 @@ export default function Dashboard() {
                     headers: { Authorization: `Bearer ${localStorage.getItem("accessToken")}` },
                     withCredentials: true
                 });
-                console.log("User role received:", response.data.role);
-                setRole(response.data.role);
+
+                console.log("API Response", response.data);
+
+                if(response.data && response.data.data && response.data.data.role) {
+                    console.log("User role received:", response.data.role);
+                    setRole(response.data.data.role);
+                }
+                else{
+                    console.error("Unexpected API response format:", response);
+                    setError("Invalid response from server");
+                }
             } catch (error) {
                 console.error("Error fetching user role:", error);
+                setError("Failed to fetch user role. Please login again.");
             } finally {
                 setLoading(false);
             }
@@ -45,6 +56,6 @@ export default function Dashboard() {
         case "patient":
             return <PatientDashboard />;
         default:
-            return <p>Unauthorized: No valid role found.</p>;
+            return <p style= {{color: "red"}}>Unauthorized: No valid role found.</p>;
     }
 }
