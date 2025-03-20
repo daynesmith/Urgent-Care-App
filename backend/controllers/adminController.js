@@ -42,7 +42,7 @@ const toReceptionist = async (req, res) =>{
     } catch(error){
 
         console.error(error)
-        return res.status(500).json("error occured while updating the users role")
+        return res.status(500).json("error occured while updating the user's role")
     }
 }
 
@@ -65,8 +65,30 @@ const toAdmin = async (req, res) =>{
     } catch(error){
 
         console.error(error)
-        return res.status(500).json("error occured while updating the users role")
+        return res.status(500).json("error occured while updating the user's role")
+    }
+}
+const toSpecialist = async (req, res) =>{
+    const { email } = req.body
+    console.log("got into specialist");
+    try{
+        const user = await Users.findOne({where:{email}})
+
+        if(!user){
+            return res.status(404).json("user not found")
+        }
+
+        user.role = 'specialist';
+        
+        await user.save();
+
+        return res.status(200).json("user role updated to specialist")
+
+    } catch(error){
+
+        console.error(error)
+        return res.status(500).json("error occured while updating the user's role")
     }
 }
 
-module.exports = {toDoctor, toReceptionist, toAdmin};
+module.exports = {toDoctor, toReceptionist, toAdmin, toSpecialist};

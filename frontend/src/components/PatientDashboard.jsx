@@ -14,7 +14,7 @@ export default function PatientDashboard(){
         <Link as={Link} className="border rounded-l shadow-lg p-3 h-full text-center min-w-3xs"><h4>Something else</h4> </Link> 
         <Link as={Link} className="border rounded-l shadow-lg p-3 h-full text-center min-w-3xs"><h4>Billing</h4> </Link> 
 
-
+        
     </div>
     )
 }
