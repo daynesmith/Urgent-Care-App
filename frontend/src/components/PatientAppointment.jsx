@@ -80,7 +80,7 @@ export default function AppointmentForm() {
                     {error && <div className="text-red-500 text-sm">{error}</div>}
                     {appointmentStatus && <div className="text-green-500 text-sm">{appointmentStatus}</div>}
 
-                    {/*SUBMIT*/}
+                    {/* Submit Button */}
                     <button
                         type="submit"
                         className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md transition"
