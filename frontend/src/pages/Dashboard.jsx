@@ -3,7 +3,8 @@ import {UserContext} from '../context/Usercontext';
 import PatientDashboard from '../components/PatientDashboard.jsx';
 import AdminDashboard from '../components/AdminDashboard.jsx';
 import DoctorDashboard from '../components/DoctorDashboard.jsx';
-
+import SpecialistDashboard from '../components/SpecialistDashboard.jsx';
+import ReceptionistDashboard from '../components/ReceptionistDashboard.jsx'
 
 export default function Dashboard(){
     const {role, setRole} = useContext(UserContext)
@@ -15,6 +16,9 @@ export default function Dashboard(){
             {role === 'patient' && <PatientDashboard />}
             {role === 'admin' && <AdminDashboard />}
             {role === 'doctor' && <DoctorDashboard />}
+            {role === 'receptionist' && <ReceptionistDashboard />}
+            {role === 'specialist' && <SpecialistDashboard />}
+            
 
         </div>
     )

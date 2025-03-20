@@ -42,6 +42,13 @@ export default function Navbar(){
 
             </>
           )}
+          {/*links Specialists see*/}
+          {role === 'doctor' && (
+            <>
+            <Link to= '/dashboard'>Specialist Dashboard</Link>
+
+            </>
+          )}
           {/*links logged in people dont see*/}
           {!role && (
             <>

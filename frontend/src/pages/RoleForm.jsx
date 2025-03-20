@@ -58,6 +58,7 @@ const RoleForm = () => {
             <option value="doctor">Doctor</option>
             <option value="receptionist">Receptionist</option>
             <option value="admin">Admin</option>
+            <option value="specialist">Specialist</option>
           </select>
         </div>
 
