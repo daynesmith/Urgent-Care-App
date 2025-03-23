@@ -20,6 +20,8 @@ const doctorRouter = require('./routes/Doctors');
 app.use('/doctor', doctorRouter);
 const receptionistRouter = require('./routes/Receptionists');
 app.use('/receptionist', receptionistRouter);
+const appointmentsRouter = require('./routes/Appointments');
+app.use('/appointments', appointmentsRouter);
 
 
 
