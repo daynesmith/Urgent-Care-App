@@ -8,7 +8,8 @@ import Dashboard from './pages/Dashboard.jsx';
 import { UserProvider } from './context/Usercontext.jsx'
 import RoleForm from './pages/RoleForm.jsx';
 import PatientAppointment from './components/PatientAppointment.jsx';
-import DoctorInfoForm from './pages/DoctorInfoForm.jsx'
+import DoctorInfoForm from './pages/DoctorInfoForm.jsx';
+import Visits from './pages/Visits.jsx';
 
 
 function App() {
@@ -28,6 +29,7 @@ function App() {
             <Route path = '/roleform' element = {<RoleForm/>}/>   {/*added for testing*/}
             <Route path = '/PatientAppointment' element = {<PatientAppointment/>}/>
             <Route path = '/fill-doctor-form' element = {<DoctorInfoForm/>}/>
+            <Route path = '/visits' element = {<Visits />} />
           </Routes>
         </div>
       </Router>    
