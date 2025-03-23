@@ -1,11 +1,37 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import * as jwt_decode from 'jwt-decode';
+import axios from 'axios';
 
-export default function AppointmentForm() {
+const apiUrl = import.meta.env.VITE_API_URL;
+
+const PatientAppointment = () => {
+    const [patientid, setPatientid] = useState('');
     const [date, setDate] = useState('');
     const [time, setTime] = useState('');
-    const [doctor, setDoctor] = useState('');
+    const [doctorid, setDoctorid] = useState('');
     const [error, setError] = useState('');
     const [appointmentStatus, setAppointmentStatus] = useState('');
+
+    useEffect(() => {
+        fetchPatientid();
+    }, []);
+
+    const fetchPatientid = () => {   //decoding jwt...
+        const accessToken = localStorage.getItem('accessToken');
+        if (!accessToken) {
+            setError('Access token is missing');
+            return;
+        }
+    
+        try {  // decode token to fetch patientit
+            const decodedToken = jwt_decode(accessToken);
+            setPatientid(decodedToken.patientid);    //getting patient id from decoded token
+
+        } catch (error) {
+            setError('Error decoding token');
+            console.error('Error decoding token', error);
+        }
+    };
 
     const availableTimes = [
         "09:00 AM", "09:30 AM", "10:00 AM", "10:30 AM",
@@ -13,14 +39,44 @@ export default function AppointmentForm() {
         "02:00 PM", "02:30 PM", "03:00 PM", "03:30 PM"
     ];
 
-    const handleSubmit = (e) => {
+    const submitAppoinment = async (e) => {
         e.preventDefault();
-        if (!date || !time || !doctor) {
+        if (!date || !time || !doctorid) {
             setError('Please select a doctor, date, and time.');
             return;
         }
+
+        if (!patientid) {
+            setError('Patient ID is missing.');
+            return;
+        }
+
         setError('');
-        setAppointmentStatus('Appointment successfully submitted!');
+
+        try {
+            // Send the appointment data to server
+            const accessToken = localStorage.getItem('accessToken');
+            const response = await axios.post(
+                `${apiUrl}/Appointments`,   
+                {
+                    patientid, 
+                    //doctorid,
+                    //date,
+                    //time,
+                },
+                {
+                    headers: {
+                        Authorization: `Bearer ${accessToken}`, // send token in header for authentication
+                    },
+                }
+            );
+    
+            setAppointmentStatus('Appointment successfully submitted!');
+            console.log('Appointment response:', response.data);
+        } catch (error) {
+            setError(error.response?.data || 'An error occurred');
+            console.error('Error submitting appointment:', error);
+        }
     };
 
     return (
@@ -28,14 +84,14 @@ export default function AppointmentForm() {
             <div className="bg-white shadow-xl rounded-lg p-6 w-96">
                 <h2 className="text-2xl font-bold text-center mb-4">Schedule Appointment</h2>
                 
-                <form onSubmit={handleSubmit} className="space-y-4">
+                <form onSubmit={submitAppoinment} className="space-y-4">
                     {/*Choose Doctor*/}
                     <div>
                         <label htmlFor="doctor" className="block text-sm font-medium text-gray-700">Choose a doctor:</label>
                         <select
                             id="doctor"
-                            value={doctor}
-                            onChange={(e) => setDoctor(e.target.value)}
+                            value={doctorid}
+                            onChange={(e) => setDoctorid(e.target.value)}
                             className="mt-1 w-full border border-gray-300 rounded-md p-2"
                         >
                             <option value="">Select a doctor</option>
@@ -92,3 +148,5 @@ export default function AppointmentForm() {
         </div>
     );
 }
+
+export default PatientAppointment;
