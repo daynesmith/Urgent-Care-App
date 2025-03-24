@@ -10,6 +10,7 @@ import RoleForm from './pages/RoleForm.jsx';
 import ScheduleAppointment from './pages/ScheduleAppointment.jsx';
 import DoctorInfoForm from './pages/DoctorInfoForm.jsx';
 import Visits from './pages/Visits.jsx';
+import PatientInfo from './pages/PatientInfo.jsx';
 
 
 function App() {
@@ -27,9 +28,10 @@ function App() {
             <Route path = '/login' element = {<LoginPage/>}/>
             <Route path = '/dashboard' element = {<Dashboard/>}/>
             <Route path = '/roleform' element = {<RoleForm/>}/>   {/*added for testing*/}
-            <Route path = '/fill-doctor-form' element = {<DoctorInfoForm/>}/>
+            <Route path = '/DoctorInfoForm' element = {<DoctorInfoForm/>}/>
             <Route path = '/visits' element = {<Visits />} />
             <Route path = '/ScheduleAppointment' element = {<ScheduleAppointment />} />
+            <Route path = '/PatientInfo' element = {<PatientInfo />} />
           </Routes>
         </div>
       </Router>    
