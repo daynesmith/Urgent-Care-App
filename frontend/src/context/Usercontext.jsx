@@ -5,14 +5,17 @@ const UserContext = createContext();
 
 const UserProvider = ({ children }) => {
     const [role, setRole] = useState(null);
+    const [token, setToken] = useState(null);
 
     useEffect(() => {
         const storedRole = localStorage.getItem('role');
+        const storedToken = localStorage.getItem("accessToken");
         setRole(storedRole);
+        setToken(storedToken);
     }, []);
 
     return (
-        <UserContext.Provider value={{ role, setRole }}>
+        <UserContext.Provider value={{ role, setRole, token, setToken }}>
             {children}
         </UserContext.Provider>
     );
