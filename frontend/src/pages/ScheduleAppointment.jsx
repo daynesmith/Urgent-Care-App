@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { jwtDecode } from 'jwt-decode'; // Import jwtDecode
-import DoctorDropDown from '../components/DoctorDropdown';
+import DoctorDropDown from '../components/DoctorDropDown'
 
 const apiUrl = import.meta.env.VITE_API_URL;
 
