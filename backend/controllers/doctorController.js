@@ -35,4 +35,25 @@ const inputInfoForFirstTime = async (req, res) =>{
     }
 }
 
-module.exports = {inputInfoForFirstTime, getIfDoctorInfo};
+const getDoctorsNames = async (req, res) => {
+    try {
+        const doctors = await Doctors.findAll({
+            attributes: ['doctorid','firstname', 'lastname', 'doctortype']
+        });
+
+        const doctorNames = doctors.map(doctor => {
+            return {
+                doctorid: doctor.doctorid, 
+                name: `${doctor.firstname} ${doctor.lastname}`,
+                type: doctor.doctortype  
+            };
+        });
+
+        res.json(doctorNames);  
+    } catch (error) {
+        console.error("Error fetching doctors' names:", error);
+        res.status(500).json({ error: "Internal server error." });
+    }
+};
+
+module.exports = {inputInfoForFirstTime, getIfDoctorInfo, getDoctorsNames};

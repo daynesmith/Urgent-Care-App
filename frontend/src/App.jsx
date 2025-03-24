@@ -7,7 +7,7 @@ import LoginPage from './pages/Loginpage.jsx'
 import Dashboard from './pages/Dashboard.jsx';
 import { UserProvider } from './context/Usercontext.jsx'
 import RoleForm from './pages/RoleForm.jsx';
-import PatientAppointment from './components/PatientAppointment.jsx';
+import ScheduleAppointment from './pages/ScheduleAppointment.jsx';
 import DoctorInfoForm from './pages/DoctorInfoForm.jsx';
 import Visits from './pages/Visits.jsx';
 
@@ -27,9 +27,9 @@ function App() {
             <Route path = '/login' element = {<LoginPage/>}/>
             <Route path = '/dashboard' element = {<Dashboard/>}/>
             <Route path = '/roleform' element = {<RoleForm/>}/>   {/*added for testing*/}
-            <Route path = '/PatientAppointment' element = {<PatientAppointment/>}/>
             <Route path = '/fill-doctor-form' element = {<DoctorInfoForm/>}/>
             <Route path = '/visits' element = {<Visits />} />
+            <Route path = '/ScheduleAppointment' element = {<ScheduleAppointment />} />
           </Routes>
         </div>
       </Router>    
