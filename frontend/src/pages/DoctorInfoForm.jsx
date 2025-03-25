@@ -142,6 +142,7 @@ export default function DoctorInfoForm() {
                         className="w-full border p-2 rounded"
                     >
                         <option value="">Select Doctor Type</option>
+                        <option value="Oncologist">PK</option>
                         <option value="Oncologist">Oncologist</option>
                         <option value="Neurologist">Neurologist</option>
                         <option value="Cardiologist">Cardiologist</option>
