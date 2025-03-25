@@ -3,7 +3,7 @@ import {UserContext} from '../context/Usercontext';
 import PatientDashboard from '../components/PatientDashboard.jsx';
 import AdminDashboard from '../components/AdminDashboard.jsx';
 import DoctorDashboard from '../components/DoctorDashboard.jsx';
-import SpecialistDashboard from '../components/SpecialistDashboard.jsx';
+import SpecialistDashboard from '../pages/SpecialistDashboard.jsx';
 import ReceptionistDashboard from '../components/ReceptionistDashboard.jsx'
 
 export default function Dashboard(){
@@ -18,9 +18,6 @@ export default function Dashboard(){
             {role === 'doctor' && <DoctorDashboard />}
             {role === 'receptionist' && <ReceptionistDashboard />}
             {role === 'specialist' && <SpecialistDashboard />}
-            
-
         </div>
     )
-
 }

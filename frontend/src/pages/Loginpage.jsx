@@ -8,7 +8,7 @@ import { UserContext } from '../context/Usercontext';
 
 function LoginPage() {
   const navigate = useNavigate()
-  const { setRole } = useContext(UserContext)
+  const { setRole, setUserId} = useContext(UserContext)
 
   const [formData, setFormData] = useState({
     email: '',
@@ -56,15 +56,26 @@ function LoginPage() {
     if (validateForm()) {
         try {
           const response = await axios.post(`${apiUrl}/users/login`, formData);
-
+          console.log('Login response:', response);
           console.log('Form Submitted Successfully:', response.data);
           localStorage.setItem("accessToken", response.data.accessToken)
           localStorage.setItem("role", response.data.userRole)
-          setRole(response.data.userRole)
+          localStorage.setItem("userId", response.data.userId); // User ID (needed for when we need to filter things for users to only see what is theirs)
+          
+          setUserId(response.data.userId);                      // stores in React context
+          setRole(response.data.userRole);
+          
           navigate('/dashboard')
-        } catch (error) {
-          alert(error.response.data);
+        } 
+        catch (error) {
           console.error('There was an error submitting the form:', error);
+          if (error.response && error.response.data) {
+            alert(error.response.data);
+          } else if (error.message) {
+            alert(`Login failed: ${error.message}`);
+          } else {
+            alert("An unknown error occurred during login.");
+          }
         }
     }
   };
