@@ -3,7 +3,7 @@ import axios from 'axios';
 
 const apiUrl = import.meta.env.VITE_API_URL
 
-export default function DoctorDropdown({ doctor, setDoctor }) {
+export default function DoctorDropDown({ doctor, setDoctor }) {
     const [doctors, setDoctors] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
