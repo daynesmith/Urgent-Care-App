@@ -131,6 +131,7 @@ export default function DoctorInfoForm() {
 
                     <input type="text" placeholder="Last Name" value={lastname} onChange={(e) => setLastname(e.target.value)} className="w-full border p-2 rounded" />
 
+                    <label className="block font-medium">Date of Birth</label>
                     <input type="date" value={dateofbirth} onChange={(e) => setDateofbirth(e.target.value)} className="w-full border p-2 rounded" />
 
                     <input type="text" placeholder="Phone Number" value={phonenumber} onChange={(e) => setPhonenumber(e.target.value)} className="w-full border p-2 rounded" />
