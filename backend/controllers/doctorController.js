@@ -1,21 +1,32 @@
 const {Doctors,Users} = require('../models');
 
-const getIfDoctorInfo = async (req,res) =>{
-    const email = req.user.email
 
-    try{
-        const docExists = await Doctors.findOne({where:{email: email}})
 
-        if(!docExists){
-            return res.status(200).json({formFilled: false})
+const getIfDoctorInfo = async (req, res) => {
+    const email = req.user.email;
+
+    try {
+        const docExists = await Doctors.findOne({
+            where: { email },
+            attributes: ['firstname', 'lastname', 'dateofbirth', 'phonenumber', 'doctortype']
+        });
+
+        if (!docExists) {
+            return res.status(200).json({ formFilled: false });
         }
 
-        return res.status(200).json({formFilled: true})
-    }catch(error){
-        console.error(error)
-        res.status(500).json("error finding doctor info")
+      
+        return res.status(200).json({
+            formFilled: true,
+            doctorInfo: docExists 
+        });
+
+    } catch (error) {
+        console.error("Error checking doctor info:", error);
+        res.status(500).json({ error: "Error finding doctor info" });
     }
-}
+};
+
 
 const inputInfoForFirstTime = async (req, res) => {
     try {

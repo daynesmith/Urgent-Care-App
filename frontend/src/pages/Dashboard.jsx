@@ -6,8 +6,9 @@ import DoctorDashboard from '../components/DoctorDashboard.jsx';
 import SpecialistDashboard from '../components/SpecialistDashboard.jsx';
 import ReceptionistDashboard from '../components/ReceptionistDashboard.jsx'
 
+
 export default function Dashboard(){
-    const {role, setRole} = useContext(UserContext)
+    const {role} = useContext(UserContext)
 
 
     return(
