@@ -156,12 +156,8 @@ export default function DoctorInfoForm() {
                             className="w-full border p-2 rounded" 
                         />
 
-                        <input 
-                            type="date" 
-                            value={dateofbirth} 
-                            onChange={(e) => setDateofbirth(e.target.value)} 
-                            className="w-full border p-2 rounded" 
-                        />
+                    <label className="block font-medium">Date of Birth</label>
+                    <input type="date" value={dateofbirth} onChange={(e) => setDateofbirth(e.target.value)} className="w-full border p-2 rounded" />
 
                         <input 
                             type="text" 
