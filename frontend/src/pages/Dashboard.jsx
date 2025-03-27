@@ -1,10 +1,10 @@
 import { useContext} from 'react';
 import {UserContext} from '../context/Usercontext';
-import PatientDashboard from '../components/PatientDashboard.jsx';
-import AdminDashboard from '../components/AdminDashboard.jsx';
-import DoctorDashboard from '../components/DoctorDashboard.jsx';
-import SpecialistDashboard from '../components/SpecialistDashboard.jsx';
-import ReceptionistDashboard from '../components/ReceptionistDashboard.jsx'
+import PatientDashboard from '../pages/PatientDashboard.jsx';
+import AdminDashboard from '../pages/AdminDashboard.jsx';
+import DoctorDashboard from '../pages/DoctorDashboard.jsx';
+import SpecialistDashboard from '../pages/SpecialistDashboard.jsx';
+import ReceptionistDashboard from '../pages/ReceptionistDashboard.jsx'
 
 
 export default function Dashboard(){
