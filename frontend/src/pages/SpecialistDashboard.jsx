@@ -7,19 +7,31 @@ const apiUrl = import.meta.env.VITE_API_URL;
 
 export default function SpecialistDashboard() {
     const [referrals, setReferrals] = useState([]);
+    const [loading, setLoading] = useState(true);
     const { userId } = useContext(UserContext);
+
     useEffect(() => {
-        //console.log("🔍 userId from context:", userId);
+      //console.log("🔍 userId from context:", userId);
+      if(!userId) {
+        console.warn("userId is not ready yet");
+        return;
+      }
+      axios.get(`${apiUrl}/referrals/pending`, {
+      params: { specialist_id: userId }})
 
-        if(!userId) {return;}
-
-        axios.get(`${apiUrl}/referrals/pending`, {
-            params: { specialist_id: userId }
-  })
-    .then(res => setReferrals(res.data))
-    .catch(err => console.error("Failed to fetch referrals:", err));
+    .then(res => {
+      setReferrals(res.data);
+      setLoading(false);
+    })
+    .catch(err => {
+      console.error("Failed to fetch referrals:", err)
+      setLoading(false);
+      });
     }, [userId]);
 
+    if (!userId || loading) {
+      return <div>Loading specialist dashboard...</div>;
+    }
 
   const handleDecision = (id, decision) => {
     axios
