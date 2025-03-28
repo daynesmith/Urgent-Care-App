@@ -43,7 +43,7 @@ export default function Navbar(){
             </>
           )}
           {/*links Specialists see*/}
-          {role === 'doctor' && (
+          {role === 'specialist' && (
             <>
             <Link to= '/dashboard'>Specialist Dashboard</Link>
 
