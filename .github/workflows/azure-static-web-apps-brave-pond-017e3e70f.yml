@@ -45,7 +45,7 @@ jobs:
           output_location: "build" # Built app content directory - optional
           github_id_token: ${{ steps.idtoken.outputs.result }}
         env:
-          VITE_API_URL: "https://umabackend-gdhufaececbqdwfk.eastus2-01.azurewebsites.net"
+          VITE_API_URL: "http://umabackend-gdhufaececbqdwfk.eastus2-01.azurewebsites.net"
           ###### End of Repository/Build Configurations ######
 
   close_pull_request_job:
