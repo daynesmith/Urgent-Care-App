@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { jwtDecode } from 'jwt-decode';
 
@@ -13,7 +13,9 @@ export default function DoctorInfoForm() {
     const [error, setError] = useState('');
     const [status, setStatus] = useState('');
     const [formFilled, setFormFilled] = useState(false);
+    const [doctorData, setDoctorData] = useState(null); // Store the doctor data for display
 
+    // Check if the doctor already has info filled
     useEffect(() => {
         const checkDoctorInfo = async () => {
             const token = localStorage.getItem('accessToken');
@@ -24,14 +26,18 @@ export default function DoctorInfoForm() {
             try {
                 const decoded = jwtDecode(token);  
                 console.log("Decoded Token:", decoded);
-                
+
                 const response = await axios.post(`${apiUrl}/doctor/checkdoctortable`, {}, {
-                    headers: { 
-                        'accessToken': token
-                     }
+                    headers: { 'accessToken': token }
                 });
+
                 console.log("Doctor Info Response:", response.data);
                 setFormFilled(response.data.formFilled);
+
+                if (response.data.formFilled) {
+                    // If form is filled, store the doctor's data to show on the UI
+                    setDoctorData(response.data.doctorInfo);
+                }
             } catch (error) {
                 console.error('Error checking doctor info:', error);
                 setError('Failed to verify doctor information.');
@@ -40,40 +46,16 @@ export default function DoctorInfoForm() {
         checkDoctorInfo();
     }, []);
 
-    useEffect(() => {
-        console.log("formFilled state:", formFilled);
-    }, [formFilled]); // Log whenever formFilled changes
-
-    useEffect(() => {
-        // Format phone number to nnn-nnn-nnnn
-        const formatPhoneNumber = (value) => {
-            // Remove non-numeric characters
-            let formattedValue = value.replace(/[^\d]/g, '');
-            
-            if (formattedValue.length > 10) {
-                formattedValue = formattedValue.slice(0, 10);
-            }
-
-            if (formattedValue.length <= 3) {
-                formattedValue = formattedValue.replace(/(\d{0,3})/, '$1');
-            } else if (formattedValue.length <= 6) {
-                formattedValue = formattedValue.replace(/(\d{3})(\d{0,3})/, '$1-$2');
-            } else {
-                formattedValue = formattedValue.replace(/(\d{3})(\d{3})(\d{0,4})/, '$1-$2-$3');
-            }
-            return formattedValue;
-        };
-
-        setPhonenumber(formatPhoneNumber(phonenumber));
-    }, [phonenumber]); // Runs whenever phonenumber state changes
-
+    // Handle form submission
     const handleSubmit = async (e) => {
         e.preventDefault();
         console.log("Form filled state:", formFilled);
+
         if (formFilled) {
             setError('Doctor profile already exists. Use the update button to make changes.');
             return;
         }
+
         if (!firstname || !lastname || !dateofbirth || !phonenumber || !doctortype) {
             setError('All fields are required.');
             return;
@@ -121,40 +103,92 @@ export default function DoctorInfoForm() {
         }
     };
 
+    useEffect(() => {
+        const formatPhoneNumber = (value) => {
+            // Remove non-numeric characters
+            let formattedValue = value.replace(/[^\d]/g, '');
+    
+            if (formattedValue.length > 10) {
+                formattedValue = formattedValue.slice(0, 10);
+            }
+    
+            if (formattedValue.length <= 3) {
+                formattedValue = formattedValue.replace(/(\d{0,3})/, '$1');
+            } else if (formattedValue.length <= 6) {
+                formattedValue = formattedValue.replace(/(\d{3})(\d{0,3})/, '$1-$2');
+            } else {
+                formattedValue = formattedValue.replace(/(\d{3})(\d{3})(\d{0,4})/, '$1-$2-$3');
+            }
+            return formattedValue;
+        };
+    
+        setPhonenumber(formatPhoneNumber(phonenumber));
+    }, [phonenumber]);
+    
     return (
         <div className="fixed inset-0 flex justify-center items-center bg-gray-100">
             <div className="bg-white shadow-xl rounded-lg p-6 w-96">
-                <h2 className="text-2xl font-bold text-center mb-4">Create Doctor Profile</h2>
+                <h2 className="text-2xl font-bold text-center mb-4">Doctor Profile</h2>
 
-                <form onSubmit={handleSubmit} className="space-y-4">
-                    <input type="text" placeholder="First Name" value={firstname} onChange={(e) => setFirstname(e.target.value)} className="w-full border p-2 rounded" />
+                {formFilled ? (
+                    <div className="space-y-4">
+                        <div><strong>First Name:</strong> {doctorData.firstname}</div>
+                        <div><strong>Last Name:</strong> {doctorData.lastname}</div>
+                        <div><strong>Date of Birth:</strong> {doctorData.dateofbirth}</div>
+                        <div><strong>Phone Number:</strong> {doctorData.phonenumber}</div>
+                        <div><strong>Doctor Type:</strong> {doctorData.doctortype}</div>
+                    </div>
+                ) : (
+                    <form onSubmit={handleSubmit} className="space-y-4">
+                        <input 
+                            type="text" 
+                            placeholder="First Name" 
+                            value={firstname} 
+                            onChange={(e) => setFirstname(e.target.value)} 
+                            className="w-full border p-2 rounded" 
+                        />
 
-                    <input type="text" placeholder="Last Name" value={lastname} onChange={(e) => setLastname(e.target.value)} className="w-full border p-2 rounded" />
+                        <input 
+                            type="text" 
+                            placeholder="Last Name" 
+                            value={lastname} 
+                            onChange={(e) => setLastname(e.target.value)} 
+                            className="w-full border p-2 rounded" 
+                        />
 
+                    <label className="block font-medium">Date of Birth</label>
                     <input type="date" value={dateofbirth} onChange={(e) => setDateofbirth(e.target.value)} className="w-full border p-2 rounded" />
 
-                    <input type="text" placeholder="Phone Number" value={phonenumber} onChange={(e) => setPhonenumber(e.target.value)} className="w-full border p-2 rounded" />
+                        <input 
+                            type="text" 
+                            placeholder="Phone Number" 
+                            value={phonenumber} 
+                            onChange={(e) => setPhonenumber(e.target.value)} 
+                            className="w-full border p-2 rounded" 
+                        />
 
-                    <select 
-                        value={doctortype} 
-                        onChange={(e) => setDoctortype(e.target.value)} 
-                        className="w-full border p-2 rounded"
-                    >
-                        <option value="">Select Doctor Type</option>
-                        <option value="Oncologist">PK</option>
-                        <option value="Oncologist">Oncologist</option>
-                        <option value="Neurologist">Neurologist</option>
-                        <option value="Cardiologist">Cardiologist</option>
-                    </select>
-                    
-                    {error && <div className="text-red-500 text-sm">{error}</div>}
-                    {status && <div className="text-green-500 text-sm">{status}</div>}
-                    
-                    <button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md transition">
-                        Create Profile
-                    </button>
-                </form>
+                        <select 
+                            value={doctortype} 
+                            onChange={(e) => setDoctortype(e.target.value)} 
+                            className="w-full border p-2 rounded"
+                        >
+                            <option value="">Select Doctor Type</option>
+                            <option value="PK">PK</option>
+                            <option value="Oncologist">Oncologist</option>
+                            <option value="Neurologist">Neurologist</option>
+                            <option value="Cardiologist">Cardiologist</option>
+                        </select>
+
+                        {error && <div className="text-red-500 text-sm">{error}</div>}
+                        {status && <div className="text-green-500 text-sm">{status}</div>}
+
+                        <button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md transition">
+                            Create Profile
+                        </button>
+                    </form>
+                )}
             </div>
         </div>
     );
 }
+

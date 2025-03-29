@@ -1,7 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import axios from 'axios';
+import PropTypes from 'prop-types';
 
 const apiUrl = import.meta.env.VITE_API_URL
+
 
 export default function DoctorDropDown({ doctor, setDoctor }) {
     const [doctors, setDoctors] = useState([]);
@@ -9,7 +11,7 @@ export default function DoctorDropDown({ doctor, setDoctor }) {
     const [error, setError] = useState('');
 
     useEffect(() => {
-        //ffetch the doctor list from your API
+        //fetch the doctor list from your API
         const fetchDoctors = async () => {
             try {
                 const response = await axios.get(`${apiUrl}/doctor/doctorsNames`); 
@@ -48,4 +50,10 @@ export default function DoctorDropDown({ doctor, setDoctor }) {
             ))}
         </select>
     );
+
 }
+
+DoctorDropDown.propTypes = {
+    setDoctor: PropTypes.func.isRequired,
+    doctor: PropTypes.func.isRequired // setDoctor must be a function and is required
+};

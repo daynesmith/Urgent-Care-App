@@ -8,7 +8,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon index.js"
+    "start": "node index.js"
   },
   "dependencies": {
     "bcrypt": "^5.1.1",
@@ -16,11 +16,11 @@
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
     "jsonwebtoken": "^9.0.2",
+    "moment": "^2.30.1",
     "mysql2": "^3.12.0",
+    "react-big-calendar": "^1.18.0",
     "sequelize": "^6.37.6",
-    "sequelize-cli": "^6.6.2"
-  },
-  "devDependencies": {
+    "sequelize-cli": "^6.6.2",
     "nodemon": "^3.1.9"
   }
 }
