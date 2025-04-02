@@ -33,7 +33,8 @@ app.use('/appointments', appointmentsRouter);
 
 
 db.sequelize.sync().then(() => {
-    app.listen(3001, () => {
-        console.log("server running on port 3001");
+    const port = process.env.PORT || 8080;
+    app.listen(port, '0.0.0.0', () => {
+        console.log("server running on port ${port}");
     })
 })
