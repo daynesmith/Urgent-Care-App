@@ -43,6 +43,30 @@ module.exports = (sequelize, DataTypes)=>{
                 isEmail: true, 
                 notEmpty: true, 
             },
+        },
+        chronic_conditions: {
+            type: DataTypes.TEXT,
+            allowNull: true
+        },
+        past_surgeries: {
+            type: DataTypes.TEXT,
+            allowNull: true
+        },
+        current_medications:{
+            type: DataTypes.TEXT,
+            allowNull: true
+        },
+        allergies: {
+            type: DataTypes.TEXT,
+            allowNull: true
+        },
+        lifestyle_factors: {
+            type: DataTypes.TEXT,
+            allowNull: true
+        },
+        vaccination_status: {
+            type: DataTypes.TEXT,
+            allowNull: true
         }
     })
     Patients.associate = (models) => {
