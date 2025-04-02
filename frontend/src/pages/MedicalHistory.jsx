@@ -1,7 +1,6 @@
 import { useContext, useEffect, useState } from 'react';
 // import {UserContext} from '../context/Usercontext';
 import { jwtDecode } from "jwt-decode"; 
-import Appointments from '../components/Appointments';
 import MedHistory from "../components/MedHistory";
 
 
@@ -15,8 +14,7 @@ export default function MedicalHistory(){
             const token = localStorage.getItem("accessToken");
 
             if (token) {
-                 const decoded = jwtDecode(token);
-                 console.log(decoded);
+                const decoded = jwtDecode(token);
                 setUserData(token);
             } else {
                 setError("No token found");

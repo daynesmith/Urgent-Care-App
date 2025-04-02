@@ -74,4 +74,59 @@ const getPatientsNames = async (req, res) => {
     }
 };
 
-module.exports = {inputPatientInfoForFirstTime, getIfPatientInfo, getPatientsNames};
+const getMedicalHistory = async (req, res) => {
+    try {
+        const patient = await Patients.findOne({
+            where:{email: req.user.email},
+            attributes: ["chronic_conditions", "past_surgeries", "current_medications", "allergies", "lifestyle_factors", "vaccination_status"]
+        })
+            
+        if (!patient) {
+            return res.status(400).json({ message: "patient not found with token." });
+        }
+
+        res.status(200).json(patient);
+    } catch (error) {
+        res.status(500).json({ message: "Internal Server Error", error });
+    }
+};
+
+const editMedicalHistory = async (req, res) => {
+    console.log("Received PATCH request:", req.body);
+    const { email } = req.user;
+    const {
+        chronicConditions,
+        pastSurgeries,
+        currentMedications,
+        allergies,
+        lifestyleFactors,
+        vaccinationStatus
+    } = req.body
+    try {
+        const patient = await Patients.findOne({
+            where:{email: email},
+        })
+
+        if (!patient) {
+            return res.status(400).json({ message: "patient not found with token." });
+        }
+
+        await patient.update({
+            chronic_conditions: chronicConditions ?? "",
+            past_surgeries: pastSurgeries ?? "",
+            current_medications: currentMedications ?? "",
+            allergies: allergies ?? "",
+            lifestyle_factors: lifestyleFactors ?? "",
+            vaccination_status: vaccinationStatus ?? ""
+        });
+
+        console.log("Database update successful:");
+        res.json({ success: true });
+
+    } catch (error) {
+        console.error("Error updating medical history:", error);
+        return res.status(500).json({ message: "Internal Server Error" });
+    }
+};
+
+module.exports = {inputPatientInfoForFirstTime, getIfPatientInfo, getPatientsNames, getMedicalHistory, editMedicalHistory};
