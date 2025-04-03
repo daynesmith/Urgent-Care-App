@@ -82,6 +82,47 @@ const createAppointment = async (req, res) => {
     }
 };
 
+/*
+const createAppointmentReceptionist = async (req, res) => {
+    try {
+        const { doctorid, requesteddate, requestedtime } = req.body;
+        const patient = await Patients.findOne({ where: { email: req.user.email } });
+
+        if (!patient) {
+            return res.status(400).json({ message: "patient not authenticated or not found." });
+        }
+        const patientid = patient.dataValues.patientid;  
+ 
+        //log received data 
+        console.log('Received data for appointment creation:', { doctorid, requesteddate, requestedtime, patientid });
+
+        // Check if all required fields are provid
+        if (!doctorid || !requesteddate || !requestedtime || !patientid) {
+            return res.status(400).json({ message: "Missing required fields." });
+        }
+
+        // Check doctor availability
+        const available = await isDoctorAvailable(doctorid, requesteddate, requestedtime);
+        if (!available) {
+            return res.status(400).json({ message: "Doctor not available at this time." });
+        }
+
+        // Create the appointment
+        const appointment = await Appointments.create({ 
+            doctorid,  
+            requesteddate, 
+            requestedtime, 
+            patientid 
+        });
+
+        console.log('Appointment created:', appointment);
+        res.status(201).json({ message: "Appointment created successfully", appointment });
+    } catch (error) {
+        console.error('Error creating appointment:', error);
+        res.status(500).json({ message: "Internal Server Error", error });
+    }
+};*/
+
 // Update appointment
 const updateAppointment = async (req, res) => {
     try {
@@ -124,4 +165,4 @@ const updateAppointment = async (req, res) => {
     } 
 };
 
-module.exports = { getPatientAppointments, isDoctorAvailable, createAppointment, updateAppointment }; 
+module.exports = { getPatientAppointments, isDoctorAvailable, createAppointment,  updateAppointment }; 

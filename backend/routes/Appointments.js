@@ -6,6 +6,8 @@ const { getPatientAppointments, createAppointment, updateAppointment } = require
 
 router.get('/patient-appointments', validateToken('patient'), getPatientAppointments);  
 router.post('/appointments-actions', validateToken('patient'), createAppointment);
-router.put('/appointments-actions/:appointmentid', validateToken('patient'), updateAppointment);
+//router.post('/appointments-receptionists', validateToken('receptionist'), createAppointmentReceptionist);
+//router.post('/appointments-receptionists/:appointmentid', validateToken('receptionist'), updateAppointment);
+router.post('/appointments-actions/:appointmentid', validateToken('patient'), updateAppointment);
 
 module.exports = router;
