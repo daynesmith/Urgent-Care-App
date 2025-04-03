@@ -11,6 +11,8 @@ import ScheduleAppointment from './pages/ScheduleAppointment.jsx';
 import DoctorInfoForm from './pages/DoctorInfoForm.jsx';
 import Visits from './pages/Visits.jsx';
 import PatientInfo from './pages/PatientInfo.jsx';
+import MedicalHistory from './pages/MedicalHistory.jsx';
+
 import SpecialistDashboard from "./pages/SpecialistDashboard.jsx";
 
 function App() {
@@ -32,8 +34,6 @@ function App() {
             <Route path = '/visits' element = {<Visits />} />
             <Route path = '/ScheduleAppointment' element = {<ScheduleAppointment />} />
             <Route path = '/PatientInfo' element = {<PatientInfo />} />
-            <Route path = '/specialist-dashboard' element={<SpecialistDashboard />} />
-
           </Routes>
         </div>
       </Router>    
