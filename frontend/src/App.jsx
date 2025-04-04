@@ -13,7 +13,7 @@ import Visits from './pages/Visits.jsx';
 import PatientInfo from './pages/PatientInfo.jsx';
 import MedicalHistory from './pages/MedicalHistory.jsx';
 
-import SpecialistDashboard from "./pages/SpecialistDashboard.jsx";
+import SpecialistDashboard from "./components/SpecialistDashboard.jsx";
 
 function App() {
 
