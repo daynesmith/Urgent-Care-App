@@ -17,7 +17,8 @@ export default function Dashboard(){
             {role === 'patient' && <PatientDashboard />}
             {role === 'admin' && <AdminDashboard />}
             {role === 'doctor' && <DoctorDashboard />}
+            {role === 'receptionist' && <ReceptionistDashboard />}
+            {role === 'specialist' && <SpecialistDashboard />}
         </div>
     )
-
 }
