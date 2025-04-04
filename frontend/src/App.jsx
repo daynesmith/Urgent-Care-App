@@ -13,6 +13,7 @@ import Visits from './pages/Visits.jsx';
 import PatientInfo from './pages/PatientInfo.jsx';
 import MedicalHistory from './pages/MedicalHistory.jsx';
 
+import SpecialistDashboard from "./components/SpecialistDashboard.jsx";
 
 function App() {
 
@@ -33,7 +34,6 @@ function App() {
             <Route path = '/visits' element = {<Visits />} />
             <Route path = '/ScheduleAppointment' element = {<ScheduleAppointment />} />
             <Route path = '/PatientInfo' element = {<PatientInfo />} />
-            <Route path = '/medical-history' element = {<MedicalHistory />} />
           </Routes>
         </div>
       </Router>    
