@@ -1,7 +1,10 @@
-const express = require('express');
-const router = express.Router();
-const { registerReceptionist} = require('../controllers/receptionistController'); // Import the controller
+const express = require('express')
+const router = express.Router()
 
-router.post('/register', registerReceptionist);
+const{ getIfReceptionistInfo, inputReceptionistInfoForFirstTime } = require('../controllers/receptionistController'); // Import the controller
+const {validateToken} = require('../middlewares/Authmiddleware');
+router.post('/checkreceptionisttable', validateToken('receptionist'), getIfReceptionistInfo);
+router.post('/inputreceptionistinfo', validateToken('receptionist'), inputReceptionistInfoForFirstTime);
+
 
 module.exports = router;

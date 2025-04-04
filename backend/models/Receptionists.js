@@ -51,6 +51,11 @@ module.exports = (sequelize, DataTypes) => {
             foreignKey: 'receptionistid',
             targetKey: 'userid'
         })
+
+        Receptionists.hasMany(models.Appointments, {
+            foreignKey: 'receptionistid',
+            as: 'appointments',       // Alias for associated appointments
+          });
     };
 
     return Receptionists;

@@ -30,17 +30,18 @@ export default function ReceptionistAppointment() {
 
       return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:00`;
   };
+    
+
+  // Handle form submission (Create appointment)
+    const handleSubmit = async (e) => {
+    e.preventDefault();
 
     const token = localStorage.getItem('accessToken');
     if (!token) {
         setError("No access token found. Please log in again.");
         return;
     }
-    
 
-  // Handle form submission (Create appointment)
-    const handleSubmit = async (e) => {
-    e.preventDefault();
     if (!date || !time || !doctor || !patient) {
         setError('Please select a doctor, patient, date, and time.');
         return;
@@ -53,13 +54,23 @@ export default function ReceptionistAppointment() {
     const requestedDateTime = `${date} ${formattedTime}`;
 
     try {
+        const decoded = jwtDecode(token);
+        console.log("Decoded Token:", decoded);
+
+        if (!decoded.email) {
+            setError("Invalid token structure: missing patientid.");
+            return;
+        }
+
         // Prepare the appointment data
         const appointmentData = {
-            requesteddate: requestedDateTime,
-            requestedtime: formattedTime,
             doctorid: doctor,
             patientid: patient,
+            requesteddate: requestedDateTime,
+            requestedtime: formattedTime,
+            receptionistEmail: decoded.email, 
         };
+        
 
         console.log('Appointment data being sent:', appointmentData);
 
