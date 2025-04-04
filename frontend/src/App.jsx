@@ -13,6 +13,7 @@ import Visits from './pages/Visits.jsx';
 import PatientInfo from './pages/PatientInfo.jsx';
 import MedicalHistory from './pages/MedicalHistory.jsx';
 import ReceptionistProfile from './pages/ReceptionistProfile.jsx';
+import ReceptionistAppointment from './pages/ReceptionistAppoinment.jsx';
 
 function App() {
 
@@ -35,6 +36,7 @@ function App() {
             <Route path = '/PatientInfo' element = {<PatientInfo />} />
             <Route path = '/medical-history' element = {<MedicalHistory />} />
             <Route path = '/ReceptionistProfile' element = {<ReceptionistProfile />} />
+            <Route path = '/ReceptionistAppointment' element = {<ReceptionistAppointment />} />
           </Routes>
         </div>
       </Router>    

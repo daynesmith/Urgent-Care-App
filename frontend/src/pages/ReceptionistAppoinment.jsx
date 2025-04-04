@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { jwtDecode } from 'jwt-decode'; // Import jwtDecode
 import DoctorDropDown from '../components/DoctorDropDown'
 import PatientDropDown from '../components/PatientDropDown'
 
