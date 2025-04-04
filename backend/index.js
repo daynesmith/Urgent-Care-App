@@ -33,8 +33,7 @@ const referralRoutes = require("./routes/Referral");
 app.use("/referrals", referralRoutes);
 
 db.sequelize.sync().then(() => {
-    const port = process.env.PORT || 8080;
-    app.listen(port, '0.0.0.0', () => {
+    app.listen(3001, () => {
         console.log("server running on port ${port}");
     })
 })

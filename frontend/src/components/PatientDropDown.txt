@@ -1,0 +1,59 @@
+import { useState, useEffect } from 'react';
+import axios from 'axios';
+import PropTypes from 'prop-types';
+
+const apiUrl = import.meta.env.VITE_API_URL
+
+
+export default function PatientDropDown({ patient, setPatient}) {
+    const [patient, setPatient] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState('');
+
+    useEffect(() => {
+        //fetch the doctor list from your API
+        const fetchPatients = async () => {
+            try {
+                const response = await axios.get(`${apiUrl}/patient/patientsNames`); 
+                setPatients(response.data);  
+                setLoading(false);
+            } catch (err) {
+                console.error('Error fetching patient:', err);
+                setError('Failed to load doctors.');
+                setLoading(false);
+            }
+        };
+
+        fetchPatients();
+    }, []);
+
+    if (loading) {
+        return <option>Loading patient...</option>;
+    }
+
+    if (error) {
+        return <option>{error}</option>;
+    }
+
+    return (
+        <select
+            id="patient"
+            value={patient}
+            onChange={(e) => setPatient(e.target.value)}  
+            className="mt-1 w-full border border-gray-300 rounded-md p-2"
+        >
+            <option value="">Select a patient</option>
+            {patients.map((pat) => (
+                <option key={pat.patientid} value={pat.patientid}>  {/* use doctorid here */}
+                    {pat.name}
+                </option>
+            ))}
+        </select>
+    );
+
+}
+
+PatientDropDown.propTypes = {
+    setPatient: PropTypes.func.isRequired,
+    patient: PropTypes.func.isRequired // setPatient must be a function and is required
+};
