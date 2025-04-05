@@ -11,6 +11,7 @@ import ScheduleAppointment from './pages/ScheduleAppointment.jsx';
 import DoctorInfoForm from './pages/DoctorInfoForm.jsx';
 import Visits from './pages/Visits.jsx';
 import PatientInfo from './pages/PatientInfo.jsx';
+import DoctorAppointments from './pages/DoctorAppointments.jsx';
 
 
 function App() {
@@ -27,11 +28,12 @@ function App() {
             <Route path = '/register' element = {<RegistrationForm/>}/>
             <Route path = '/login' element = {<LoginPage/>}/>
             <Route path = '/dashboard' element = {<Dashboard/>}/>
-            <Route path = '/roleform' element = {<RoleForm/>}/>   {/*added for testing*/}
+            <Route path = '/roleform' element = {<RoleForm/>}/>   
             <Route path = '/DoctorInfoForm' element = {<DoctorInfoForm/>}/>
             <Route path = '/visits' element = {<Visits />} />
             <Route path = '/ScheduleAppointment' element = {<ScheduleAppointment />} />
             <Route path = '/PatientInfo' element = {<PatientInfo />} />
+            <Route path = '/DoctorAppointments' element = {<DoctorAppointments />} />
           </Routes>
         </div>
       </Router>    

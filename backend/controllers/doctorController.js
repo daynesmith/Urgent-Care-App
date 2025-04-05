@@ -1,4 +1,5 @@
-const {Doctors,Users} = require('../models');
+const { Op } = require("sequelize");
+const {Doctors,Users, Appointments, Patients} = require('../models');
 
 
 
@@ -87,4 +88,94 @@ const getDoctorsNames = async (req, res) => {
     }
 };
 
-module.exports = {inputInfoForFirstTime, getIfDoctorInfo, getDoctorsNames};
+//using doctorid and requestedtime, requesteddate to query
+/*
+const getDoctorAppointments = async (req, res) => {
+    try {
+        const { requesteddate, requestedtime } = req.query;
+        if (!requesteddate || !requestedtime) {
+            return res.status(400).json({ message: "Please provide both requesteddate and requestedtime." });
+        }
+
+        const email = req.user.email;
+        const user = await Users.findOne({
+            where: { email }
+        });
+        if (!user) {
+            return res.status(404).json({ message: "Email not found." });
+        }
+
+        const doctorid = user.userid;
+
+        //fetch doctor's appointments
+        const appointments = await Appointments.findAll({
+            where: {
+                doctorid,
+                requesteddate: {   //from 0-11:59
+                    [Sequelize.Op.gte]: new Date(requesteddate).setHours(0, 0, 0, 0), 
+                    [Sequelize.Op.lt]: new Date(requesteddate).setHours(23, 59, 59, 999), 
+                },
+                requestedtime,
+            }
+        });
+
+        if (!appointments.length) {
+            return res.status(404).json({ message: "No appointments found for this doctor on the specified date and time." });
+        }
+
+        res.status(200).json(appointments);
+    } catch (error) {
+        console.error('Error fetching doctor appointments:', error);
+        res.status(500).json({ message: "Internal Server Error", error });
+    }
+};
+*/
+
+
+const getAppointmentByDateRange = async (req, res) => {
+    try {
+        const { startDate, endDate } = req.query;
+        if (!startDate || !endDate ) {
+            return res.status(400).json({ message: "Start date and end date are required." });
+        }
+
+        const email = req.user.email;
+        const user = await Users.findOne({
+            where: { email }
+        });
+        if (!user) {
+            return res.status(404).json({ message: "Email not found." });
+        }
+
+        const doctorid = user.userid;
+        console.log("Doctor ID:", doctorid);
+        if (!doctorid) {
+            return res.status(400).json({ message: "Doctor ID not found." });
+        }
+
+
+        if (startDate > endDate) {
+            return res.status(400).json({ message: "Start date must be before end date." });
+        }
+
+        //fetch appointments based on the date range
+        const appointments = await Appointments.findAll({
+            where: {
+                doctorid: doctorid,
+                requesteddate: {
+                    [Op.between]: [startDate, endDate],  
+                }
+            },
+            order: [['requesteddate', 'ASC'], ['requestedtime', 'ASC'], ['appointmentid', 'ASC']]
+        });
+
+        console.log("Appointments found:", appointments.length);
+        return res.status(200).json({ appointments });
+
+    } catch (error) {
+        console.error("Error fetching appointments:", error);
+        res.status(500).json({ message: "Internal server error.", error });
+    }
+};
+
+module.exports = {inputInfoForFirstTime, getIfDoctorInfo, getDoctorsNames, getAppointmentByDateRange}; 

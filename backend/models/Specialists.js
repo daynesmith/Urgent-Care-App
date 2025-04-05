@@ -39,8 +39,6 @@ module.exports = (sequelize, DataTypes)=>{
             },
         }
     })
-    
-    
 
     return Specialists;
 }
