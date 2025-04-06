@@ -39,6 +39,15 @@ module.exports = (sequelize, DataTypes) => {                      //Appointments
         recommendedspecialist: {
             type: DataTypes.ENUM("Oncologist", "Cardiologist", "Neurologist"),
             allowNull: true,
+        },
+        
+        receptionistid: {
+            type: DataTypes.INTEGER,
+            allowNull: true,
+            references:{
+                model: 'Receptionists',
+                key: 'receptionistid'
+            }
         }
     })
 
@@ -56,6 +65,11 @@ module.exports = (sequelize, DataTypes) => {                      //Appointments
         Appointments.belongsTo(models.Doctors,{
             foreignKey: 'doctorid',
             as: 'doctor'
+        })
+
+        Appointments.belongsTo(models.Receptionists,{
+            foreignKey: 'receptionistid',
+            as: 'receptionist'
         })
     }
     

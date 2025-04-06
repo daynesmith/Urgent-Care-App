@@ -32,6 +32,7 @@ const RoleForm = () => {
       console.log('Role updated successfully:', response.data);
       alert('Role updated successfully');
     } catch (error) {
+      
       setError(error.response?.data || 'An error occurred');
       console.error('Error updating role:', error);
     }

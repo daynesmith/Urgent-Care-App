@@ -5,7 +5,14 @@ const app = express();
 const cors = require('cors');
 
 app.use(express.json()); 
-app.use(cors());
+app.use(cors(
+//     {
+//     origin: "*",
+//     methods: ["GET", "POST", "PATCH", "DELETE", "PUT"],
+//     credentials: true,
+// }
+));
+
 
 const db = require('./models');
 
@@ -22,8 +29,8 @@ const receptionistRouter = require('./routes/Receptionists');
 app.use('/receptionist', receptionistRouter);
 const appointmentsRouter = require('./routes/Appointments');
 app.use('/appointments', appointmentsRouter);
-
-
+const referralRoutes = require("./routes/Referral");
+app.use("/referrals", referralRoutes);
 
 db.sequelize.sync().then(() => {
     const port = process.env.PORT || 8080;

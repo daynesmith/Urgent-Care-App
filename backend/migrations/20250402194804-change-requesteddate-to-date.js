@@ -2,16 +2,18 @@
 
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
-  async up (queryInterface, Sequelize) {
+  async up(queryInterface, Sequelize) {
+    // Add altering commands here
     return queryInterface.changeColumn('Appointments', 'requesteddate', {
       type: Sequelize.DATEONLY,  
       allowNull: false
     });
   },
 
-  async down (queryInterface, Sequelize) {
+  async down(queryInterface, Sequelize) {
+    // Add reverting commands here
     return queryInterface.changeColumn('Appointments', 'requesteddate', {
-      type: Sequelize.DATE,   //revert to DATETIME if need to rollback
+      type: Sequelize.DATE,  
       allowNull: false
     });
   }
