@@ -33,8 +33,8 @@ module.exports = (sequelize, DataTypes) => {
   
     Specialists.associate = (models) => {
       Specialists.belongsTo(models.Users, {
-        foreignKey: "user_id",
-        as: "user"
+        foreignKey: "userid",
+        targetKey: "userid"
       });
     };
   
