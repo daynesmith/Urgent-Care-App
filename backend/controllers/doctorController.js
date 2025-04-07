@@ -166,16 +166,68 @@ const getAppointmentByDateRange = async (req, res) => {
                     [Op.between]: [startDate, endDate],  
                 }
             },
+            include: [
+                {
+                    model: Patients,
+                    as: 'patient',
+                    attributes: ['firstname', 'lastname'],
+                }
+            ],
             order: [['requesteddate', 'ASC'], ['requestedtime', 'ASC'], ['appointmentid', 'ASC']]
         });
 
-        console.log("Appointments found:", appointments.length);
-        return res.status(200).json({ appointments });
+        function capitalizeName(name) {
+            return name.split(' ').map(word => 
+                word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+            ).join(' ');
+        }
+
+        const formattedAppointments = appointments.map(appt => ({
+            patientname: capitalizeName(`${appt.patient.firstname} ${appt.patient.lastname}`),
+            requesteddate: appt.requesteddate,
+            requestedtime: appt.requestedtime,
+            appointmentstatus: appt.appointmentstatus,
+            recommendedspecialist: appt.recommendedspecialist,
+        }));
+
+
+        console.log("Appointments found:", formattedAppointments.length);
+        console.log("Raw appointment data with patient include:\n", JSON.stringify(formattedAppointments, null, 2));
+
+        return res.status(200).json({appointments: formattedAppointments});
 
     } catch (error) {
         console.error("Error fetching appointments:", error);
         res.status(500).json({ message: "Internal server error.", error });
     }
 };
+
+
+/*
+const getPatientInfo = async (req, res) => {
+    try {
+        const { patientId } = req.params;  
+
+        // Find the patient by patientid
+        const patient = await Patients.findOne({
+            where: { patientid: patientId },
+            include: ['appointments'], // Optionally, you can include their appointments if needed
+        });
+
+        // Check if the patient was found
+        if (!patient) {
+            return res.status(404).json({ message: 'Patient not found.' });
+        }
+
+        // Return patient data
+        return res.status(200).json(patient);
+    } catch (error) {
+        console.error('Error fetching patient info:', error);
+        return res.status(500).json({ message: 'Internal server error.' });
+    }
+};
+*/
+
+
 
 module.exports = {inputInfoForFirstTime, getIfDoctorInfo, getDoctorsNames, getAppointmentByDateRange}; 
