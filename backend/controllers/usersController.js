@@ -48,7 +48,8 @@ const loginUser = async (req, res) => {
         res.status(200).json({
             message: "Login successful" ,
             accessToken, 
-            userRole,
+            userRole: user.role,
+            userId: user.userid
         });
     } catch (error) {
         console.error(error);

@@ -1,6 +1,10 @@
 require("dotenv").config(); // Load .env variables
-const fs = require('fs')
-const path = require('path')
+const fs = require('fs');
+const path = require('path');
+
+// Adjust the path to remove extra "config"
+const certPath = path.join(__dirname, 'certs', 'DigiCertGlobalRootCA.crt.pem');
+console.log('Certificate Path:', certPath);
 
 module.exports = {
   development: {
@@ -10,9 +14,9 @@ module.exports = {
     host: process.env.DB_HOST,
     dialect: process.env.DB_DIALECT,
     dialectOptions: {
-      ssl: {
+      ssl: {    
         ca: fs.readFileSync(path.join(__dirname, "certs", "DigiCertGlobalRootCA.crt.pem")),
-        rejectUnauthorized: true
+        rejectUnauthorized: false
       }
     }
   },
@@ -25,7 +29,7 @@ module.exports = {
     dialectOptions: {
       ssl: {
         ca: fs.readFileSync(path.join(__dirname, "certs", "DigiCertGlobalRootCA.crt.pem")),
-        rejectUnauthorized: true
+        rejectUnauthorized: false
       }
     }
   },
@@ -38,7 +42,7 @@ module.exports = {
     dialectOptions: {
       ssl: {
         ca: fs.readFileSync(path.join(__dirname, "certs", "DigiCertGlobalRootCA.crt.pem")),
-        rejectUnauthorized: true
+        rejectUnauthorized: false
       }
     }
   }
