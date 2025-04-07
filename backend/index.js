@@ -5,13 +5,7 @@ const app = express();
 const cors = require('cors');
 
 app.use(express.json()); 
-app.use(cors(
-//     {
-//     origin: "*",
-//     methods: ["GET", "POST", "PATCH", "DELETE", "PUT"],
-//     credentials: true,
-// }
-));
+app.use(cors());
 
 
 const db = require('./models');
@@ -33,7 +27,8 @@ const referralRoutes = require("./routes/Referral");
 app.use("/referrals", referralRoutes);
 
 db.sequelize.sync().then(() => {
-    app.listen(3001, () => {
-        console.log("server running on port ${port}");
+    const port = process.env.PORT || 8080
+    app.listen(port, () => {
+        console.log(`server running on port ${port}`);
     })
 })
