@@ -29,6 +29,7 @@ export default function ScheduleAppointments() {
         return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:00`;
     };
 
+    
     // Handle form submission (Create appointment)
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -39,7 +40,6 @@ export default function ScheduleAppointments() {
         setError('');
 
         const formattedTime = convertTo24HourFormat(time);
-        const requestedDateTime = `${date} ${formattedTime}`;
 
         const token = localStorage.getItem('accessToken');
         if (!token) {
@@ -58,7 +58,7 @@ export default function ScheduleAppointments() {
 
             // Prepare the appointment data
             const appointmentData = {
-                requesteddate: requestedDateTime,
+                requesteddate: date,
                 requestedtime: formattedTime,
                 doctorid: doctor,
                 patientEmail: decoded.email, 
@@ -73,6 +73,7 @@ export default function ScheduleAppointments() {
 
             setAppointmentStatus('Appointment successfully created!');
         } catch (error) {
+            alert(error.response.data)
             console.error('Error creating appointment:', error);
             setError('Failed to create appointment.');
         }
