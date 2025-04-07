@@ -73,6 +73,7 @@ export default function ScheduleAppointments() {
 
             setAppointmentStatus('Appointment successfully created!');
         } catch (error) {
+            alert(error.response.data)
             console.error('Error creating appointment:', error);
             setError('Failed to create appointment.');
         }
