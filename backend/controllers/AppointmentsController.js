@@ -113,6 +113,20 @@ const createAppointmentReceptionist = async (req, res) => {
             return res.status(400).json({ message: "Missing required fields." });
         }
 
+        //check if the patient already has an appointment at the same time
+        const existingAppointment = await Appointments.findOne({
+            where: {
+                patientid,
+                requesteddate,
+                requestedtime,
+            },
+        });
+        if (existingAppointment) {
+            return res.status(400).json({
+                message: "Patient already has an appointment scheduled at this time.",
+            });
+        }
+
         // Check doctor availability
         const available = await isDoctorAvailable(doctorid, requesteddate, requestedtime);
         if (!available) {
