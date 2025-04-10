@@ -1,47 +1,13 @@
 const express = require("express");
 const router = express.Router();
-const { Referral, Patients, Doctors, Specialists } = require("../models");
-
-router.get("/test-ping", (req, res) => {
-    res.send("Referrals route is working");
-  });
+const { Referral, Patients, Doctors, Specialists, /*Add VisitInfo once updated by charlize*/ } = require("../models");
+const {createReferral, getPendingReferrals, updateReferralStatus} = require("../controllers/ReferralController");
   
-// Get all pending referrals
-router.get("/pending", async (req, res) => {
-    const { specialist_id } = req.query;
-    if (!specialist_id || isNaN(specialist_id)) {
-        return res.status(400).json({ error: "Invalid specialist_id" });
-      }
-    try {
-        const referrals = await Referral.findAll({
-        where: { status: "pending", specialist_id},
-        include: [
-            { model: Patients, as: "patient", attributes: ["firstname", "lastname"] },
-            { model: Doctors, as: "doctor", attributes: ["firstname", "lastname"] },
-            { model: Specialists, as: "specialist" }
-        ]
-        });
-        res.json(referrals);
-    } catch (err) {
-        console.error("Failed to fetch referrals:", err);
-        res.status(500).json({ error: "Failed to fetch referrals" });
-    }
-});
+router.get("/pending", getPendingReferrals);
+router.put("/:id", updateReferralStatus);
+router.post("/", (req, res, next) => {
+    next(); // Pass to the actual controller
+  }, createReferral);
 
-// Approve or deny a referral
-router.put("/:id", async (req, res) => {
-    const { status } = req.body;
-    try {
-        const referral = await Referral.findByPk(req.params.id);
-        if (!referral) return res.status(404).json({ error: "Referral not found" });
-        referral.status = status;
-        await referral.save();
-        res.json({ message: `Referral ${status}` });
-    } 
-    catch (err) {
-        console.error("Failed to update referral:", err);
-        res.status(500).json({ error: "Failed to update referral" });
-    }
-});
 
 module.exports = router;
