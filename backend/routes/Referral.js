@@ -2,13 +2,16 @@ const express = require("express");
 const router = express.Router();
 const { Referral, Patients, Doctors, Specialists } = require("../models");
 
+router.get("/test-ping", (req, res) => {
+    res.send("Referrals route is working");
+  });
+  
 // Get all pending referrals
 router.get("/pending", async (req, res) => {
     const { specialist_id } = req.query;
     if (!specialist_id || isNaN(specialist_id)) {
         return res.status(400).json({ error: "Invalid specialist_id" });
       }
-    console.log("specialist_id:", req.query.specialist_id);
     try {
         const referrals = await Referral.findAll({
         where: { status: "pending", specialist_id},
