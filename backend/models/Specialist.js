@@ -34,7 +34,7 @@ module.exports = (sequelize, DataTypes) => {
     Specialists.associate = (models) => {
       Specialists.belongsTo(models.Users, {
         foreignKey: "user_id",
-        targetKey: "userid"
+        as: "user"
       });
     };
   
