@@ -15,7 +15,7 @@ import DoctorAppointments from './pages/DoctorAppointments.jsx';
 import MedicalHistory from './pages/MedicalHistory.jsx';
 import ReceptionistProfile from './pages/ReceptionistProfile.jsx';
 import ReceptionistAppointment from './pages/ReceptionistAppoinment.jsx';
-
+import CreateReferral from './pages/CreateReferral.jsx'
 
 function App() {
 
@@ -40,6 +40,7 @@ function App() {
             <Route path = '/medical-history' element = {<MedicalHistory />} />
             <Route path = '/ReceptionistProfile' element = {<ReceptionistProfile />} />
             <Route path = '/ReceptionistAppointment' element = {<ReceptionistAppointment />} />
+            <Route path = '/createreferral' element = {<CreateReferral/> } />
 
           </Routes>
         </div>
