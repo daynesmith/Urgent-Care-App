@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { jwtDecode } from 'jwt-decode'; // Import jwtDecode
-import { useNavigate } from 'react-router-dom';
 
 const apiUrl = import.meta.env.VITE_API_URL;
 
@@ -11,8 +10,7 @@ export default function DoctorAppointments() {
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
     const [error, setError] = useState('');
-
-    const navigate = useNavigate();
+    const [selectedAppointment, setSelectedAppointment] = useState(null);
 
     const fetchAppointments = async () => {
         const token = localStorage.getItem('accessToken');
@@ -33,6 +31,8 @@ export default function DoctorAppointments() {
                 headers: { 'accessToken': token },
                 params: {startDate, endDate}
             });
+
+            console.log("Appointments from API:", response.data.appointments);
 
             setAppointments(response.data.appointments);
         } catch (err) {
@@ -99,7 +99,7 @@ export default function DoctorAppointments() {
                                     {/*added visit info button */}
                                     <td className="border border-gray-300 p-2">
                                         <button
-                                            onClick={() => navigate(`/editvisit/${appointment.appointmentid}`)} 
+                                            onClick={() => setSelectedAppointment(appointment)}
                                             className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded"
                                         >
                                             Edit Visit Info
@@ -115,6 +115,13 @@ export default function DoctorAppointments() {
                     </tbody>
                 </table>
             </div>
+            
+            {selectedAppointment && (
+                <VisitInfoModal
+                    appointment={selectedAppointment}
+                    onClose={() => setSelectedAppointment(null)}
+                />
+            )}
         </div>
     );
 }
@@ -133,8 +140,9 @@ function VisitInfoModal({appointment, onClose}) {
                 const res = await axios.get(`${apiUrl}/visitinfo/getvisitinfo/${appointment.appointmentid}`, {
                     headers: { accessToken: token }
                 });
-                setDoctorNotes(res.data.doctornotes || '');
-                setNotesForPatient(res.data.notesforpatient || '');
+                const visitInfo = res.data.visitInfo;
+                setDoctorNotes(visitInfo?.doctornotes || '');
+                setNotesForPatient(visitInfo?.notesforpatient || '');
             } catch (err) {
                 console.log('No existing visit info or failed to load.');
             } finally {
