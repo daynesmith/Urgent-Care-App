@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import PatientProfile from '../components/PatientProfile';
 import axios from 'axios';
 import { jwtDecode } from 'jwt-decode';
 
@@ -12,6 +13,9 @@ export default function PatientInfo() {
     const [error, setError] = useState('');
     const [status, setStatus] = useState('');
     const [formFilled, setFormFilled] = useState(false);
+
+    const [isEditing, setIsEditing] = useState(false);
+
 
     useEffect(() => {
         const checkPatientInfo = async () => {
@@ -112,6 +116,7 @@ export default function PatientInfo() {
             setLastname('');
             setDateofbirth('');
             setPhonenumber('');
+            setFormFilled(true);
         } catch (error) {
             console.error('Error creating patient profile:', error);
             setError('Failed to create patient profile.');
@@ -119,7 +124,9 @@ export default function PatientInfo() {
     };
 
     return (
-        <div className="fixed inset-0 flex justify-center items-center bg-gray-100">
+        <>
+        {formFilled ? (<PatientProfile />) : (        
+            <div className="fixed inset-0 flex justify-center items-center bg-gray-100">
             <div className="bg-white shadow-xl rounded-lg p-6 w-96">
                 <h2 className="text-2xl font-bold text-center mb-4">Create Patient Profile</h2>
 
@@ -139,8 +146,14 @@ export default function PatientInfo() {
                     <button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md transition">
                         Create Profile
                     </button>
+                    <button className="w-full bg-gray-600 hover:bg-gray-700 text-white font-medium py-2 px-4 rounded-md transition" onClick={() => setIsEditing(true)}>
+                        Edit Profile
+                    </button>
                 </form>
             </div>
-        </div>
+        </div>)
+
+        }
+        </>
     );
 }

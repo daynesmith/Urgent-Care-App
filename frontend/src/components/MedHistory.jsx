@@ -19,7 +19,6 @@ export default function MedHistory(props){
     useEffect(() => {
         const fetchMedicalHistory = async () => {
             try {
-
                 const response = await axios.get(`${apiUrl}/patient/medical-history`,{
                     headers: {
                     'accessToken':token
