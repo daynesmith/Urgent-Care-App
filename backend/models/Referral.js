@@ -51,7 +51,8 @@ module.exports = (sequelize, DataTypes) => {
     });
     Referral.belongsTo(models.Specialists, {
       foreignKey: "specialist_id",
-      targetKey: "user_id"
+      targetKey: "user_id",
+      as: "specialist"
     });
   };
 
