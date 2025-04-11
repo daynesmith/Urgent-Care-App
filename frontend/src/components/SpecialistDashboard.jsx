@@ -76,3 +76,7 @@ export default function SpecialistDashboard() {
     </div>
   );
 }
+
+
+
+//does accepting_referrals increment after a referral is approved?

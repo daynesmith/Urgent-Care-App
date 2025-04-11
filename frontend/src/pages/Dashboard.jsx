@@ -4,6 +4,7 @@ import PatientDashboard from '../components/PatientDashboard.jsx';
 import AdminDashboard from '../components/AdminDashboard.jsx';
 import DoctorDashboard from '../components/DoctorDashboard.jsx';
 import ReceptionistDashboard from '../components/ReceptionistDashboard.jsx';
+import SpecialistDashboard from '../components/SpecialistDashboard.jsx';
 
 
 export default function Dashboard(){

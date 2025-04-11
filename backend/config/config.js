@@ -14,7 +14,7 @@ module.exports = {
     host: process.env.DB_HOST,
     dialect: process.env.DB_DIALECT,
     dialectOptions: {
-      ssl: {    
+      ssl: {
         ca: fs.readFileSync(path.join(__dirname, "certs", "DigiCertGlobalRootCA.crt.pem")),
         rejectUnauthorized: false
       }
@@ -42,7 +42,7 @@ module.exports = {
     dialectOptions: {
       ssl: {
         ca: fs.readFileSync(path.join(__dirname, "certs", "DigiCertGlobalRootCA.crt.pem")),
-        rejectUnauthorized: false
+        rejectUnauthorized: false //Change back to true afterwards
       }
     }
   }

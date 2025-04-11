@@ -58,7 +58,7 @@ const createAppointment = async (req, res) => {
         const patient = await Patients.findOne({ where: { email: req.user.email } });
 
         if (!patient) {
-            return res.status(400).json({ message: "patient not authenticated or not found." });
+            return res.status(400).json("Please fill out paitent info form patient not authenticated or not found." );
         }
         const patientid = patient.dataValues.patientid;  
  
@@ -67,13 +67,13 @@ const createAppointment = async (req, res) => {
 
         // Check if all required fields are provid
         if (!doctorid || !requesteddate || !requestedtime || !patientid) {
-            return res.status(400).json({ message: "Missing required fields." });
+            return res.status(400).json("Missing required fields." );
         }
 
         // Check doctor availability
         const available = await isDoctorAvailable(doctorid, requesteddate, requestedtime);
         if (!available) {
-            return res.status(400).json({ message: "Doctor not available at this time." });
+            return res.status(400).json("Doctor not available at this time." );
         }
 
         // Create the appointment
@@ -85,10 +85,10 @@ const createAppointment = async (req, res) => {
         });
 
         console.log('Appointment created:', appointment);
-        res.status(201).json({ message: "Appointment created successfully", appointment });
+        res.status(201).json("Appointment created successfully");
     } catch (error) {
         console.error('Error creating appointment:', error);
-        res.status(500).json({ message: "Internal Server Error", error });
+        res.status(500).json("Internal Server Error");
     }
 };
 
@@ -111,6 +111,20 @@ const createAppointmentReceptionist = async (req, res) => {
         // Check if all required fields are provid
         if (!doctorid || !requesteddate || !requestedtime || !patientid || !receptionistid) {
             return res.status(400).json({ message: "Missing required fields." });
+        }
+
+        //check if the patient already has an appointment at the same time
+        const existingAppointment = await Appointments.findOne({
+            where: {
+                patientid,
+                requesteddate,
+                requestedtime,
+            },
+        });
+        if (existingAppointment) {
+            return res.status(400).json({
+                message: "Patient already has an appointment scheduled at this time.",
+            });
         }
 
         // Check doctor availability

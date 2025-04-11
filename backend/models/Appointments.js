@@ -24,7 +24,7 @@ module.exports = (sequelize, DataTypes) => {                      //Appointments
             }
         },
         requesteddate:{
-            type: DataTypes.DATE,
+            type: DataTypes.DATEONLY,
             allowNull: false
         },
         requestedtime:{

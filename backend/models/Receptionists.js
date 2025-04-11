@@ -41,10 +41,13 @@ module.exports = (sequelize, DataTypes) => {
             validate: {
                 isEmail: true, 
                 notEmpty: true, 
-            },
+            }
         }
-        
-    })
+    
+    }, {
+        freezeTableName: true
+    });
+    
     Receptionists.associate = (models) => {
         
         Receptionists.belongsTo(models.Users,{

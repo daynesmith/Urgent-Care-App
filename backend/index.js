@@ -5,13 +5,7 @@ const app = express();
 const cors = require('cors');
 
 app.use(express.json()); 
-app.use(cors(
-//     {
-//     origin: "*",
-//     methods: ["GET", "POST", "PATCH", "DELETE", "PUT"],
-//     credentials: true,
-// }
-));
+app.use(cors());
 
 
 const db = require('./models');
@@ -29,13 +23,22 @@ const receptionistRouter = require('./routes/Receptionists');
 app.use('/receptionist', receptionistRouter);
 const appointmentsRouter = require('./routes/Appointments');
 app.use('/appointments', appointmentsRouter);
+<<<<<<< HEAD
 const applicationRouter = require('./routes/Applications');
 app.use('/applications', applicationRouter);
 //const referralRoutes = require("./routes/Referral");
 //app.use("/referrals", referralRoutes);
+=======
+const referralRoutes = require("./routes/Referral");
+
+const visitinfoRouter = require('./routes/VisitInfo');
+app.use("/visitinfo", visitinfoRouter);
+
+>>>>>>> 927ae78e3476478b31292fd359037c6674c19b41
 
 db.sequelize.sync().then(() => {
-    app.listen(3001, () => {
-        console.log("server running on port ${port}");
+    const port = process.env.PORT || 8080;
+    app.listen(port, '0.0.0.0', () => {
+        console.log(`server running on port ${port}`);
     })
 })
