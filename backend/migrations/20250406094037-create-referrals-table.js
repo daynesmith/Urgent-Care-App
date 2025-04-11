@@ -39,6 +39,17 @@ module.exports = {
         allowNull: false,
         defaultValue: Sequelize.NOW,
       },
+      /* Uncomment out after for sure using VisitInfo_id
+      visitinfo_id: {
+        type: Sequelize.INTEGER,
+        allowNull: true, // Set to false if every referral must have one
+        references: {
+          model: 'VisitInfos',
+          key: 'visitinfoid'
+        },
+        onUpdate: 'CASCADE',
+        onDelete: 'SET NULL'
+      }*/
     });
   },
 

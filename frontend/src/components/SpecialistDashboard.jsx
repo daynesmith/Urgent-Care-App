@@ -11,7 +11,6 @@ export default function SpecialistDashboard() {
     const { userId } = useContext(UserContext);
 
     useEffect(() => {
-      //console.log("🔍 userId from context:", userId);
       if(!userId) {
         console.warn("userId is not ready yet");
         return;

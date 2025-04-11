@@ -35,6 +35,13 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false,
       defaultValue: DataTypes.NOW,
     },
+    /*implement later, once visit info is changed
+    visitinfo_id: {
+      type: DataTypes.INTEGER,
+      allowNull: false, // or false, depending if every referral *must* have one
+    }
+    */
+    
   }, {
     tableName: "Referrals", 
     timestamps: false       
@@ -51,8 +58,15 @@ module.exports = (sequelize, DataTypes) => {
     });
     Referral.belongsTo(models.Specialists, {
       foreignKey: "specialist_id",
-      targetKey: "user_id"
+      targetKey: "user_id",
+      as: "specialist"
     });
+    /* Uncomment this after changing VisitInfos
+    Referral.belongsTo(models.VisitInfos, {
+      foreignKey: "visitinfo_id",
+      as: "visitInfo"
+    });
+    */
   };
 
   return Referral;

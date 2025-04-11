@@ -15,7 +15,8 @@ import DoctorAppointments from './pages/DoctorAppointments.jsx';
 import MedicalHistory from './pages/MedicalHistory.jsx';
 import ReceptionistProfile from './pages/ReceptionistProfile.jsx';
 import ReceptionistAppointment from './pages/ReceptionistAppoinment.jsx';
-
+import CreateReferral from './pages/CreateReferral.jsx'
+import EmployeeList from './components/EmployeeList.jsx';
 
 function App() {
 
@@ -40,7 +41,8 @@ function App() {
             <Route path = '/medical-history' element = {<MedicalHistory />} />
             <Route path = '/ReceptionistProfile' element = {<ReceptionistProfile />} />
             <Route path = '/ReceptionistAppointment' element = {<ReceptionistAppointment />} />
-
+            <Route path = '/createreferral' element = {<CreateReferral/> } />
+            <Route path = '/admin/employees' element = {<EmployeeList/>} />
           </Routes>
         </div>
       </Router>    

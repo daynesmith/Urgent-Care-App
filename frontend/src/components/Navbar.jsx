@@ -32,6 +32,7 @@ export default function Navbar(){
           {role === 'doctor' && (
             <>
             <Link to= '/dashboard'>Doctor Dashboard</Link>
+            <Link to= '/createreferral'>Create Referral</Link>
 
             </>
           )}
@@ -43,10 +44,9 @@ export default function Navbar(){
             </>
           )}
           {/*links Specialists see*/}
-          {role === 'doctor' && (
+          {role === 'specialist' && (
             <>
             <Link to= '/dashboard'>Specialist Dashboard</Link>
-
             </>
           )}
           {/*links logged in people dont see*/}

@@ -20,8 +20,22 @@ module.exports = (sequelize, DataTypes)=>{
             type: DataTypes.ENUM('admin', 'patient', 'doctor', 'receptionist', 'specialist'),
             allowNull: false,
             defaultValue: 'patient'
-        }
+        },
     })
+    Users.associate = (models) => {
+        Users.hasOne(models.Doctors, {
+            foreignKey: 'doctorid',
+            as: 'doctorProfile'
+        });
+        Users.hasOne(models.Specialists, {
+            foreignKey: 'user_id',
+            as: 'specialistProfile'
+        });
+        Users.hasOne(models.Receptionists, {
+            foreignKey: 'receptionistid',
+            as: 'receptionistProfile'
+        });
+    };
 
     return Users;
-}
+};

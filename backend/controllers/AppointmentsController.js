@@ -63,7 +63,7 @@ const createAppointment = async (req, res) => {
         const patientid = patient.dataValues.patientid;  
  
         //log received data 
-        console.log('Received data for appointment creation:', { doctorid, requesteddate, requestedtime, patientid });
+        //console.log('Received data for appointment creation:', { doctorid, requesteddate, requestedtime, patientid });
 
         // Check if all required fields are provid
         if (!doctorid || !requesteddate || !requestedtime || !patientid) {
@@ -84,7 +84,7 @@ const createAppointment = async (req, res) => {
             patientid 
         });
 
-        console.log('Appointment created:', appointment);
+        //console.log('Appointment created:', appointment);
         res.status(201).json("Appointment created successfully");
     } catch (error) {
         console.error('Error creating appointment:', error);
@@ -97,7 +97,7 @@ const createAppointmentReceptionist = async (req, res) => {
     try {
         const { doctorid, requesteddate, requestedtime , patientid} = req.body;
 
-        console.log('Searching for receptionist with email:', req.user.email); 
+        //console.log('Searching for receptionist with email:', req.user.email); 
         const receptionist = await Receptionists.findOne({ where: { email: req.user.email } });
         if (!receptionist) {
             return res.status(400).json({ message: "receptionist not authenticated or not found." });
@@ -106,7 +106,7 @@ const createAppointmentReceptionist = async (req, res) => {
         const receptionistid = receptionist.dataValues.receptionistid;  
     
         //log received data 
-        console.log('Received data for appointment creation:', { doctorid, requesteddate, requestedtime, patientid , receptionistid});
+        //console.log('Received data for appointment creation:', { doctorid, requesteddate, requestedtime, patientid , receptionistid});
 
         // Check if all required fields are provid
         if (!doctorid || !requesteddate || !requestedtime || !patientid || !receptionistid) {
@@ -142,7 +142,7 @@ const createAppointmentReceptionist = async (req, res) => {
             receptionistid
         });
 
-        console.log('Appointment created:', appointment);
+        //console.log('Appointment created:', appointment);
         res.status(201).json({ message: "Appointment created successfully", appointment });
     } catch (error) {
         console.error('Error creating appointment:', error);
@@ -156,7 +156,7 @@ const updateAppointmentReceptionist = async (req, res) => {
         const { appointmentid } = req.params;
         const { doctorid, requesteddate, requestedtime, patientid } = req.body;
 
-        console.log('Receptionist updating appointment:', { appointmentid, doctorid, requesteddate, requestedtime, patientid });
+        //console.log('Receptionist updating appointment:', { appointmentid, doctorid, requesteddate, requestedtime, patientid });
 
         // Validate required fields
         if (!doctorid || !requesteddate || !requestedtime || !patientid) {
@@ -189,7 +189,7 @@ const updateAppointmentReceptionist = async (req, res) => {
             patientid
         });
 
-        console.log('Appointment updated by receptionist:', appointment);
+        //console.log('Appointment updated by receptionist:', appointment);
         res.status(200).json({ message: "Appointment updated successfully", appointment });
     } catch (error) {
         console.error('Error updating appointment as receptionist:', error);
@@ -232,7 +232,7 @@ const updateAppointment = async (req, res) => {
         //update
         await appointment.update({ doctorid, requesteddate, requestedtime });
 
-        console.log('Appointment updated:', appointment);
+        //console.log('Appointment updated:', appointment);
         res.status(200).json({ message: "Appointment updated successfully", appointment });
     } catch (error) {
         console.error('Error updating appointment:', error);

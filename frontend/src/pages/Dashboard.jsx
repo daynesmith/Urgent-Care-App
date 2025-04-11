@@ -1,7 +1,7 @@
 import { useContext} from 'react';
 import {UserContext} from '../context/Usercontext';
 import PatientDashboard from '../components/PatientDashboard.jsx';
-import AdminDashboard from '../components/AdminDashboard.jsx';
+import AdminDashboard from '../pages/AdminDashboard.jsx';
 import DoctorDashboard from '../components/DoctorDashboard.jsx';
 import ReceptionistDashboard from '../components/ReceptionistDashboard.jsx';
 import SpecialistDashboard from '../components/SpecialistDashboard.jsx';
