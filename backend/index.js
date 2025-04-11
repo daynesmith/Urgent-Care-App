@@ -29,8 +29,10 @@ const receptionistRouter = require('./routes/Receptionists');
 app.use('/receptionist', receptionistRouter);
 const appointmentsRouter = require('./routes/Appointments');
 app.use('/appointments', appointmentsRouter);
-const referralRoutes = require("./routes/Referral");
-app.use("/referrals", referralRoutes);
+const applicationRouter = require('./routes/Applications');
+app.use('/applications', applicationRouter);
+//const referralRoutes = require("./routes/Referral");
+//app.use("/referrals", referralRoutes);
 
 db.sequelize.sync().then(() => {
     app.listen(3001, () => {

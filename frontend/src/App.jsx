@@ -14,9 +14,12 @@ import PatientInfo from './pages/PatientInfo.jsx';
 import MedicalHistory from './pages/MedicalHistory.jsx';
 import ReceptionistProfile from './pages/ReceptionistProfile.jsx';
 import ReceptionistAppointment from './pages/ReceptionistAppoinment.jsx';
-import SpecialistDashboard from "./components/SpecialistDashboard.jsx";
-
-
+import CheckInCheckOut from './pages/CheckInCheckOut.jsx';
+import SpecialistDashboard from './components/SpecialistDashboard.jsx';
+import JobOpenings from './components/JobOpenings.jsx';
+import JoinTheTeam from './pages/JoinTheTeam.jsx'
+import ApplicationForm from './components/ApplicationForm.jsx';
+import AdminDasboard from './components/AdminDashboard.jsx';
 function App() {
 
   
@@ -39,7 +42,11 @@ function App() {
             <Route path = '/medical-history' element = {<MedicalHistory />} />
             <Route path = '/ReceptionistProfile' element = {<ReceptionistProfile />} />
             <Route path = '/ReceptionistAppointment' element = {<ReceptionistAppointment />} />
-
+            <Route path = '/CheckInCheckOut' element = {<CheckInCheckOut />} />
+            <Route path = '/JoinTheTeam' element = {<JoinTheTeam />} />
+            <Route path = '/JobOpenings' element = {<JobOpenings />} />
+            <Route path = '/ApplicationForm' element = {<ApplicationForm />} />
+            <Route path = '/AdminDasboard' element = {<AdminDasboard />} />
           </Routes>
         </div>
       </Router>    

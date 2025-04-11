@@ -12,7 +12,6 @@ export default function Dashboard(){
 
     return(
         <div className = "bg-[#F8F9FA] m-4 p-8 shadow rounded-lg w-full mt-8">
-            <h1 className="font-serif text-3xl text-center my-4">Welcome, {role}!</h1>
             {role === 'receptionist' && <ReceptionistDashboard />}
             {role === 'patient' && <PatientDashboard />}
             {role === 'admin' && <AdminDashboard />}
