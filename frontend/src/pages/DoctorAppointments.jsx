@@ -14,7 +14,6 @@ export default function DoctorAppointments() {
     const [filterType, setFilterType] = useState('all'); //'all','past', or 'future'
     const [error, setError] = useState('');
     const [selectedAppointment, setSelectedAppointment] = useState(null);
-    const [selectedAppointment, setSelectedAppointment] = useState(null);
 
     const fetchAppointments = async () => {
         const token = localStorage.getItem('accessToken');
@@ -33,10 +32,6 @@ export default function DoctorAppointments() {
                 setError("Invalid token structure: missing email.");
                 return;
             }
-
-            const params = {};
-            if (startDate) params.startDate = startDate;
-            if (endDate) params.endDate = endDate;
 
             const params = {};
             if (startDate) params.startDate = startDate;
@@ -190,7 +185,6 @@ export default function DoctorAppointments() {
                                     <td className="border border-gray-300 p-2">
                                         <button
                                             onClick={() => setSelectedAppointment(appointment)}
-                                            onClick={() => setSelectedAppointment(appointment)}
                                             className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded"
                                         >
                                             Edit Visit Info
@@ -229,9 +223,6 @@ function VisitInfoModal({ appointment, onClose }) {
                 const res = await axios.get(`${apiUrl}/visitinfo/getvisitinfo/${appointment.appointmentid}`, {
                     headers: { accessToken: token }
                 });
-                const visitInfo = res.data.visitInfo;
-                setDoctorNotes(visitInfo?.doctornotes || '');
-                setNotesForPatient(visitInfo?.notesforpatient || '');
                 const visitInfo = res.data.visitInfo;
                 setDoctorNotes(visitInfo?.doctornotes || '');
                 setNotesForPatient(visitInfo?.notesforpatient || '');
