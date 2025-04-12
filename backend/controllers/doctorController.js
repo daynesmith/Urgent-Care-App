@@ -141,6 +141,7 @@ const getAppointmentByDateRange = async (req, res) => {
             requesteddate: appt.requesteddate,
             requestedtime: appt.requestedtime,
             appointmentid: appt.appointmentid,
+            appointmentid: appt.appointmentid,
             appointmentstatus: appt.appointmentstatus,
             recommendedspecialist: appt.recommendedspecialist,
         }));

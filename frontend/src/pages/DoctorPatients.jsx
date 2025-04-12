@@ -148,5 +148,3 @@ const ViewPatients = () => {
         </div>
     );
 };
-
-export default ViewPatients;

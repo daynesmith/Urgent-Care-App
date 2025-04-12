@@ -2,6 +2,7 @@ const express = require('express')
 const router = express.Router()
 
 const{getIfPatientInfo, inputPatientInfoForFirstTime, getPatientsNames, getMedicalHistory, editMedicalHistory, getPatientsByDoctor } = require('../controllers/patientController')
+const{getIfPatientInfo, inputPatientInfoForFirstTime, getPatientsNames, getMedicalHistory, editMedicalHistory, getPatientsByDoctor } = require('../controllers/patientController')
 const {validateToken} = require('../middlewares/Authmiddleware');
 
 router.post('/checkpatienttable', validateToken('patient'), getIfPatientInfo)

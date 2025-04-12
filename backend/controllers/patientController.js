@@ -72,9 +72,15 @@ const getPatientsNames = async (req, res) => {
             patientid: p.patientid,
             name: `${p.firstname} ${p.lastname}`
         }));
+        const formatted = patients.map((p) => ({
+            patientid: p.patientid,
+            name: `${p.firstname} ${p.lastname}`
+        }));
 
         res.json(formatted);
+        res.json(formatted);
     } catch (error) {
+        console.error("Error fetching filtered patient names:", error);
         console.error("Error fetching filtered patient names:", error);
         res.status(500).json({ error: "Internal server error." });
     }
