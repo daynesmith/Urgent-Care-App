@@ -67,6 +67,47 @@ const inputInfoForFirstTime = async (req, res) => {
 };
 
 
+const editDoctorInfo = async (req, res) => {
+
+    const { email } = req.user;
+    const {
+        firstname,
+        lastname,
+        dateofbirth,
+        phonenumber,
+        doctortype
+    } = req.body
+
+    try {
+        const doctor = await Doctors.findOne({
+            where:{email: email},
+        })
+
+        if (!doctor) {
+            return res.status(400).json({ message: "doctor not found with token." });
+        }
+
+        await doctor.update({
+            firstname: firstname,
+            lastname: lastname,
+            dateofbirth: dateofbirth,
+            phonenumber: phonenumber,
+            doctortype: doctortype
+        });
+
+        console.log("Database update successful:");
+        res.json({ success: true });
+
+    } catch (error) {
+        console.error("Error updating doctor info:", error);
+        return res.status(500).json({ message: "Internal Server Error" });
+    }
+};
+
+
+
+
+
 const getDoctorsNames = async (req, res) => {
     try {
         const doctors = await Doctors.findAll({
@@ -158,4 +199,5 @@ const getAppointmentByDateRange = async (req, res) => {
     }
 };
 
-module.exports = {inputInfoForFirstTime, getIfDoctorInfo, getDoctorsNames, getAppointmentByDateRange}; 
+
+module.exports = {inputInfoForFirstTime, getIfDoctorInfo, editDoctorInfo, getDoctorsNames, getAppointmentByDateRange}; 
