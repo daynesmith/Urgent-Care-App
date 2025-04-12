@@ -83,7 +83,7 @@ export default function ApplicationForm({ job, onClose }) {
   
     try {
       console.log('Sending JSON application data:', applicationData);
-      await axios.post(`${apiUrl}/admin/sendingApplications`, applicationData);
+      await axios.post(`${apiUrl}/users/sendingApplications`, applicationData);
   
       setStatus('Application submitted successfully!');
       setFormData({

@@ -24,8 +24,6 @@ app.use('/receptionist', receptionistRouter);
 const appointmentsRouter = require('./routes/Appointments');
 app.use('/appointments', appointmentsRouter);
 
-const applicationRouter = require('./routes/Applications');
-app.use('/applications', applicationRouter);
 
 const referralRoutes = require("./routes/Referral");
 app.use("/referrals", referralRoutes);

@@ -31,6 +31,8 @@ export default function Homepage(){
     const [showPatientPortal, setShowPatientPortal] = useState(false);
     const [showStaffLogin, setShowStaffLogin] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
+    const [status, setStatus] = useState(null);
+
     const [errorMessage, setErrorMessage] = useState(""); // State for error messages
 
 
@@ -123,43 +125,44 @@ export default function Homepage(){
 
     const handleSubmitStaff = async (e) => {
         e.preventDefault();
-        if (validateForm()) {
-            try {
-            console.log(apiUrl)
+        if (!validateForm()) return;
+    
+        try {
+            console.log(apiUrl);
             const response = await axios.post(`${apiUrl}/users/login`, formData);
+            const { accessToken, userRole, userId, userStatus } = response.data;
+    
             console.log('Login response:', response);
-            console.log('Form Submitted Successfully:', response.data);
-            localStorage.setItem("accessToken", response.data.accessToken)
-            localStorage.setItem("role", response.data.userRole)
-            localStorage.setItem("userId", response.data.userId); // User ID (needed for when we need to filter things for users to only see what is theirs)
-            
-            setUserId(response.data.userId);                      // stores in React context
-            setRole(response.data.userRole);
-
-             // Check if the role is 'patient'
-             if (response.data.userRole === "doctor" || response.data.userRole === "receptionist" || response.data.userRole === "admin") {
+    
+            localStorage.setItem("accessToken", accessToken);
+            localStorage.setItem("role", userRole);
+            localStorage.setItem("userId", userId);
+            localStorage.setItem("userStatus", userStatus);
+    
+            setUserId(userId);
+            setRole(userRole);
+            setStatus(userStatus);
+    
+            // Check if the user is staff and accepted
+            const isStaff = ["doctor", "receptionist", "admin", "specialist"].includes(userRole);
+            if (isStaff && userStatus === "accepted") {
                 console.log("User is a staff.");
-                navigate('/dashboard')
-                // Perform any actions specific to the patient role here
+                navigate('/dashboard');
             } else {
                 console.log("You are not a staff!");
-                setErrorMessage("Your account does not have staff access.");  // Set the error message
+                setErrorMessage("No staff access or application not accepted.");
             }
-            
-            } 
-            catch (error) {
-            console.error('There was an error submitting the form:', error);
-            if (error.response && error.response.data) {
+    
+        } catch (error) {
+            console.error('Login error:', error);
+            if (error.response?.data) {
                 alert(error.response.data);
-            } else if (error.message) {
-                alert(`Login failed: ${error.message}`);
-                
             } else {
-                alert("An unknown error occurred during login.");
-            }
+                alert(`Login failed: ${error.message || "Unknown error"}`);
             }
         }
     };
+    
 
     const scrollToSection = (id) => {
     const section = document.getElementById(id);

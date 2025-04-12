@@ -1,4 +1,4 @@
-const { Users, Specialists, Doctors, Applications } = require('../models');
+const { Users, Specialists, Doctors} = require('../models');
 
 const sendingApplications = async (req, res) => {
 
@@ -13,14 +13,14 @@ const sendingApplications = async (req, res) => {
         }
 
         // Create the application object with form data
-        const applicationData = await Applications.create({
+        const applicationData = await Users.create({
             firstname,
             lastname,
             dateofbirth,
             phonenumber,
             stafftype,
             email,
-            password,
+            passwordhash,
             experience,
             qualifications,
             certifications,

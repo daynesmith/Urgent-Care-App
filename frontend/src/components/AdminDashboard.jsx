@@ -133,23 +133,16 @@ export default function AdminDasboard() {
   if (error) return <div className="p-4 text-red-500">Error: {error}</div>;
 
   const handleAccept = async (application) => {
-    const { email, password, stafftype } = application;
-    console.log("Email:", email, "Password:", password, "Stafftype:", stafftype);
+    const { email, stafftype } = application;
+    console.log("Email:", email, "Stafftype:", stafftype);
   
-    if (!email || !password || !stafftype) {
+    if (!email || !stafftype) {
       setError('Some application fields are missing.');
       return;
     }
   
     setError('');
     setSubmitting(true);
-  
-    const userData = {
-      email: email,
-      password : password,
-      role: stafftype,
-    };
-    console.log("Got the Data!!!: ",userData);
 
     const acceptedData = {
       email: email,
@@ -157,13 +150,9 @@ export default function AdminDasboard() {
     };
 
     try {
-      // Create the user
-      const responseuser = await axios.post(`${apiUrl}/users/creatingUser`, userData);
-      console.log("User creation response:", responseuser);
-    
       // Update application status to 'accepted'
       console.log(acceptedData);
-      const statusResponseAccepted = await axios.post(`${apiUrl}/applications/updateApplicationStatus`, acceptedData);
+      const statusResponseAccepted = await axios.post(`${apiUrl}/users/updateApplicationStatus`, acceptedData);
       console.log("Application status update response:", statusResponseAccepted);
 
       // Ensure only the correct application is moved
@@ -186,10 +175,10 @@ export default function AdminDasboard() {
 
 
   const handleDeclined = async (application) => {
-    const { email, password, stafftype } = application;
-    console.log("Email:", email, "Password:", password, "Stafftype:", stafftype);
+    const { email, stafftype } = application;
+    console.log("Email:", email, "Stafftype:", stafftype);
   
-    if (!email || !password || !stafftype) {
+    if (!email || !stafftype) {
       setError('Some application fields are missing.');
       return;
     }
@@ -205,7 +194,7 @@ export default function AdminDasboard() {
 
         //Update application status to 'rejected'
         console.log(declineData);
-        const statusResponseDeclined = await axios.post(`${apiUrl}/applications/updateApplicationStatus`, declineData);
+        const statusResponseDeclined = await axios.post(`${apiUrl}/users/updateApplicationStatus`, declineData);
         console.log("Application status update response:", statusResponseDeclined);
         // Proceed with the UI update
         setApplications(prev =>
@@ -337,7 +326,7 @@ export default function AdminDasboard() {
     </div>
   );
 
-  const renderPatients = () => (
+  const renderEmployees = () => (
     <div className="bg-white p-6 rounded-lg shadow-md">
       <div className="flex justify-between items-center mb-6">
         <div className="relative">
@@ -725,8 +714,8 @@ export default function AdminDasboard() {
     switch (activeTab) {
       case 'dashboard':
         return renderDashboard();
-      case 'patients':
-        return renderPatients();
+      case 'employees':
+        return renderEmployees();
       case 'applications':
         return renderApplications();
       case 'appointments':
@@ -780,17 +769,17 @@ export default function AdminDasboard() {
               activeTab === 'applications' ? 'bg-blue-500 text-white' : 'bg-white text-gray-600'
             }`}
           >
-            <BarChart2 className="h-5 w-5 mr-2" />
+            <FileText className="h-5 w-5 mr-2" />
             Applications
           </button>
           <button
-            onClick={() => setActiveTab('patients')}
+            onClick={() => setActiveTab('employees')}
             className={`flex items-center px-4 py-2 rounded-lg ${
-              activeTab === 'patients' ? 'bg-blue-500 text-white' : 'bg-white text-gray-600'
+              activeTab === 'employees' ? 'bg-blue-500 text-white' : 'bg-white text-gray-600'
             }`}
           >
             <Users className="h-5 w-5 mr-2" />
-            Patients
+            Employee
           </button>
           <button
             onClick={() => setActiveTab('appointments')}

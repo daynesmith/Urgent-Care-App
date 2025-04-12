@@ -49,7 +49,8 @@ const loginUser = async (req, res) => {
             message: "Login successful" ,
             accessToken, 
             userRole: user.role,
-            userId: user.userid
+            userId: user.userid,
+            userStatus: user.status
         });
     } catch (error) {
         console.error(error);
@@ -60,62 +61,92 @@ const loginUser = async (req, res) => {
 
 
 const sendingApplications = async (req, res) => {
-
+    const {
+        firstname,
+        lastname,
+        dateofbirth,
+        phonenumber,
+        qualifications,
+        certifications,
+        stafftype,
+        email,
+        password,
+        experience,
+        coverletter,
+        street,
+        city,
+        state,
+        zip,
+      } = req.body;
     try {
-        const { firstname, lastname, dateofbirth, phonenumber, qualifications, certifications, stafftype, email, password, experience, coverletter, street, city, state, zip } = req.body;
-
-        console.log('Received data for application creation:', {  firstname, lastname, dateofbirth, phonenumber, stafftype, email, password, experience, coverletter, street, city, state, zip });
-
-        // Validate required fields
-        if (!firstname || !lastname || !dateofbirth || !phonenumber || !stafftype || !email || !password || !experience || !experience || !coverletter || !street || !city || !state || !zip) {
-            return res.status(400).json({ error: 'All fields are required.' });
-        }
-
-        // Create the application object with form data
-        const applicationData = await Applications.create({
-            firstname,
-            lastname,
-            dateofbirth,
-            phonenumber,
-            stafftype,
-            email,
-            password,
-            experience,
-            qualifications,
-            certifications,
-            coverletter,
-            street,
-            city,
-            state,
-            zip,
+      console.log('Received data for application creation:', {
+        firstname,
+        lastname,
+        dateofbirth,
+        phonenumber,
+        stafftype,
+        email,
+        password,
+        experience,
+        coverletter,
+        street,
+        city,
+        state,
+        zip,
       });
-
-       console.log('Application is created:', applicationData); 
-        res.status(201).json({ message: "Application was created successfully", applicationData });
-
-
+  
+      // Validate required fields
+      if (
+        !firstname || !lastname || !dateofbirth || !phonenumber || !stafftype ||
+        !email || !password || !experience || !coverletter || !street || !city || !state || !zip
+      ) {
+        return res.status(400).json({ error: 'All fields are required.' });
+      }
+  
+      const passwordhash = await bcrypt.hash(password, 10);
+  
+      const applicationData = await Users.create({
+        firstname,
+        lastname,
+        dateofbirth,
+        phonenumber,
+        role: stafftype,
+        email,
+        passwordhash,
+        experience,
+        qualifications,
+        certifications,
+        coverletter,
+        street,
+        city,
+        state,
+        zip,
+      });
+  
+      console.log('Application is created:', applicationData);
+      res.status(201).json({ message: 'Application was created successfully', applicationData });
+  
     } catch (error) {
-      // Log the full error to capture more details
       console.error('Error processing application:', error);
-      // Send a more detailed error response
-      return res.status(500).json({ error: `Internal server error: ${error.message}` });
+      res.status(500).json({ error: `Internal server error: ${error.message}` });
     }
-};
+  };
+  
 
 
 
-const gettingApplications = async (req, res) => {
+  const gettingApplications = async (req, res) => {
     console.log('Request received at backend over here.');
     try {
-        const applications = await Applications.findAll({
+        const applications = await Users.findAll({
             attributes: [
-              'firstName',
-              'lastName',
+              'firstname',
+              'lastname',
               'dateofbirth',
               'phonenumber',
-              'stafftype',
+              ['role', 'stafftype'],  // Using alias here to match the frontend expectation
               'email',
-              'password',
+              'passwordhash',
               'qualifications',
               'certifications',
               'coverletter',
@@ -126,6 +157,9 @@ const gettingApplications = async (req, res) => {
               'zip',
               'status',
             ],
+            where: {
+                role: ['doctor', 'receptionist', 'admin', 'specialist']
+            }
         });
         res.json(applications);
     } catch (error) {
@@ -156,4 +190,35 @@ const creatingUser= async (req, res) => {
 };
 
 
-module.exports = { registerUser, loginUser, gettingApplications, sendingApplications, creatingUser};
+const updateApplicationStatus = async (req, res) => {
+    const { status, email } = req.body;
+  
+    if (!["pending", "accepted", "rejected"].includes(status)) {
+      return res.status(400).json({ error: "Invalid status value." });
+    }
+  
+    try {
+      const app = await Users.findOne({ where: { email } });
+  
+      if (!app) {
+        return res.status(404).json({ error: "Application not found." });
+      }
+  
+      app.status = status;
+      await app.save();
+  
+      res.json({
+        message: `Application status updated to ${status}.`,
+        application: app,
+      });
+    } catch (error) {
+      console.error("Error updating application status:", error);
+      res.status(500).json({ error: "Internal server error." });
+    }
+};
+  
+
+
+
+
+module.exports = { registerUser, loginUser, gettingApplications, sendingApplications, creatingUser, updateApplicationStatus};
