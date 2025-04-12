@@ -11,11 +11,11 @@ module.exports = (sequelize, DataTypes)=>{
             allowNull: false    
         },
         doctornotes: {
-            type: DataTypes.INTEGER,
+            type: DataTypes.TEXT,
             allowNull: false,
         },
         notesforpatient: {
-            type: DataTypes.STRING,
+            type: DataTypes.TEXT,
             allowNull: false,
         }
     })

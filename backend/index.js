@@ -26,10 +26,12 @@ app.use('/appointments', appointmentsRouter);
 
 
 const referralRoutes = require("./routes/Referral");
-app.use("/referrals", referralRoutes);
+app.use('/referrals', referralRoutes);
 
 const visitinfoRouter = require('./routes/VisitInfo');
 app.use("/visitinfo", visitinfoRouter);
+const specialistRouter = require('./routes/Specialist');
+app.use("/specialists", specialistRouter)
 
 
 db.sequelize.sync()

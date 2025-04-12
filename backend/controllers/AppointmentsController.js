@@ -39,7 +39,6 @@ const isDoctorAvailable = async (doctorid, requesteddate, requestedtime, appoint
         requestedtime,
     };
 
-    //exclude current appointment when checking
     if (appointmentid) {
         conflictCondition.appointmentid = { $ne: appointmentid };
     }
@@ -48,7 +47,6 @@ const isDoctorAvailable = async (doctorid, requesteddate, requestedtime, appoint
         where: conflictCondition,
     });
 
-    //return true if no conflict
     return conflictingAppointment ? false : true;
 };
 
@@ -62,21 +60,17 @@ const createAppointment = async (req, res) => {
         }
         const patientid = patient.dataValues.patientid;  
  
-        //log received data 
         console.log('Received data for appointment creation:', { doctorid, requesteddate, requestedtime, patientid });
 
-        // Check if all required fields are provid
         if (!doctorid || !requesteddate || !requestedtime || !patientid) {
             return res.status(400).json("Missing required fields." );
         }
 
-        // Check doctor availability
         const available = await isDoctorAvailable(doctorid, requesteddate, requestedtime);
         if (!available) {
             return res.status(400).json("Doctor not available at this time." );
         }
 
-        // Create the appointment
         const appointment = await Appointments.create({ 
             doctorid,  
             requesteddate, 
@@ -105,15 +99,12 @@ const createAppointmentReceptionist = async (req, res) => {
 
         const receptionistid = receptionist.dataValues.receptionistid;  
     
-        //log received data 
         console.log('Received data for appointment creation:', { doctorid, requesteddate, requestedtime, patientid , receptionistid});
 
-        // Check if all required fields are provid
         if (!doctorid || !requesteddate || !requestedtime || !patientid || !receptionistid) {
             return res.status(400).json({ message: "Missing required fields." });
         }
 
-        //check if the patient already has an appointment at the same time
         const existingAppointment = await Appointments.findOne({
             where: {
                 patientid,
@@ -127,13 +118,11 @@ const createAppointmentReceptionist = async (req, res) => {
             });
         }
 
-        // Check doctor availability
         const available = await isDoctorAvailable(doctorid, requesteddate, requestedtime);
         if (!available) {
             return res.status(400).json({ message: "Doctor not available at this time." });
         }
 
-        // Create the appointment
         const appointment = await Appointments.create({ 
             doctorid,  
             requesteddate, 
@@ -150,7 +139,6 @@ const createAppointmentReceptionist = async (req, res) => {
     }
 };
 
-//Update appoinments as receptionist
 const updateAppointmentReceptionist = async (req, res) => {
     try {
         const { appointmentid } = req.params;
@@ -158,30 +146,25 @@ const updateAppointmentReceptionist = async (req, res) => {
 
         console.log('Receptionist updating appointment:', { appointmentid, doctorid, requesteddate, requestedtime, patientid });
 
-        // Validate required fields
         if (!doctorid || !requesteddate || !requestedtime || !patientid) {
             return res.status(400).json({ message: "Missing required fields." });
         }
 
-        // Check if appointment exists
         const appointment = await Appointments.findByPk(appointmentid);
         if (!appointment) {
             return res.status(404).json({ message: "Appointment not found." });
         }
 
-        // Check if patient exists
         const patient = await Patients.findByPk(patientid);
         if (!patient) {
             return res.status(404).json({ message: "Patient not found." });
         }
 
-        // Check doctor availability
         const available = await isDoctorAvailable(doctorid, requesteddate, requestedtime, appointmentid);
         if (!available) {
             return res.status(400).json({ message: "Doctor not available at this time." });
         }
 
-        // Perform update
         await appointment.update({
             doctorid,
             requesteddate,
@@ -198,7 +181,6 @@ const updateAppointmentReceptionist = async (req, res) => {
 };
 
 
-// Update appointment as patient
 const updateAppointment = async (req, res) => {
     try {
         const { appointmentid } = req.params;
@@ -212,12 +194,10 @@ const updateAppointment = async (req, res) => {
 
         console.log('Received data for appointment update:', { appointmentid, doctorid, requesteddate, requestedtime });
 
-        // Check if all required fields are provided
         if (!doctorid || !requesteddate || !requestedtime) {
             return res.status(400).json({ message: "Missing required fields." });
         }
 
-        //find the existing appointment
         const appointment = await Appointments.findByPk(appointmentid);
         if (!appointment) {
             return res.status(404).json({ message: "Appointment not found." });
@@ -229,7 +209,6 @@ const updateAppointment = async (req, res) => {
             return res.status(400).json({ message: "Doctor not available at this time." });
         }
  
-        //update
         await appointment.update({ doctorid, requesteddate, requestedtime });
 
         console.log('Appointment updated:', appointment);

@@ -1,6 +1,6 @@
 /*import React, { useState } from 'react';
 import axios from 'axios';
-import { jwtDecode } from 'jwt-decode'; // Import jwtDecode
+import { jwtDecode } from 'jwt-decode'; 
 import DoctorDropDown from '../components/DoctorDropDown'
 import PatientDropDown from '../components/PatientDropDown'
 
@@ -20,7 +20,14 @@ export default function ReceptionistAppointment() {
       "02:00 PM", "02:30 PM", "03:00 PM", "03:30 PM"
   ];
 
-  // Convert time to 24-hour format
+  const getTodayDate = () => {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0'); 
+    const day = String(today.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+};
+
   const convertTo24HourFormat = (time12h) => {
       const [time, modifier] = time12h.split(' ');
       let [hours, minutes] = time.split(':').map(Number);
@@ -31,8 +38,6 @@ export default function ReceptionistAppointment() {
       return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:00`;
   };
     
-
-  // Handle form submission (Create appointment)
     const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -62,7 +67,6 @@ export default function ReceptionistAppointment() {
             return;
         }
 
-        // Prepare the appointment data
         const appointmentData = {
             doctorid: doctor,
             patientid: patient,
@@ -118,6 +122,7 @@ export default function ReceptionistAppointment() {
                           id="date"
                           value={date}
                           onChange={(e) => setDate(e.target.value)}
+                          min={getTodayDate()}
                           className="mt-1 w-full border border-gray-300 rounded-md p-2"
                       />
                   </div>
