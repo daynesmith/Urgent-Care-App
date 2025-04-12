@@ -14,21 +14,20 @@ export default function Navbar(){
     
     return(
         <div className = 'navbar'>
-          {/*links patients see*/}
+
           {role === 'patient' && (
             <>
             <Link to= '/dashboard'>Patient Dashboard</Link>
 
             </>
           )}
-          {/*links Admin see*/}
           {role === 'admin' && (
             <>
             <Link to= '/dashboard'>Admin Dashboard</Link>
             <Link to = '/roleform'>Change User Role</Link>
             </>
           )}
-          {/*links doctors see*/}
+
           {role === 'doctor' && (
             <>
             <Link to= '/dashboard'>Doctor Dashboard</Link>
@@ -36,20 +35,19 @@ export default function Navbar(){
 
             </>
           )}
-          {/*links Receptionists see*/}
+
           {role === 'receptionist' && (
             <>
             <Link to= '/dashboard'>Receptionist Dashboard</Link>
 
             </>
           )}
-          {/*links Specialists see*/}
           {role === 'specialist' && (
             <>
             <Link to= '/dashboard'>Specialist Dashboard</Link>
             </>
           )}
-          {/*links logged in people dont see*/}
+
           {!role && (
             <>
             <Link to= '/'>HomePage</Link>
@@ -57,10 +55,11 @@ export default function Navbar(){
             <Link to= '/register'>Registration</Link>
             </>
           )}
-          {/* logged in links everyone sees*/}
+
           {role && (
           <Link to= '/' onClick = {logout}>Click to Logout</Link>
           )}
         </div>
     )
 }
+
