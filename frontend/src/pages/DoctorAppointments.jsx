@@ -27,9 +27,13 @@ export default function DoctorAppointments() {
                 return;
             }
 
+            const params = {};
+            if (startDate) params.startDate = startDate;
+            if (endDate) params.endDate = endDate;
+
             const response = await axios.get(`${apiUrl}/doctor/doctorappointmentsdaterange`, {
                 headers: { 'accessToken': token },
-                params: {startDate, endDate}
+                params,
             });
 
             console.log("Appointments from API:", response.data.appointments);
@@ -37,14 +41,12 @@ export default function DoctorAppointments() {
             setAppointments(response.data.appointments);
         } catch (err) {
             console.error('Error fetching appointments:', err);
-            setError('Failed to load appointments.');
+            //setError('Failed to load appointments.');
         }
     };
 
     useEffect(() => {
-        if (startDate && endDate) {
-            fetchAppointments();
-        }
+        fetchAppointments();
     }, [startDate, endDate]);
 
     return (
