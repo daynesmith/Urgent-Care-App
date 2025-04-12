@@ -18,7 +18,7 @@ export default function ReceptionDashboard() {
             </Link>
           </li>
           <li>
-            <Link to="/checkInOut" className="flex items-center space-x-3 px-3 py-2 hover:bg-gray-700 rounded-md">
+            <Link to="/CheckInCheckOut" className="flex items-center space-x-3 px-3 py-2 hover:bg-gray-700 rounded-md">
               <FaClipboardCheck size={20} />
               <span className="hidden sm:inline">Check-In/Check-Out</span>
             </Link>
