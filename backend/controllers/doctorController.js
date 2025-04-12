@@ -1,4 +1,4 @@
-const { Op } = require("sequelize");
+const { Op, where } = require("sequelize");
 const {Doctors,Users, Appointments, Patients} = require('../models');
 
 
@@ -91,9 +91,6 @@ const getDoctorsNames = async (req, res) => {
 const getAppointmentByDateRange = async (req, res) => {
     try {
         const { startDate, endDate } = req.query;
-        if (!startDate || !endDate ) {
-            return res.status(400).json({ message: "Start date and end date are required." });
-        }
 
         const email = req.user.email;
         const user = await Users.findOne({
@@ -109,19 +106,20 @@ const getAppointmentByDateRange = async (req, res) => {
             return res.status(400).json({ message: "Doctor ID not found." });
         }
 
-
-        if (startDate > endDate) {
-            return res.status(400).json({ message: "Start date must be before end date." });
+        //condition that for only providing params if  start date and end date provided
+        let whereCondition = { doctorid };
+        if (startDate && endDate) {
+            if (startDate > endDate) {
+                return res.status(400).json({ message: "Start date must be before end date." });
+            }
+            whereCondition.requesteddate = {
+                [Op.between]: [startDate, endDate],
+            };
         }
 
-        //fetch appointments based on the date range
+        //fetch appointments based on the date range!
         const appointments = await Appointments.findAll({
-            where: {
-                doctorid: doctorid,
-                requesteddate: {
-                    [Op.between]: [startDate, endDate],  
-                }
-            },
+            where: whereCondition,
             include: [
                 {
                     model: Patients,
@@ -158,30 +156,5 @@ const getAppointmentByDateRange = async (req, res) => {
         res.status(500).json({ message: "Internal server error.", error });
     }
 };
-
-
-/*
-const getPatientInfo = async (req, res) => {
-    try {
-        const { patientId } = req.params;  
-
-        const patient = await Patients.findOne({
-            where: { patientid: patientId },
-            include: ['appointments'], // Optionally, you can include their appointments if needed
-        });
-
-        if (!patient) {
-            return res.status(404).json({ message: 'Patient not found.' });
-        }
-
-        return res.status(200).json(patient);
-    } catch (error) {
-        console.error('Error fetching patient info:', error);
-        return res.status(500).json({ message: 'Internal server error.' });
-    }
-};
-*/
-
-
 
 module.exports = {inputInfoForFirstTime, getIfDoctorInfo, getDoctorsNames, getAppointmentByDateRange}; 

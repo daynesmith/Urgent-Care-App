@@ -11,8 +11,13 @@ export default function PatientDropDown({ patient, setPatient }) {
 
     useEffect(() => {
         const fetchPatients = async () => {
+            const token = localStorage.getItem('accessToken');
             try {
-                const response = await axios.get(`${apiUrl}/patient/patientsNames`);
+                const response = await axios.get(`${apiUrl}/receptionist/patientsNames`, {
+                    headers: {
+                        'accessToken': token,
+                    },
+                });
                 setPatients(response.data);
                 setLoading(false);
             } catch (err) {

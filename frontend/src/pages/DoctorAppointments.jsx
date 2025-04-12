@@ -1,14 +1,17 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { jwtDecode } from 'jwt-decode'; // Import jwtDecode
+import { jwtDecode } from 'jwt-decode';
 
 const apiUrl = import.meta.env.VITE_API_URL;
 
-
 export default function DoctorAppointments() {
     const [appointments, setAppointments] = useState([]);
+    const [filteredAppointments, setFilteredAppointments] = useState([]);
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
+    const [searchTerm, setSearchTerm] = useState('');
+    const [sortOrder, setSortOrder] = useState('asc'); //asc or desc
+    const [filterType, setFilterType] = useState('all'); //'all','past', or 'future'
     const [error, setError] = useState('');
     const [selectedAppointment, setSelectedAppointment] = useState(null);
 
@@ -18,7 +21,10 @@ export default function DoctorAppointments() {
             setError('No access token found. Please log in again.');
             return;
         }
-        
+
+       //RESET ERROR STATE BEFOR EAPI CALL!!!
+        setError('');
+
         try {
             const decoded = jwtDecode(token);
             console.log("Decoded Token:", decoded);
@@ -33,15 +39,16 @@ export default function DoctorAppointments() {
 
             const response = await axios.get(`${apiUrl}/doctor/doctorappointmentsdaterange`, {
                 headers: { 'accessToken': token },
-                params,
+                params: Object.keys(params).length > 0 ? params : undefined
             });
 
             console.log("Appointments from API:", response.data.appointments);
 
-            setAppointments(response.data.appointments);
+            setAppointments(response.data.appointments || []);
+            setFilteredAppointments(response.data.appointments || []); 
         } catch (err) {
             console.error('Error fetching appointments:', err);
-            //setError('Failed to load appointments.');
+            setError('Failed to fetch appointments.');
         }
     };
 
@@ -49,12 +56,60 @@ export default function DoctorAppointments() {
         fetchAppointments();
     }, [startDate, endDate]);
 
+    const handleSearch = (e) => {
+        const term = e.target.value.toLowerCase();
+        setSearchTerm(term);
+
+        const filtered = appointments.filter((appointment) =>
+            appointment.patientname.toLowerCase().includes(term)
+        );
+        setFilteredAppointments(filtered);
+    };
+
+    const handleSortByDate = () => {
+        const sorted = [...filteredAppointments].sort((a, b) => {
+            const dateA = new Date(a.requesteddate);
+            const dateB = new Date(b.requesteddate);
+            return sortOrder === 'asc' ? dateA - dateB : dateB - dateA;
+        });
+        setFilteredAppointments(sorted);
+        setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc'); 
+    };
+
+    const handleFilterByType = (type) => {
+        setFilterType(type);
+
+        const now = new Date();
+        let filtered;
+
+        if (type === 'past') {
+            filtered = appointments.filter((appointment) => new Date(appointment.requesteddate) < now);
+        } else if (type === 'future') {
+            filtered = appointments.filter((appointment) => new Date(appointment.requesteddate) >= now);
+        } else {
+            filtered = appointments; 
+        }
+
+        setFilteredAppointments(filtered);
+    };
+
     return (
         <div className="p-6">
             <h2 className="text-2xl font-bold text-center mb-4">Doctor Appointments</h2>
             {error && <div className="text-red-500 text-sm mb-4">{error}</div>}
 
-            {/*date range filter*/}
+            <div className="mb-4">
+                <label htmlFor="search" className="block mb-2">Search by Patient Name</label>
+                <input
+                    type="text"
+                    id="search"
+                    value={searchTerm}
+                    onChange={handleSearch}
+                    placeholder="Enter patient name"
+                    className="border p-2 rounded w-full"
+                />
+            </div>
+
             <div className="mb-4">
                 <label htmlFor="startDate" className="block mb-2">Start Date</label>
                 <input
@@ -76,6 +131,34 @@ export default function DoctorAppointments() {
                 />
             </div>
 
+            {/* sort/filter buttons1 */}
+            <div className="flex space-x-4 mb-4">
+                <button
+                    onClick={handleSortByDate}
+                    className="bg-blue-600 text-white px-4 py-2 rounded"
+                >
+                    Sort by Date ({sortOrder === 'asc' ? 'Ascending' : 'Descending'})
+                </button>
+                <button
+                    onClick={() => handleFilterByType('past')}
+                    className={`px-4 py-2 rounded ${filterType === 'past' ? 'bg-gray-700 text-white' : 'bg-gray-300'}`}
+                >
+                    Show Past Appointments
+                </button>
+                <button
+                    onClick={() => handleFilterByType('future')}
+                    className={`px-4 py-2 rounded ${filterType === 'future' ? 'bg-gray-700 text-white' : 'bg-gray-300'}`}
+                >
+                    Show Future Appointments
+                </button>
+                <button
+                    onClick={() => handleFilterByType('all')}
+                    className={`px-4 py-2 rounded ${filterType === 'all' ? 'bg-gray-700 text-white' : 'bg-gray-300'}`}
+                >
+                    Show All Appointments
+                </button>
+            </div>
+
             <div className="overflow-x-auto">
                 <table className="w-full table-auto border-collapse border border-gray-300">
                     <thead>
@@ -89,8 +172,8 @@ export default function DoctorAppointments() {
                         </tr>
                     </thead>
                     <tbody>
-                        {appointments.length > 0 ? (
-                            appointments.map((appointment) => (
+                        {filteredAppointments.length > 0 ? (
+                            filteredAppointments.map((appointment) => (
                                 <tr key={appointment.appointmentid} className="text-center border border-gray-300">
                                     <td className="border border-gray-300 p-2">{appointment.patientname}</td>
                                     <td className="border border-gray-300 p-2">{appointment.requesteddate}</td>
@@ -98,7 +181,6 @@ export default function DoctorAppointments() {
                                     <td className="border border-gray-300 p-2">{appointment.appointmentstatus}</td>
                                     <td className="border border-gray-300 p-2">{appointment.recommendedspecialist || 'N/A'}</td>
 
-                                    {/*added visit info button */}
                                     <td className="border border-gray-300 p-2">
                                         <button
                                             onClick={() => setSelectedAppointment(appointment)}
@@ -117,7 +199,7 @@ export default function DoctorAppointments() {
                     </tbody>
                 </table>
             </div>
-            
+
             {selectedAppointment && (
                 <VisitInfoModal
                     appointment={selectedAppointment}
@@ -128,9 +210,7 @@ export default function DoctorAppointments() {
     );
 }
 
-
-//visitinfo popup
-function VisitInfoModal({appointment, onClose}) {
+function VisitInfoModal({ appointment, onClose }) {
     const [doctorNotes, setDoctorNotes] = useState('');
     const [notesForPatient, setNotesForPatient] = useState('');
     const [loading, setLoading] = useState(true);
