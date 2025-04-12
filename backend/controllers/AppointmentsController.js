@@ -32,6 +32,29 @@ const getAllAppointments = async (req, res) => {
     }
 }
 
+const getSingleAppointment = async (req, res) => {
+    const apptPageId = parseInt(req.params.appointmentid)
+    console.log("******************************************");
+    console.log(apptPageId);
+
+    try {
+        const appointment = await Appointments.findOne({
+            where: { appointmentid: apptPageId }
+        });
+
+        if (!appointment) {
+            return res.status(404).json({ message: 'Appointment not found' });
+        }
+
+        res.json(appointment);
+    } catch (error) {
+        console.error('Error fetching appointment:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+
+
+}
+
 const isDoctorAvailable = async (doctorid, requesteddate, requestedtime, appointmentid = null) => {
     const conflictCondition = {
         doctorid,
@@ -219,4 +242,4 @@ const updateAppointment = async (req, res) => {
     } 
 };
 
-module.exports = {getAllAppointments, getPatientAppointments, isDoctorAvailable, createAppointmentReceptionist, createAppointment,  updateAppointment, updateAppointmentReceptionist }; 
+module.exports = {getAllAppointments, getPatientAppointments, isDoctorAvailable, createAppointmentReceptionist, createAppointment,  updateAppointment, updateAppointmentReceptionist, getSingleAppointment }; 

@@ -1,12 +1,11 @@
+import { Link } from 'react-router-dom'
+
+
 export default function SingleAppointment(props){
 
-    const formatDate = (dateString) => {
-        return new Date(dateString).toLocaleDateString("en-US", {
-            year: "numeric",
-            month: "long",
-            day: "numeric",
-        });
-    };
+    const [year, month, day] = props.date.split("-");
+
+    const formattedDate = `${month}/${day}/${year}`;
     
     const formatTime = (timeString) => {
         return new Date(`1970-01-01T${timeString}`).toLocaleTimeString("en-US", {
@@ -17,9 +16,11 @@ export default function SingleAppointment(props){
     };
 
     return(
-        <li className="outline p-4">
-        {formatDate(props.date)}<br />
-        {formatTime(props.time)}
-    </li>
+        <Link to={`/visits/${props.data.appointmentid}`}>
+        <li className="outline p-4 cursor-pointer" >
+            {formattedDate}<br />
+            {formatTime(props.time)}
+        </li>
+        </Link>
     );
 }
