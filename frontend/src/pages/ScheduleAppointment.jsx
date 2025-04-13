@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { jwtDecode } from 'jwt-decode'; // Import jwtDecode
+import { jwtDecode } from 'jwt-decode'; 
 import DoctorDropDown from '../components/DoctorDropDown'
 
 const apiUrl = import.meta.env.VITE_API_URL;
@@ -18,7 +18,14 @@ export default function ScheduleAppointments() {
         "02:00 PM", "02:30 PM", "03:00 PM", "03:30 PM"
     ];
 
-    // Convert time to 24-hour format
+    const getTodayDate = () => {
+        const today = new Date();
+        const year = today.getFullYear();
+        const month = String(today.getMonth() + 1).padStart(2, '0'); 
+        const day = String(today.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    };
+
     const convertTo24HourFormat = (time12h) => {
         const [time, modifier] = time12h.split(' ');
         let [hours, minutes] = time.split(':').map(Number);
@@ -29,8 +36,6 @@ export default function ScheduleAppointments() {
         return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:00`;
     };
 
-    
-    // Handle form submission (Create appointment)
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (!date || !time || !doctor) {
@@ -56,7 +61,7 @@ export default function ScheduleAppointments() {
                 return;
             }
 
-            // Prepare the appointment data
+           
             const appointmentData = {
                 requesteddate: date,
                 requestedtime: formattedTime,
@@ -66,7 +71,6 @@ export default function ScheduleAppointments() {
 
             console.log('Appointment data being sent:', appointmentData);
 
-            //POST
             await axios.post(`${apiUrl}/appointments/appointments-actions`, appointmentData, {
                 headers: { 'accessToken': token },
             });
@@ -85,7 +89,6 @@ export default function ScheduleAppointments() {
                 <h2 className="text-2xl font-bold text-center mb-4">Schedule Appointment</h2>
 
                 <form onSubmit={handleSubmit} className="space-y-4">
-                    {/* Choose Doctor */}
                     <div>
                         <label htmlFor="doctor" className="block text-sm font-medium text-gray-700">
                             Choose a doctor:
@@ -93,7 +96,6 @@ export default function ScheduleAppointments() {
                         <DoctorDropDown doctor={doctor} setDoctor={setDoctor} />
                     </div>
 
-                    {/* Choose Date */}
                     <div>
                         <label htmlFor="date" className="block text-sm font-medium text-gray-700">
                             Select Date:
@@ -103,11 +105,11 @@ export default function ScheduleAppointments() {
                             id="date"
                             value={date}
                             onChange={(e) => setDate(e.target.value)}
+                            min={getTodayDate()} 
                             className="mt-1 w-full border border-gray-300 rounded-md p-2"
                         />
                     </div>
 
-                    {/* Choose Time */}
                     <div>
                         <label htmlFor="time" className="block text-sm font-medium text-gray-700">
                             Select Time:
@@ -125,11 +127,9 @@ export default function ScheduleAppointments() {
                         </select>
                     </div>
 
-                    {/* Errors and Status */}
                     {error && <div className="text-red-500 text-sm">{error}</div>}
                     {appointmentStatus && <div className="text-green-500 text-sm">{appointmentStatus}</div>}
 
-                    {/* Submit Button */}
                     <button
                         type="submit"
                         className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md transition"

@@ -17,6 +17,61 @@ const getIfPatientInfo = async (req,res) =>{
     }
 }
 
+const getPatientInfo = async (req, res) => {
+    try {
+        const patient = await Patients.findOne({
+            where:{email: req.user.email},
+            attributes: ["firstname", "lastname", "dateofbirth", "phonenumber"]
+        })
+            
+        if (!patient) {
+            return res.status(400).json({ message: "patient not found with token." });
+        }
+
+        res.status(200).json(patient);
+    } catch (error) {
+        res.status(500).json({ message: "Internal Server Error", error });
+    }
+}
+
+// can't submit completely blank data
+// fix how to edit date of birth
+
+const editPatientInfo = async (req, res) => {
+
+    const { email } = req.user;
+    const {
+        firstname,
+        lastname,
+        dateofbirth,
+        phonenumber
+    } = req.body
+
+    try {
+        const patient = await Patients.findOne({
+            where:{email: email},
+        })
+
+        if (!patient) {
+            return res.status(400).json({ message: "patient not found with token." });
+        }
+
+        await patient.update({
+            firstname: firstname,
+            lastname: lastname,
+            dateofbirth: dateofbirth,
+            phonenumber: phonenumber,
+        });
+
+        console.log("Database update successful:");
+        res.json({ success: true });
+
+    } catch (error) {
+        console.error("Error updating patient info:", error);
+        return res.status(500).json({ message: "Internal Server Error" });
+    }
+};
+
 const inputPatientInfoForFirstTime = async (req, res) => {
     try {
         const { firstname, lastname, dateofbirth, phonenumber} = req.body;
@@ -54,10 +109,7 @@ const inputPatientInfoForFirstTime = async (req, res) => {
 
 const getPatientsNames = async (req, res) => {
     try {
-        const doctorId = req.user.userid;
-
         const appointments = await Appointments.findAll({
-            where: { doctorid: doctorId },
             attributes: ['patientid'],
             group: ['patientid']
         });
@@ -65,7 +117,9 @@ const getPatientsNames = async (req, res) => {
         const patientIds = appointments.map((appt) => appt.patientid);
 
         const patients = await Patients.findAll({
-            where: { patientid: patientIds },
+            where: { patientid: {
+                [Op.in]: patientIds
+            } },
             attributes: ['patientid', 'firstname', 'lastname']
         });
 
@@ -160,7 +214,17 @@ const getPatientsByDoctor = async (req, res) => {
   
       const patients = await Patients.findAll({
         where: { patientid: patientIds },
-        attributes: ['patientid', 'firstname', 'lastname']
+        attributes: [
+            'patientid', 
+            'firstname', 
+            'lastname',
+            'chronic_conditions',
+            'past_surgeries',
+            'current_medications',
+            'allergies',    
+            'lifestyle_factors',
+            'vaccination_status'
+        ]
       });
   
       res.json(patients);
@@ -169,6 +233,7 @@ const getPatientsByDoctor = async (req, res) => {
       res.status(500).json({ error: 'Failed to fetch patients' });
     }
   };
+
   
 
 module.exports = {
@@ -176,6 +241,8 @@ module.exports = {
   getIfPatientInfo,
   getPatientsNames,
   getMedicalHistory,
-  editMedicalHistory,
+  editMedicalHistory, 
+  getPatientInfo, 
+  editPatientInfo,
   getPatientsByDoctor
 };

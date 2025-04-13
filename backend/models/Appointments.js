@@ -56,11 +56,6 @@ module.exports = (sequelize, DataTypes) => {                      //Appointments
             foreignKey: 'patientid',
             as: 'patient'
         })
-        
-        Appointments.belongsTo(models.Specialists,{
-            foreignKey: 'specialistid',
-            as: 'specialist'
-        })
 
         Appointments.belongsTo(models.Doctors,{
             foreignKey: 'doctorid',
