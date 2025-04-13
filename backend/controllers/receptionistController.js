@@ -43,7 +43,7 @@ const inputReceptionistInfoForFirstTime = async (req, res) => {
             phonenumber
         });
 
-        console.log('Receptionist profile created:', receptionist);
+        console.log('Receptionist profile created:', receptionist); 
         res.status(201).json({ message: "Receptionist profile created successfully", receptionist });
 
     } catch (error) {
