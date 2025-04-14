@@ -34,8 +34,7 @@ const getAllAppointments = async (req, res) => {
 
 const getSingleAppointment = async (req, res) => {
     const apptPageId = parseInt(req.params.appointmentid)
-    console.log("******************************************");
-    console.log(apptPageId);
+
 
     try {
         const appointment = await Appointments.findOne({
@@ -242,4 +241,77 @@ const updateAppointment = async (req, res) => {
     } 
 };
 
-module.exports = {getAllAppointments, getPatientAppointments, isDoctorAvailable, createAppointmentReceptionist, createAppointment,  updateAppointment, updateAppointmentReceptionist, getSingleAppointment }; 
+const cancelAppointment = async (req,res) => {
+    const apptPageId = parseInt(req.params.appointmentid)
+
+    try {
+        const appointment = await Appointments.findOne({
+            where: { appointmentid: apptPageId }
+        });
+
+        if (!appointment) {
+            return res.status(404).json({ message: 'Appointment not found' });
+        }
+
+        await appointment.update({
+            appointmentstatus: "cancelled"
+        });
+
+        console.log("Database update successful:");
+        res.json({ success: true });
+
+    } catch (error) {
+        console.error('Error fetching appointment:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+}
+
+/// helper function
+const convertTo24HourFormat = (time12h) => {
+    const [time, modifier] = time12h.split(' ');
+    let [hours, minutes] = time.split(':');
+
+    if (hours === '12') {
+        hours = '00';
+    }
+
+    if (modifier === 'PM') {
+        hours = String(parseInt(hours, 10) + 12);
+    }
+
+    return `${hours}:${minutes}:00`;
+};
+
+// only doing requested visits so far and not "upcoming visits"
+const rescheduleAppointment = async (req, res) => {
+
+
+    const apptPageId = parseInt(req.params.appointmentid);
+    const { requesteddate, requestedtime } = req.body;
+
+    try {
+        const appointment = await Appointments.findOne({
+            where: { appointmentid: apptPageId }
+        });
+
+        if (!appointment) {
+            return res.status(404).json({ message: 'Appointment not found' });
+        }
+
+        const formattedTime = convertTo24HourFormat(requestedtime);
+
+
+        await appointment.update({
+            requesteddate,
+            requestedtime: formattedTime
+        });
+
+        res.json({ success: true, message: "Appointment rescheduled successfully" });
+
+    } catch (error) {
+        console.error("Error rescheduling appointment:", error);
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
+module.exports = {getAllAppointments, getPatientAppointments, isDoctorAvailable, createAppointmentReceptionist, createAppointment,  updateAppointment, updateAppointmentReceptionist, getSingleAppointment, cancelAppointment, rescheduleAppointment }; 

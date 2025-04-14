@@ -17,7 +17,7 @@ export default function SingleAppointment(props){
 
     return(
         <Link to={`/visits/${props.data.appointmentid}`}>
-        <li className="outline p-4 cursor-pointer" >
+        <li className="outline p-4 cursor-pointer bg-white rounded-xl shadow-md hover:shadow-lg transition-all text-gray-800" >
             {formattedDate}<br />
             {formatTime(props.time)}
         </li>
