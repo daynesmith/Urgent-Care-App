@@ -83,7 +83,7 @@ export default function Appointments(props){
             {futureAppointments.length > 0 ? (
                 <ul className="flex flex-row gap-2 bg-gray-200 p-2">
                     {futureAppointments.map((appointment) => (
-                        <SingleAppointment key={appointment.appointmentid} date={appointment.requesteddate} time={appointment.requestedtime} />
+                        <SingleAppointment key={appointment.appointmentid} data={appointment} date={appointment.requesteddate} time={appointment.requestedtime} />
                     ))}
                 </ul>
             ) : (
@@ -93,7 +93,7 @@ export default function Appointments(props){
             {pastAppointments.length > 0 ? (
                 <ul className="flex flex-row gap-2 bg-gray-100 p-2">
                     {pastAppointments.map((appointment) => (
-                        <SingleAppointment key={appointment.appointmentid} date={appointment.requesteddate} time={appointment.requestedtime} />
+                        <SingleAppointment key={appointment.appointmentid} data={appointment} date={appointment.requesteddate} time={appointment.requestedtime} />
 
                     ))}
                 </ul>
@@ -104,7 +104,7 @@ export default function Appointments(props){
             {canceledAppointments.length > 0 ? (
                 <ul className="flex flex-row gap-2 bg-gray-100 p-2">
                     {canceledAppointments.map((appointment) => (
-                        <SingleAppointment key={appointment.appointmentid} date={appointment.requesteddate} time={appointment.requestedtime} />
+                        <SingleAppointment key={appointment.appointmentid} data={appointment} date={appointment.requesteddate} time={appointment.requestedtime} />
 
                     ))}
                 </ul>
@@ -115,7 +115,7 @@ export default function Appointments(props){
             {requestedAppointments.length > 0 ? (
                 <ul className="flex flex-row gap-2 bg-gray-100 p-2">
                     {requestedAppointments.map((appointment) => (
-                        <SingleAppointment key={appointment.appointmentid} date={appointment.requesteddate} time={appointment.requestedtime} />
+                        <SingleAppointment key={appointment.appointmentid} data={appointment} date={appointment.requesteddate} time={appointment.requestedtime} />
 
                     ))}
                 </ul>

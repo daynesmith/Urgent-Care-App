@@ -41,3 +41,5 @@ db.sequelize.sync()
   .catch((err) => {
     console.error("Failed to sync DB or start server:", err);
   });
+
+
