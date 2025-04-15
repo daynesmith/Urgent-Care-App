@@ -1,50 +1,6 @@
 const { Users, Specialists, Doctors, Receptionists} = require('../models');
 const { Op } = require("sequelize");
 
-const sendingApplications = async (req, res) => {
-
-    try {
-        const { firstname, lastname, dateofbirth, phonenumber, qualifications, certifications, stafftype, email, password, experience, coverletter, street, city, state, zip } = req.body;
-
-        //console.log('Received data for application creation:', {  firstname, lastname, dateofbirth, phonenumber, stafftype, email, password, experience, coverletter, street, city, state, zip });
-
-        // Validate required fields
-        if (!firstname || !lastname || !dateofbirth || !phonenumber || !stafftype || !email || !password || !experience || !experience || !coverletter || !street || !city || !state || !zip) {
-            return res.status(400).json({ error: 'All fields are required.' });
-        }
-
-        // Create the application object with form data
-        const applicationData = await Applications.create({
-            firstname,
-            lastname,
-            dateofbirth,
-            phonenumber,
-            stafftype,
-            email,
-            passwordhash,
-            experience,
-            qualifications,
-            certifications,
-            coverletter,
-            street,
-            city,
-            state,
-            zip,
-      });
-
-       //console.log('Application is created:', applicationData); 
-        res.status(201).json({ message: "Application was created successfully", applicationData });
-
-
-    } catch (error) {
-      // Log the full error to capture more details
-      console.error('Error processing application:', error);
-      // Send a more detailed error response
-      return res.status(500).json({ error: `Internal server error: ${error.message}` });
-    }
-};
-
-
 const toDoctor = async (req, res) =>{
     const { email } = req.body
 
@@ -258,4 +214,4 @@ const findEmployees = async (req, res) => {
     }
   };
   
-module.exports = {toDoctor, toReceptionist, toAdmin, toSpecialist, sendingApplications, findEmployees};
+module.exports = {toDoctor, toReceptionist, toAdmin, toSpecialist, findEmployees};

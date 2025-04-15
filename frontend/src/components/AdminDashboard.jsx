@@ -18,7 +18,6 @@ export default function AdminDashboard() {
   const [searchTerm, setSearchTerm] = useState('');
   const [employees, setEmployees] = useState([]);
   const [roleFilter, setRoleFilter] = useState("all");
-  const [applications, setApplications] = useState([]);
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
 /*
@@ -36,18 +35,6 @@ export default function AdminDashboard() {
     fetchEmployees();
   }, [roleFilter]);
 */
-  useEffect(() => {
-    const fetchApplications = async () => {
-      try {
-        const response = await axios.get(`${apiUrl}/users/getApplication`);
-        setApplications(response.data);
-      } catch (err) {
-        console.error("Error fetching applications:", err);
-      }
-    };
-    fetchApplications();
-  }, []);
-
 
   const fetchFilteredEmployees = async () => {
     try {

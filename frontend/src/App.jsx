@@ -21,7 +21,6 @@ import CheckInCheckOut from './pages/CheckInCheckOut.jsx';
 import SpecialistDashboard from './components/SpecialistDashboard.jsx';
 import JobOpenings from './components/JobOpenings.jsx';
 import JoinTheTeam from './pages/JoinTheTeam.jsx'
-import ApplicationForm from './components/ApplicationForm.jsx';
 import AdminDasboard from './components/AdminDashboard.jsx';
 import SingleAppointment from './pages/SingleAppointment.jsx';
 
@@ -55,7 +54,6 @@ function App() {
             <Route path = '/CheckInCheckOut' element = {<CheckInCheckOut />} />
             <Route path = '/JoinTheTeam' element = {<JoinTheTeam />} />
             <Route path = '/JobOpenings' element = {<JobOpenings />} />
-            <Route path = '/ApplicationForm' element = {<ApplicationForm />} />
             <Route path = '/AdminDasboard' element = {<AdminDasboard />} />
             <Route path = '/visits/:apptid' element = {<SingleAppointment />} />
 
