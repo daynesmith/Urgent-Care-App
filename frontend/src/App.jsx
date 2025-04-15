@@ -15,7 +15,6 @@ import DoctorAppointments from './pages/DoctorAppointments.jsx';
 import MedicalHistory from './pages/MedicalHistory.jsx';
 import ReceptionistProfile from './pages/ReceptionistProfile.jsx';
 import ReceptionistAppointment from './pages/ReceptionistAppoinment.jsx';
-
 import DoctorPatients from './pages/DoctorPatients.jsx';
 import CreateReferral from './pages/CreateReferral.jsx'
 import CheckInCheckOut from './pages/CheckInCheckOut.jsx';
@@ -62,7 +61,6 @@ function App() {
             <Route path = '/medical-history' element = {<MedicalHistory />} />
             <Route path = '/ReceptionistProfile' element = {<ReceptionistProfile />} />
             <Route path = '/ReceptionistAppointment' element = {<ReceptionistAppointment />} />
-
             <Route path = '/DoctorPatients' element = {<DoctorPatients />} />
             <Route path = '/createreferral' element = {<CreateReferral/> } />
             <Route path = '/CheckInCheckOut' element = {<CheckInCheckOut />} />

@@ -14,7 +14,7 @@ const sendingApplications = async (req, res) => {
         }
 
         // Create the application object with form data
-        const applicationData = await Users.create({
+        const applicationData = await Applications.create({
             firstname,
             lastname,
             dateofbirth,
@@ -161,7 +161,6 @@ const toSpecialist = async (req, res) =>{
         return res.status(500).json("error occured while updating the user's role")
     }
 }
-console.log("QUERY:", req.query);
 
 const findEmployees = async (req, res) => {
     try {
