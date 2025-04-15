@@ -15,7 +15,6 @@ import DoctorAppointments from './pages/DoctorAppointments.jsx';
 import MedicalHistory from './pages/MedicalHistory.jsx';
 import ReceptionistProfile from './pages/ReceptionistProfile.jsx';
 import ReceptionistAppointment from './pages/ReceptionistAppoinment.jsx';
-
 import DoctorPatients from './pages/DoctorPatients.jsx';
 import CreateReferral from './pages/CreateReferral.jsx'
 import CheckInCheckOut from './pages/CheckInCheckOut.jsx';
@@ -24,7 +23,6 @@ import JobOpenings from './components/JobOpenings.jsx';
 import JoinTheTeam from './pages/JoinTheTeam.jsx'
 import ApplicationForm from './components/ApplicationForm.jsx';
 import AdminDasboard from './components/AdminDashboard.jsx';
-
 import SingleAppointment from './pages/SingleAppointment.jsx';
 
 
@@ -52,7 +50,6 @@ function App() {
             <Route path = '/medical-history' element = {<MedicalHistory />} />
             <Route path = '/ReceptionistProfile' element = {<ReceptionistProfile />} />
             <Route path = '/ReceptionistAppointment' element = {<ReceptionistAppointment />} />
-
             <Route path = '/DoctorPatients' element = {<DoctorPatients />} />
             <Route path = '/createreferral' element = {<CreateReferral/> } />
             <Route path = '/CheckInCheckOut' element = {<CheckInCheckOut />} />
@@ -60,7 +57,6 @@ function App() {
             <Route path = '/JobOpenings' element = {<JobOpenings />} />
             <Route path = '/ApplicationForm' element = {<ApplicationForm />} />
             <Route path = '/AdminDasboard' element = {<AdminDasboard />} />
-
             <Route path = '/visits/:apptid' element = {<SingleAppointment />} />
 
           </Routes>

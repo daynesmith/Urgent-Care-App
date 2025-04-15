@@ -9,8 +9,7 @@ import SpecialistDashboard from '../components/SpecialistDashboard.jsx';
 
 export default function Dashboard(){
     const {role} = useContext(UserContext)
-
-
+    
     return(
         <div className = "bg-[#F8F9FA] m-4 p-8 shadow rounded-lg w-full mt-8">
             {role === 'receptionist' && <ReceptionistDashboard />}
