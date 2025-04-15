@@ -6,6 +6,7 @@ const apiUrl = import.meta.env.VITE_API_URL
 import {useNavigate} from 'react-router-dom'
 import { UserContext } from '../context/Usercontext';
 import JoinTheTeam from './JoinTheTeam.jsx';
+import RegistrationForm from './Registrationpage.jsx';
 
 import { 
     Users, 
@@ -41,6 +42,10 @@ export default function Homepage(){
 
     const handleJoinTeamClick = () => {
         navigate('/JoinTheTeam'); // Navigate to the JoinTheTeam page
+    };
+
+    const handleRegisterNow = () => {
+        navigate('/register'); 
     };
 
     const [formData, setFormData] = useState({
@@ -403,7 +408,9 @@ export default function Homepage(){
             </div>
 
             {/* New Patient Registration */}
-            <div className="bg-white rounded-lg shadow-lg p-6 hover:shadow-xl transition-shadow cursor-pointer transform hover:-translate-y-1 transition-transform">
+            <div 
+                onClick={handleRegisterNow}
+                className="bg-white rounded-lg shadow-lg p-6 hover:shadow-xl transition-shadow cursor-pointer transform hover:-translate-y-1 transition-transform">
             <Users className="h-12 w-12 text-orange-600 mb-4" />
             <h3 className="text-xl font-semibold mb-2">New Patients</h3>
             <p className="text-gray-600 mb-4">Register as a new patient and book your first visit</p>

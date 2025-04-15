@@ -4,13 +4,21 @@ const {sign} = require('jsonwebtoken')
 
 
 const registerUser = async (req, res) => {
-    const { email, password } = req.body;
+    const { email, password, firstname, lastname, dateofbirth, phonenumber, street, city, state, zip, } = req.body;
 
     try {
         const hash = await bcrypt.hash(password, 10);
         await Users.create({
             email: email,
-            passwordhash: hash
+            passwordhash: hash,
+            firstname,
+            lastname,
+            dateofbirth,
+            phonenumber,
+            street,
+            city,
+            state,
+            zip,
         });
         res.status(200).json("success");
     } catch (error) {
@@ -98,7 +106,7 @@ const sendingApplications = async (req, res) => {
       // Validate required fields
       if (
         !firstname || !lastname || !dateofbirth || !phonenumber || !stafftype ||
-        !email || !password || !experience || !coverletter || !street || !city || !state || !zip
+        !email || !password || !experience  || !street || !city || !state || !zip
       ) {
         return res.status(400).json({ error: 'All fields are required.' });
       }
