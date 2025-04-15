@@ -19,7 +19,9 @@ export default function AdminDashboard() {
   const [employees, setEmployees] = useState([]);
   const [roleFilter, setRoleFilter] = useState("all");
   const [applications, setApplications] = useState([]);
-
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
+/*
   useEffect(() => {
     const fetchEmployees = async () => {
       try {
@@ -33,7 +35,7 @@ export default function AdminDashboard() {
     };
     fetchEmployees();
   }, [roleFilter]);
-
+*/
   useEffect(() => {
     const fetchApplications = async () => {
       try {
@@ -46,6 +48,31 @@ export default function AdminDashboard() {
     fetchApplications();
   }, []);
 
+
+  const fetchFilteredEmployees = async () => {
+    try {
+      const res = await axios.get(`${apiUrl}/admin/employees`, {
+        params: {
+          role: roleFilter !== 'all' ? roleFilter : undefined,
+          startDate: startDate || undefined,
+          endDate: endDate || undefined
+        }
+      });
+      setEmployees(res.data);
+    } catch (err) {
+      console.error("Failed to load employees:", err);
+    }
+  };
+
+  //Optionally fetch all on load
+  useEffect(() => {
+    fetchFilteredEmployees();
+  }, []);
+
+  useEffect(() => {
+    fetchFilteredEmployees();
+  }, [roleFilter, startDate, endDate]);
+
   const renderEmployees = () => (
     <div className="bg-white p-6 rounded-lg shadow-md">
       <div className="flex justify-between items-center mb-6">
@@ -57,19 +84,30 @@ export default function AdminDashboard() {
               placeholder="Search employees..."
               className="pl-10 pr-4 py-2 border rounded-md w-64 focus:outline-none focus:ring-2 focus:ring-blue-500"
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
+              onChange={(e) => setSearchTerm(e.target.value)}/>
           </div>
           <select
             className="border rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
             value={roleFilter}
-            onChange={(e) => setRoleFilter(e.target.value)}
-          >
+            onChange={(e) => setRoleFilter(e.target.value)}>
             <option value="all">All Roles</option>
             <option value="doctor">Doctors</option>
             <option value="specialist">Specialists</option>
             <option value="receptionist">Receptionists</option>
           </select>
+          <input
+            type="date"
+            value={startDate}
+            onChange={(e) => setStartDate(e.target.value)}
+            className="border px-2 py-1 rounded"
+          />
+          <input
+            type="date"
+            value={endDate}
+            onChange={(e) => setEndDate(e.target.value)}
+            className="border px-2 py-1 rounded"
+          />
+          
         </div>
       </div>
 
@@ -80,6 +118,8 @@ export default function AdminDashboard() {
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">User ID</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Name</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Role</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Created At</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Updated On</th>
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
@@ -90,6 +130,8 @@ export default function AdminDashboard() {
                 <td className="px-6 py-4 whitespace-nowrap">{emp.userid}</td>
                 <td className="px-6 py-4 whitespace-nowrap">{emp.name}</td>
                 <td className="px-6 py-4 whitespace-nowrap capitalize">{emp.role}</td>
+                <td className="px-6 py-4 whitespace-nowrap capitalize">{emp.createdAt ? new Date(emp.createdAt).toLocaleDateString() : '—'}</td>
+                <td className="px-6 py-4 whitespace-nowrap capitalize">{emp.updatedAt ? new Date(emp.updatedAt).toLocaleDateString() : '—'}</td>
               </tr>
             ))}
           </tbody>
