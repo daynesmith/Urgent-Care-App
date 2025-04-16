@@ -26,6 +26,7 @@ import ApplicationForm from './components/ApplicationForm.jsx';
 import AdminDasboard from './components/AdminDashboard.jsx';
 
 import SingleAppointment from './pages/SingleAppointment.jsx';
+import ReceptionistShift from './pages/ReceptionistShift.jsx';
 
 
 
@@ -62,6 +63,8 @@ function App() {
             <Route path = '/AdminDasboard' element = {<AdminDasboard />} />
 
             <Route path = '/visits/:apptid' element = {<SingleAppointment />} />
+
+            <Route path = '/ReceptionistShift' element = {<ReceptionistShift />} />
 
           </Routes>
         </div>
