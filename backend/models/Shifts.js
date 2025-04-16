@@ -6,16 +6,17 @@ module.exports = (sequelize, DataTypes) => {
         autoIncrement: true,
         allowNull: false,
       },
-      /*cliniclocationid{
-        this will hold where the clinic is so that a doctor cant be scheduled at multiple locations on a given day
-      } */
-      docotorid: {
+      staffid: {
         type: DataTypes.INTEGER,
-        allowNull: false,
+        allowNull: true,
         references: {
-            model: 'Doctors',
-            key:'doctorid'
-        }
+          model: 'Users',
+          key: 'userid',
+        },
+      },
+      cliniclocation: {
+        type: DataTypes.STRING,
+        allowNull: true,
       },
       startshift: {
         type: DataTypes.TIME,
@@ -26,10 +27,28 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false,
       },
       date:{
-        type: DataTypes.DATE,
+        type: DataTypes.DATEONLY,
         allowNull: false
-      }
+      },
+      notes: {
+        type: DataTypes.TEXT,
+        allowNull: true,
+      },
     });
+
+    Shifts.associate = function(models) {
+      Shifts.belongsTo(models.Users, {
+        foreignKey: 'staffid',
+        as: 'staff',
+      });
+    };
     
     return Shifts;
   };
+
+  //needs room allocation for doctors and nurses, doctors also need location choosing
+
+
+  //shift schedule should show: staff member, role, shift start time, shift end time, date, location
+
+  //display role by doing a join

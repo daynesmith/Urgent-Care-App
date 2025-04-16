@@ -99,6 +99,12 @@ module.exports = (sequelize, DataTypes)=>{
         timestamps: true, // Automatically add createdAt and updatedAt fields
     });
 
+    Users.associate = (models) => {
+        Users.hasMany(models.Shifts, { 
+            as: 'shifts', 
+            foreignKey: 'staffid'
+         });
+    };   
 
     //insert nurse role once completed
     Users.afterCreate(async (user, options) => {

@@ -1,5 +1,5 @@
 const bcrypt = require('bcrypt');
-const { Users , Patients, Doctors, Applications} = require('../models'); // Adjust the path according to your project structure
+const { Users , Patients, Doctors, Applications, Shifts} = require('../models'); // Adjust the path according to your project structure
 const {sign} = require('jsonwebtoken')
 
 
@@ -226,7 +226,54 @@ const updateApplicationStatus = async (req, res) => {
 };
   
 
+const getStaffUsers = async (req, res) => {
+    try {
+        const staffUsers = await Users.findAll({
+            where: {
+                role: ['doctor', 'receptionist', 'specialist']
+            }
+        });
+        const userNames = staffUsers.map(user => {
+          return {
+              staffid: user.userid, 
+              name: `${user.firstname} ${user.lastname}`,
+              role: user.role
+          };
+      });
+        res.json(userNames);
+    } catch (error) {
+        console.error("Error fetching staff users:", error);
+        res.status(500).json({ message: "Server error" });
+    }
+}
+
+const getStaffShifts = async (req, res) => {
+    try {
+        const staffid = req.user.id;
+
+        if (!staffid) {
+            return res.status(400).json({ message: "User ID is missing in the token." });
+        }
+
+        const staffShifts = await Shifts.findAll({
+            where: {
+                staffid: staffid,
+            },
+            include: [
+                {
+                    model: Users,
+                    as: 'staff',
+                    attributes: ['firstname', 'lastname', 'role'], 
+                },
+            ],
+        });
+
+        res.status(200).json(staffShifts);
+    } catch (error) {
+        console.error("Error fetching staff shifts:", error);
+        res.status(500).json({ message: "Server error" });
+    }
+}
 
 
-
-module.exports = { registerUser, loginUser, gettingApplications, sendingApplications, creatingUser, updateApplicationStatus};
+module.exports = { registerUser, loginUser, gettingApplications, sendingApplications, creatingUser, updateApplicationStatus, getStaffUsers, getStaffShifts};

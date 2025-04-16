@@ -12,4 +12,6 @@ router.patch('/doctorinfo', validateToken('doctor'), editDoctorInfo);
 router.get('/doctorsNames', getDoctorsNames);
 router.get('/doctorappointmentsdaterange', validateToken('doctor'),getAppointmentByDateRange);
 
+
+
 module.exports = router;
