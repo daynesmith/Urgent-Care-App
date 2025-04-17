@@ -17,6 +17,7 @@ module.exports = {
       ssl: {
         ca: fs.readFileSync(path.join(__dirname, "certs", "DigiCertGlobalRootCA.crt.pem")),
         rejectUnauthorized: false
+        
       }
     }
   },

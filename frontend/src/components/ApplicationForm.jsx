@@ -73,7 +73,7 @@ export default function ApplicationForm({ job, onClose }) {
       email,
       password,
       coverletter,
-      experience,
+      experience: parseInt(experience, 10),
       qualifications,
       certifications,
       street,
@@ -203,6 +203,8 @@ export default function ApplicationForm({ job, onClose }) {
               name="phonenumber"
               value={formData.phonenumber}
               required
+              pattern="^[0-9]{3}-[0-9]{3}-[0-9]{4}$" 
+              title="Phone number must be in the format XXX-XXX-XXXX"
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
               onChange={handleInputChange}
             />
@@ -341,6 +343,8 @@ export default function ApplicationForm({ job, onClose }) {
                 name="zip"
                 value={formData.zip}
                 required
+                pattern="^\d{5}(-\d{4})?$" 
+                title="ZIP code must be in the format XXXXX or XXXXX-XXXX"
                 className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                 onChange={handleInputChange}
               />

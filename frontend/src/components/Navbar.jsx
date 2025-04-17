@@ -32,6 +32,7 @@ export default function Navbar({ userRole, onDashboardClick }) {
             <User className="w-5 h-5" />
             <span className="ml-2 capitalize">{userRole} Admin</span>
           </Link>
+          
         );
 
       case 'receptionist':
@@ -46,17 +47,39 @@ export default function Navbar({ userRole, onDashboardClick }) {
           </Link>
         );
 
-      case 'doctor':
-        return (
-          <Link
-            to="/dashboard"
-            onClick={onDashboardClick}
-            className="flex items-center text-sm px-4 py-2 rounded-md text-gray-700 hover:text-blue-600 hover:bg-gray-50 transition-colors duration-200"
-          >
-            <User className="w-5 h-5" />
-            <span className="ml-2 capitalize">{userRole} Doctor</span>
-          </Link>
-        );
+        case 'doctor':
+          return (
+            <>
+              <Link
+                to="/dashboard"
+                onClick={onDashboardClick}
+                className="flex items-center text-sm px-4 py-2 rounded-md text-gray-700 hover:text-blue-600 hover:bg-gray-50 transition-colors duration-200"
+              >
+                <User className="w-5 h-5" />
+                <span className="ml-2 capitalize">{userRole} Doctor</span>
+              </Link>
+        
+              <Link
+                to="/createreferral"
+                className="flex items-center text-sm px-4 py-2 rounded-md text-gray-700 hover:text-blue-600 hover:bg-gray-50 transition-colors duration-200"
+              >
+                <span className="ml-2">Create Referral</span>
+              </Link>
+            </>
+          );
+          case 'specialist':
+            return (
+              <>
+                <Link
+                  to="/dashboard"
+                  onClick={onDashboardClick}
+                  className="flex items-center text-sm px-4 py-2 rounded-md text-gray-700 hover:text-blue-600 hover:bg-gray-50 transition-colors duration-200"
+                >
+                  <User className="w-5 h-5" />
+                  <span className="ml-2 capitalize">{userRole} Specialist</span>
+                </Link>
+              </>
+            );       
 
       case 'patient':
         return (

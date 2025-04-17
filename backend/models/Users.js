@@ -100,5 +100,60 @@ module.exports = (sequelize, DataTypes)=>{
         timestamps: true, // Automatically add createdAt and updatedAt fields
     });
 
+    Users.associate = (models) => {
+        Users.hasMany(models.Shifts, { 
+            as: 'shifts', 
+            foreignKey: 'staffid'
+         });
+    };   
+
+    //insert nurse role once completed
+    Users.afterCreate(async (user, options) => {
+        const { Doctors, Receptionists, Specialists, Patients } = sequelize.models;
+        try {
+            if (user.role === "doctor") {
+                await Doctors.create({
+                    doctorid: user.userid,
+                    firstname: user.firstname,
+                    lastname: user.lastname,
+                    dateofbirth: user.dateofbirth,
+                    phonenumber: user.phonenumber,
+                    email: user.email,
+                });
+                console.log("Doctor row created successfully for user:", user.userid);
+            } else if (user.role === "patient") {
+                await Patients.create({
+                    patientid: user.userid,
+                    firstname: user.firstname,
+                    lastname: user.lastname,
+                    dateofbirth: user.dateofbirth,
+                    phonenumber: user.phonenumber,
+                    email: user.email,
+                });
+                console.log("Patient row created successfully for user:", user.userid);
+            } else if (user.role === "receptionist") {
+                await Receptionists.create({
+                    receptionistid: user.userid,
+                    firstname: user.firstname,
+                    lastname: user.lastname,
+                    dateofbirth: user.dateofbirth,
+                    phonenumber: user.phonenumber,
+                    email: user.email,
+                });
+                console.log("Receptionist row created successfully for user:", user.userid);
+            } else if (user.role === "specialist") {
+                await Specialists.create({
+                    user_id: user.userid,
+                    firstname: user.firstname,
+                    lastname: user.lastname,
+                    specialty: "General -> Insert Specialty", 
+                });
+                console.log("Specialist row created successfully for user:", user.userid);
+            }
+        } catch (error) {
+            console.error(`Error creating row for role ${user.role}:`, error);
+        }
+    });
+    
     return Users;
 }

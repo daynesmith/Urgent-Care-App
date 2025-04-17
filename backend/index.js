@@ -27,11 +27,13 @@ const inventoryRouter = require('./routes/Inventory');
 app.use('/inventory', inventoryRouter);
 
 
-const referralRoutes = require("./routes/Referral");
-app.use("/referrals", referralRoutes);
+const referralRoutes = require('./routes/Referral');
+app.use('/referrals', referralRoutes);
 
 const visitinfoRouter = require('./routes/VisitInfo');
 app.use("/visitinfo", visitinfoRouter);
+const specialistRouter = require('./routes/Specialist');
+app.use("/specialists", specialistRouter)
 
 
 db.sequelize.sync()
@@ -44,3 +46,5 @@ db.sequelize.sync()
   .catch((err) => {
     console.error("❌ Failed to sync DB or start server:", err);
   });
+
+

@@ -15,6 +15,9 @@ import DoctorAppointments from './pages/DoctorAppointments.jsx';
 import MedicalHistory from './pages/MedicalHistory.jsx';
 import ReceptionistProfile from './pages/ReceptionistProfile.jsx';
 import ReceptionistAppointment from './pages/ReceptionistAppoinment.jsx';
+
+import DoctorPatients from './pages/DoctorPatients.jsx';
+import CreateReferral from './pages/CreateReferral.jsx'
 import CheckInCheckOut from './pages/CheckInCheckOut.jsx';
 import SpecialistDashboard from './components/SpecialistDashboard.jsx';
 import JobOpenings from './components/JobOpenings.jsx';
@@ -24,7 +27,12 @@ import AdminDasboard from './components/AdminDashboard.jsx';
 import ReceptionistPatients from './pages/ReceptionistPatients.jsx'
 import AddStockModal from './pages/AddStockModal.jsx'
 import AddAppointmentTypes from './pages/AddAppointmentTypes.jsx'
-import AddDoctorTypes from './pages/AddDoctorTypes.jsx';
+import AddDoctorTypes from './pages/AddDoctorTypes.jsx'
+import SingleAppointment from './pages/SingleAppointment.jsx';
+import ReceptionistShift from './pages/ReceptionistShift.jsx';
+
+
+
 function App() {
 
   
@@ -47,6 +55,12 @@ function App() {
             <Route path = '/PatientInfo' element = {<PatientInfo />} />
             <Route path = '/DoctorAppointments' element = {<DoctorAppointments />} />
             <Route path = '/medical-history' element = {<MedicalHistory />} />
+            <Route path = '/ReceptionistProfile' element = {<ReceptionistProfile />} />
+            <Route path = '/ReceptionistAppointment' element = {<ReceptionistAppointment />} />
+
+            <Route path = '/DoctorPatients' element = {<DoctorPatients />} />
+            <Route path = '/createreferral' element = {<CreateReferral/> } />
+            <Route path = '/CheckInCheckOut' element = {<CheckInCheckOut />} />
             <Route path = '/JoinTheTeam' element = {<JoinTheTeam />} />
             <Route path = '/JobOpenings' element = {<JobOpenings />} />
             <Route path = '/ApplicationForm' element = {<ApplicationForm />} />
@@ -56,6 +70,8 @@ function App() {
             <Route path = '/AddStockModal' element = {<AddStockModal />} />
             <Route path = '/AddAppointmentTypes' element = {<AddAppointmentTypes />} />
             <Route path = '/AddDoctorTypes' element = {<AddDoctorTypes />} />
+            <Route path = '/visits/:apptid' element = {<SingleAppointment />} />
+            <Route path = '/ReceptionistShift' element = {<ReceptionistShift />} />
 
           </Routes>
       </Router>    

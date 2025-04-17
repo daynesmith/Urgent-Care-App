@@ -129,7 +129,6 @@ const toAdmin = async (req, res) =>{
 }
 const toSpecialist = async (req, res) =>{
     const { email } = req.body
-    console.log("got into specialist");
     try{
         const user = await Users.findOne({where:{email}})
 

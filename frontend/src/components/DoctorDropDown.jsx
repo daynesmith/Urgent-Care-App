@@ -23,7 +23,7 @@ export default function DoctorDropDown({ doctor, setDoctor }) {
                 setLoading(false);
             }
         };
-
+        
         fetchDoctors();
     }, []);
 

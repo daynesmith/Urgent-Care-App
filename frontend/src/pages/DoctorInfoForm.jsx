@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import {jwtDecode} from 'jwt-decode';
+import DoctorProfile from '../components/DoctorProfile';
 
 const apiUrl = import.meta.env.VITE_API_URL;
 
@@ -131,13 +132,7 @@ export default function DoctorInfoForm() {
                 <h2 className="text-2xl font-bold text-center mb-4">Doctor Profile</h2>
 
                 {formFilled ? (
-                    <div className="space-y-4">
-                        <div><strong>First Name:</strong> {doctorData.firstname}</div>
-                        <div><strong>Last Name:</strong> {doctorData.lastname}</div>
-                        <div><strong>Date of Birth:</strong> {doctorData.dateofbirth}</div>
-                        <div><strong>Phone Number:</strong> {doctorData.phonenumber}</div>
-                        <div><strong>Doctor Type:</strong> {doctorData.doctortype}</div>
-                    </div>
+                    <DoctorProfile doctorData={doctorData} />
                 ) : (
                     <form onSubmit={handleSubmit} className="space-y-4">
                         <input 

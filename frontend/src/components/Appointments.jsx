@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 
 import axios from 'axios';
 const apiUrl = import.meta.env.VITE_API_URL
+import SingleAppointment from './SingleAppointment';
 
 
 export default function Appointments(props){
@@ -15,21 +16,6 @@ export default function Appointments(props){
     const [canceledAppointments, setCanceledAppointments] = useState([]);
     const [requestedAppointments, setRequestedAppointments] = useState([]);
 
-    const formatDate = (dateString) => {
-        return new Date(dateString).toLocaleDateString("en-US", {
-            year: "numeric",
-            month: "long",
-            day: "numeric",
-        });
-    };
-    
-    const formatTime = (timeString) => {
-        return new Date(`1970-01-01T${timeString}`).toLocaleTimeString("en-US", {
-            hour: "2-digit",
-            minute: "2-digit",
-            hour12: true,
-        });
-    };
 
     useEffect(() => {
         const fetchAppointments = async () => {
@@ -84,6 +70,9 @@ export default function Appointments(props){
     }
 
     if (error) {
+        if (error.includes("404")) {
+            return <div>You do not have an appointment history</div>
+        }
         return <div>Error: {error}</div>;
     }
 
@@ -94,10 +83,7 @@ export default function Appointments(props){
             {futureAppointments.length > 0 ? (
                 <ul className="flex flex-row gap-2 bg-gray-200 p-2">
                     {futureAppointments.map((appointment) => (
-                        <li className="outline p-4"key={appointment.appointmentid}>
-                            {formatDate(appointment.requesteddate)}<br />
-                            {formatTime(appointment.requestedtime)}
-                        </li>
+                        <SingleAppointment key={appointment.appointmentid} data={appointment} date={appointment.requesteddate} time={appointment.requestedtime} />
                     ))}
                 </ul>
             ) : (
@@ -107,10 +93,8 @@ export default function Appointments(props){
             {pastAppointments.length > 0 ? (
                 <ul className="flex flex-row gap-2 bg-gray-100 p-2">
                     {pastAppointments.map((appointment) => (
-                        <li className="outline p-4"key={appointment.appointmentid}>
-                            {formatDate(appointment.requesteddate)}<br />
-                            {formatTime(appointment.requestedtime)}
-                        </li>
+                        <SingleAppointment key={appointment.appointmentid} data={appointment} date={appointment.requesteddate} time={appointment.requestedtime} />
+
                     ))}
                 </ul>
             ) : (
@@ -120,10 +104,8 @@ export default function Appointments(props){
             {canceledAppointments.length > 0 ? (
                 <ul className="flex flex-row gap-2 bg-gray-100 p-2">
                     {canceledAppointments.map((appointment) => (
-                        <li className="outline p-4"key={appointment.appointmentid}>
-                            {formatDate(appointment.requesteddate)}<br />
-                            {formatTime(appointment.requestedtime)}
-                        </li>
+                        <SingleAppointment key={appointment.appointmentid} data={appointment} date={appointment.requesteddate} time={appointment.requestedtime} />
+
                     ))}
                 </ul>
             ) : (
@@ -133,10 +115,8 @@ export default function Appointments(props){
             {requestedAppointments.length > 0 ? (
                 <ul className="flex flex-row gap-2 bg-gray-100 p-2">
                     {requestedAppointments.map((appointment) => (
-                        <li className="outline p-4"key={appointment.appointmentid}>
-                            {formatDate(appointment.requesteddate)}<br />
-                            {formatTime(appointment.requestedtime)}
-                        </li>
+                        <SingleAppointment key={appointment.appointmentid} data={appointment} date={appointment.requesteddate} time={appointment.requestedtime} />
+
                     ))}
                 </ul>
             ) : (

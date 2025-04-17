@@ -1,10 +1,8 @@
 'use strict';
 
-const fs = require('fs');
 const path = require('path');
 const Sequelize = require('sequelize');
 const process = require('process');
-const basename = path.basename(__filename);
 const env = process.env.NODE_ENV || 'development';
 const config = require(__dirname + '/../config/config.js')[env];
 const db = {};
@@ -16,20 +14,19 @@ if (config.use_env_variable) {
   sequelize = new Sequelize(config.database, config.username, config.password, config);
 }
 
-fs
-  .readdirSync(__dirname)
-  .filter(file => {
-    return (
-      file.indexOf('.') !== 0 &&
-      file !== basename &&
-      file.slice(-3) === '.js' &&
-      file.indexOf('.test.js') === -1
-    );
-  })
-  .forEach(file => {
-    const model = require(path.join(__dirname, file))(sequelize, Sequelize.DataTypes);
-    db[model.name] = model;
-  });
+db.Appointments = require('./Appointments')(sequelize, Sequelize.DataTypes);
+db.Billing = require('./Billing')(sequelize, Sequelize.DataTypes);
+db.Doctors = require('./Doctors')(sequelize, Sequelize.DataTypes);
+db.Insurance = require('./Insurance')(sequelize, Sequelize.DataTypes);
+db.Inventory = require('./Inventory')(sequelize, Sequelize.DataTypes);
+db.Patients = require('./Patients')(sequelize, Sequelize.DataTypes);
+db.Receptionists = require('./Receptionists')(sequelize, Sequelize.DataTypes);
+db.Specialists = require('./Specialist')(sequelize, Sequelize.DataTypes); 
+db.Referral = require('./Referral')(sequelize, Sequelize.DataTypes);
+db.Roomallocation = require('./Roomallocation')(sequelize, Sequelize.DataTypes);
+db.Shifts = require('./Shifts')(sequelize, Sequelize.DataTypes)
+db.Users = require('./Users')(sequelize, Sequelize.DataTypes);
+db.Visitinfo = require('./Visitinfo')(sequelize, Sequelize.DataTypes); 
 
 Object.keys(db).forEach(modelName => {
   if (db[modelName].associate) {
@@ -41,3 +38,4 @@ db.sequelize = sequelize;
 db.Sequelize = Sequelize;
 
 module.exports = db;
+
