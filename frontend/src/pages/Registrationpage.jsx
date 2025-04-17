@@ -37,7 +37,7 @@ function RegistrationForm() {
   };
 
   const handleCancel = () => {
-    navigate('/'); 
+    navigate('/homepage'); 
   };
 
   const validateForm = () => {
@@ -124,7 +124,7 @@ function RegistrationForm() {
   };
 
   return (
-    <div className="fixed inset-0 bg-gray-50 flex items-center justify-center">
+    <div className="inset-0 bg-gray-50 flex items-center justify-center">
       <div className="bg-white rounded-lg p-8 max-w-2xl w-full shadow-md relative">
 
         <button
