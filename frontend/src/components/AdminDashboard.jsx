@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 const apiUrl = import.meta.env.VITE_API_URL
-import { Users, Calendar, FileText, Settings, Bell, Plus, Search, ChevronDown, Activity, DollarSign, UserPlus, Clock, BarChart2, Filter, Download, CheckCircle, XCircle } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { Users, Calendar, FileText, X, Edit , Save , Stethoscope, AlertTriangle , Pill , PackagePlus, Settings, Bell, Plus, Search, ChevronDown, Activity, DollarSign, UserPlus, Clock, BarChart2, Filter, Download, CheckCircle, XCircle } from 'lucide-react';
 import {
   LineChart,
   Line,
@@ -107,13 +108,25 @@ export default function AdminDasboard() {
   const [analyticsView, setAnalyticsView] = useState('revenue');
   const [applications, setApplications] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [newName, setNewName] = useState('');
+  const [newCost, setNewCost] = useState('');  
   const [error, setError] = useState(null);
   const [submitting, setSubmitting] = useState(false);
   const [status, setStatus] = useState(''); // To hold success message or status update
+  const [invertory, setInventory] = useState([]);
+  const [materials, setMaterials] = useState([]);
+  const [editingId, setEditingId] = useState(null);
+  const [newItemName, setNewItemName] = useState('');  
+  const [doctorTypes, setTypeOfDoctor] = useState([]);
+  const [appointmentTypes, setTypeOfAppointment] = useState([]);
+  const [selectedMaterial, setSelectedMaterial] = useState(null);
+  const [newStock, setNewStock] = useState({
+    quantity: '',
+    cost: '',
+    itemname: '',
+  });
 
-  const [selectedApplication, updateApplicationStatus] = useState(null);
-
-
+  {/* Applications */}
   useEffect(() => {
     const fetchApplications = async () => {
       try {
@@ -129,9 +142,8 @@ export default function AdminDasboard() {
 
     fetchApplications();
   }, []);
-  if (loading) return <div className="p-4">Loading applications...</div>;
-  if (error) return <div className="p-4 text-red-500">Error: {error}</div>;
 
+  
   const handleAccept = async (application) => {
     const { email, stafftype } = application;
     console.log("Email:", email, "Stafftype:", stafftype);
@@ -155,6 +167,11 @@ export default function AdminDasboard() {
       const statusResponseAccepted = await axios.post(`${apiUrl}/users/updateApplicationStatus`, acceptedData);
       console.log("Application status update response:", statusResponseAccepted);
 
+      {/*Where to add in other staff*/}
+      if (stafftype === 'receptionist') {
+        await axios.post(`${apiUrl}/receptionist/syncreceptionists`, { email });
+      }
+
       // Ensure only the correct application is moved
       setApplications((prev) =>
       prev.map((app) =>
@@ -171,8 +188,6 @@ export default function AdminDasboard() {
     }
     
   };
-
-
 
   const handleDeclined = async (application) => {
     const { email, stafftype } = application;
@@ -212,10 +227,182 @@ export default function AdminDasboard() {
     
   };
 
+
+
+  {/*Billing*/}
+
+  {/*Fetching*/}
+  //Invertory
+  useEffect(() => {
+    const fetchInventorys = async () => {
+      try {
+        const response = await axios.get(`${apiUrl}/inventory/getInventory`);
+        console.log('All of Invertory:', response.data);  
+        setInventory(response.data);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchInventorys();
+  }, []);
   
-  
+  //Materials
+  useEffect(() => {
+    const fetchMaterials = async () => {
+      try {
+        const response = await axios.get(`${apiUrl}/inventory/getMaterials`);
+        console.log('All of Material:',response.data);  
+        setMaterials(response.data);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchMaterials();
+  }, []);
+
+  //Type of Doctor (TypeOfDoctor)
+  useEffect(() => {
+    const fetchTypeOfDoctor = async () => {
+      try {
+        const response = await axios.get(`${apiUrl}/inventory/getdoctortypes`);
+        console.log('All of types of doctors:', response.data);  
+        setTypeOfDoctor(response.data);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchTypeOfDoctor();
+  }, []);
+
+  //Type of Appointment (TypeOfAppointment)
+  useEffect(() => {
+    const fetchTypeOfAppointment = async () => {
+      try {
+        const response = await axios.get(`${apiUrl}/inventory/getappointmenttypes`);
+        console.log('All types of appoinments', response.data);  
+        setTypeOfAppointment(response.data);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchTypeOfAppointment();
+  }, []);
+
   
 
+  {/*Editing*/}
+
+  const handleEditMaterialCost = async (id, newCost) => {
+    try {
+      const response = await axios.post(`${apiUrl}/inventory/editMaterials`, {
+        inventoryid: id,
+        cost: Number(newCost),
+      });
+      console.log("Edit of Material Cost", id , 'and', newCost);
+
+      if (response.status === 200) {
+        setMaterials(prev =>
+          prev.map(material =>
+            material.inventoryid === id
+              ? { ...material, cost: Number(newCost) }
+              : material
+          )
+        );
+        setEditingId(null);  // Clear editing state
+        setNewCost(''); // Reset new cost after update
+      } else {
+        console.error("Unexpected response:", response);
+      }
+    } catch (err) {
+      console.error("Failed to update cost:", err);
+    }
+  };
+
+  const handleEditAppointments = async (id, newName, newCost) => {
+    console.log("Edit of Appointment: Id:", id, 'Name:', newName, 'Cost:', newCost);
+  
+    try {
+      const response = await axios.post(`${apiUrl}/inventory/editappointmenttypes`, {
+        inventoryid: id,   // Send inventoryid in the body
+        itemname: newName,  // Send the updated name
+        cost: Number(newCost), // Send the updated cost
+      });
+  
+      console.log("Edit of Appointment Type -  Id:", id, 'Name:', newName, 'Cost:', newCost);
+  
+      if (response.status === 200) {
+        // Update state to reflect the change
+        setTypeOfAppointment(prev =>
+          prev.map(appointment =>
+            appointment.inventoryid === id
+              ? { ...appointment, itemname: newName, cost: Number(newCost) }
+              : appointment
+          )
+        );
+        setEditingId(null);  // Clear editing state
+        setNewCost('');      // Reset new cost after update
+        setNewName('');      // Reset new name after update
+      } else {
+        console.error("Unexpected response:", response);
+      }
+    } catch (err) {
+      console.error("Failed to update appointment type:", err);
+    }
+  };
+
+  const handleEditDoctorType  = async (id, newName, newCost) => {
+    console.log("Edit of Doctor: Id:", id, 'Name:', newName, 'Cost:', newCost);
+  
+    try {
+      const response = await axios.post(`${apiUrl}/inventory/editdoctortypes`, {
+        inventoryid: id,   // Send inventoryid in the body
+        itemname: newName,  // Send the updated name
+        cost: Number(newCost), // Send the updated cost
+      });
+  
+      console.log("Edit of Appointment Type -  Id:", id, 'Name:', newName, 'Cost:', newCost);
+  
+      if (response.status === 200) {
+        // Update state to reflect the change
+        setTypeOfAppointment(prev =>
+          prev.map(appointment =>
+            appointment.inventoryid === id
+              ? { ...appointment, itemname: newName, cost: Number(newCost) }
+              : appointment
+          )
+        );
+        setEditingId(null);  // Clear editing state
+        setNewCost('');      // Reset new cost after update
+        setNewName('');      // Reset new name after update
+      } else {
+        console.error("Unexpected response:", response);
+      }
+    } catch (err) {
+      console.error("Failed to update appointment type:", err);
+    }
+  };
+  
+  const getStockStatusColor = (stock, minStock) => {
+    console.log('Stock:',stock,'Minimum Stock:', minStock);
+    if (stock < minStock * 0.5) return 'text-yellow-600 bg-red-100';
+    console.log('Calculation:', minStock * 2);
+    if (stock < minStock) return 'text-red-600 bg-yellow-100';
+    return 'text-green-600 bg-green-100';
+  };
+
+  
+  
   const renderDashboard = () => (
     <div className="space-y-6">
       {/* Analytics Cards */}
@@ -707,8 +894,298 @@ export default function AdminDasboard() {
       </div>
     );
   };
+ 
+  const renderBilling = () => {
+    return (
+      <div className="space-y-8">
+
+        {/* Appointment Types */}
+    <div className="bg-white rounded-lg shadow-sm p-6 relative">
+      <div className="flex items-center mb-4">
+        <Calendar className="text-blue-500 mr-2" size={24} />
+        <h2 className="text-xl font-semibold">Appointment Types</h2>
+      </div>
+
+      <Link
+        to="/AddAppointmentTypes"
+        className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 absolute top-4 right-4"
+      >
+        Add New Type of Appointment
+      </Link>
+
+      <table className="w-full">
+        <thead>
+          <tr className="text-left text-gray-500 border-b">
+            <th className="pb-3 ">Appointment Type</th>
+            <th className="pb-3 ">Cost ($)</th>
+            <th className="pb-3 ">Actions</th>
+          </tr>
+        </thead>
+          <tbody>
+            {appointmentTypes.map((appointment) => (
+              <tr key={appointment.inventoryid} className="border-b">
+                {editingId === `appointment-${appointment.inventoryid}` ? (
+                  <>
+                    <td className="py-4">
+                      <input
+                        type="text"
+                        value={newName}
+                        onChange={(e) => setNewName(e.target.value)}
+                        className="border rounded-lg px-3 py-2 w-full"
+                      />
+                    </td>
+                    <td className="py-4">
+                      <input
+                        type="number"
+                        value={newCost}
+                        onChange={(e) => setNewCost(e.target.value)}
+                        className="border rounded-lg px-3 py-2 w-full"
+                      />
+                    </td>
+                    <td className="py-4 text-right space-x-2">
+                      <button
+                        onClick={() =>
+                          handleEditAppointments(appointment.inventoryid, newName, newCost)
+                        }
+                        className="text-green-600 hover:text-green-800"
+                      >
+                        <Save size={18} />
+                      </button>
+                      <button
+                        onClick={() => {
+                          setEditingId(null);
+                          setNewName('');
+                          setNewCost('');
+                        }}
+                        className="text-red-600 hover:text-red-800"
+                      >
+                        <X size={18} />
+                      </button>
+                    </td>
+                  </>
+                ) : (
+                  <>
+                    <td className="py-4">{appointment.itemname}</td>
+                    <td className="py-4 ">{appointment.cost}</td>
+                    <td className="py-4 ">
+                      <button
+                        onClick={() => {
+                          setEditingId(`appointment-${appointment.inventoryid}`);
+                          setNewName(appointment.itemname);
+                          setNewCost(appointment.cost);
+                        }}
+                        className="text-blue-600 hover:text-blue-800"
+                      >
+                        <Edit size={18} />
+                      </button>
+                    </td>
+                  </>
+                )}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>   
+
+        {/* Doctor Types */}
+<div className="bg-white rounded-lg shadow-sm p-6 relative">
+  <div className="flex items-center mb-4">
+    <Stethoscope className="text-green-500 mr-2" size={24} />
+    <h2 className="text-xl font-semibold">Doctor Types</h2>
+  </div>
+
+    <Link
+      to="/AddDoctorTypes"
+      className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 absolute top-4 right-4"
+    >
+      Add New Doctor Type
+    </Link>
+
+  <table className="w-full">
+    <thead>
+      <tr className="text-left text-gray-500 border-b">
+        <th className="pb-3">Doctor Type</th>
+        <th className="pb-3">Base Rate ($)</th>
+        <th className="pb-3">Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {doctorTypes.map((doctor) => (
+        <tr key={doctor.inventoryid} className="border-b">
+          {editingId === `doctor-${doctor.inventoryid}` ? (
+            <>
+              <td className="py-4">
+                <input
+                  type="text"
+                  value={newName}
+                  onChange={(e) => setNewName(e.target.value)}
+                  className="border rounded-lg px-3 py-2 w-full"
+                />
+              </td>
+              <td className="py-4">
+                <input
+                  type="number"
+                  value={newCost}
+                  onChange={(e) => setNewCost(e.target.value)}
+                  className="border rounded-lg px-3 py-2 w-full"
+                />
+              </td>
+              <td className="py-4 text-right space-x-2">
+                <button
+                  onClick={() =>
+                    handleEditDoctorType(doctor.inventoryid, newName, newCost)
+                  }
+                  className="text-green-600 hover:text-green-800"
+                >
+                  <Save size={18} />
+                </button>
+                <button
+                  onClick={() => {
+                    setEditingId(null);
+                    setNewName('');
+                    setNewCost('');
+                  }}
+                  className="text-red-600 hover:text-red-800"
+                >
+                  <X size={18} />
+                </button>
+              </td>
+            </>
+          ) : (
+            <>
+              <td className="py-4">{doctor.itemname}</td>
+              <td className="py-4">${doctor.cost}</td>
+              <td className="py-4 ">
+                <button
+                  onClick={() => {
+                    setEditingId(`doctor-${doctor.inventoryid}`);
+                    setNewName(doctor.itemname);
+                    setNewCost(doctor.cost);
+                  }}
+                  className="text-blue-600 hover:text-blue-800"
+                >
+                  <Edit size={18} />
+                </button>
+              </td>
+            </>
+          )}
+        </tr>
+      ))}
+    </tbody>
+  </table>
+</div>
+
   
-  
+         {/* Materials */}
+         <div className="bg-white rounded-lg shadow-sm p-6">
+        <div className="p-6">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center">
+              <Pill className="text-purple-500 mr-2" size={24} />
+              <h2 className="text-xl font-semibold">Medical Materials</h2>
+            </div>
+            <Link
+              to="/AddStockModal"
+              className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 inline-block"
+            >
+              Add New Stock
+            </Link>
+          </div>
+          </div>
+          <table className="w-full">
+            <thead>
+              <tr className="text-left text-gray-500 border-b">
+                <th className="pb-3">Item</th>
+                <th className="pb-3">Stock</th>
+                <th className="pb-3">Min. Stock</th>
+                <th className="pb-3">Last Restocked</th>
+                <th className="pb-3">Status</th>
+                <th className="pb-3">Price ($)</th>
+                <th className="pb-3">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {materials.map((material) => (
+                <tr key={material.inventoryid} className="border-b">
+                  <td className="py-4">{material.itemname}</td>
+                  <td className="py-4">{material.quantity}</td>
+                  <td className="py-4">{material.materialStockMin}</td>
+                  <td className="py-4">{material.date}</td>
+                  <td className="py-4">
+                  <span
+                    className={`px-3 py-1 rounded-full text-sm ${getStockStatusColor(
+                      material.quantity,
+                      material.materialStockMin
+                    )}`}
+                  >
+                    {material.quantity < material.materialStockMin * 0.5 ? (
+                      <div className="flex items-center">
+                        <AlertTriangle size={14} className="mr-1" />
+                        Low Stock
+                      </div>
+                    ) : material.quantity < material.materialStockMin ? (
+                      'Reorder Soon'
+                    ) : (
+                      'Normal'
+                    )}
+                  </span>
+                  </td>
+                  <td className="py-4">
+                    {editingId === `material-${material.inventoryid}` ? (
+                      <input
+                        type="number"
+                        value={newCost || material.cost} // Bind input value to state
+                        className="border rounded px-2 py-1 w-24"
+                        onChange={e => setNewCost(e.target.value)} // Update state on change
+                        onKeyDown={e => {
+                          if (e.key === 'Enter') {
+                            handleEditMaterialCost(material.inventoryid, newCost);
+                          }
+                        }}
+                      />
+                    ) : (
+                      `$${material.cost}`
+                    )}
+                  </td>
+                  <td className="py-4">
+                    {editingId === `material-${material.inventoryid}` ? (
+                      <div className="flex space-x-2">
+                        <button
+                          onClick={() => handleEditMaterialCost(material.inventoryid, newCost)} // Use state value
+                          className="text-green-600 hover:text-green-800"
+                        >
+                          <Save size={18} />
+                        </button>
+                        <button
+                          onClick={() => {
+                            setEditingId(null);
+                            setNewCost(''); // Reset new cost when canceling
+                          }}
+                          className="text-red-600 hover:text-red-800"
+                        >
+                          <X size={18} />
+                        </button>
+                      </div>
+                    ) : (
+                      <button
+                        onClick={() => {
+                          setEditingId(`material-${material.inventoryid}`);
+                          setNewCost(material.cost); // Set the initial cost when editing
+                        }}
+                        className="text-blue-600 hover:text-blue-800"
+                      >
+                        <Edit size={18} />
+                      </button>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+  );
+};
 
   const renderContent = () => {
     switch (activeTab) {
@@ -722,131 +1199,105 @@ export default function AdminDasboard() {
         return renderAppointments();
       case 'analytics':
         return renderAnalytics();
+      case 'billing':
+        return renderBilling();  
       default:
         return null;
     }
   };
 
   return (
-    <div className="min-h-screen bg-gray-100">
-      {/* Header */}
-      <header className="bg-white shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <h1 className="text-xl font-bold text-gray-900">Medical Clinic Dashboard</h1>
-            <div className="flex items-center space-x-4">
-              <button className="p-2 relative">
-                <Bell className="h-6 w-6 text-gray-500" />
-                {notifications > 0 && (
-                  <span className="absolute top-0 right-0 block h-4 w-4 rounded-full bg-red-500 text-white text-xs text-center">
-                    {notifications}
-                  </span>
-                )}
-              </button>
-              <button className="p-2">
-                <Settings className="h-6 w-6 text-gray-500" />
-              </button>
+    <div className="bg-[#F8F9FA] m-0 p-0 shadow rounded-lg w-full mt-0">
+      <div className="min-h-screen bg-gray-100">
+        <div className="max-w-0x0 mx-auto px-1 sm:px-0 lg:px-0 py-0">
+          {/* Main Content */}
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div className="flex space-x-4 mb-8">
+              {[
+                ['dashboard', 'Dashboard', <Activity className="h-5 w-5 mr-2" />],
+                ['applications', 'Applications', <FileText className="h-5 w-5 mr-2" />],
+                ['employees', 'Employee', <Users className="h-5 w-5 mr-2" />],
+                ['appointments', 'Appointments', <Calendar className="h-5 w-5 mr-2" />],
+                ['analytics', 'Analytics', <BarChart2 className="h-5 w-5 mr-2" />],
+                ['billing', 'Billing', <DollarSign className="h-5 w-5 mr-2" />],
+              ].map(([tabKey, label, icon]) => (
+                <button
+                  key={tabKey}
+                  onClick={() => setActiveTab(tabKey)}
+                  className={`flex items-center px-4 py-2 rounded-lg ${
+                    activeTab === tabKey ? 'bg-blue-500 text-white' : 'bg-white text-gray-600'
+                  }`}
+                >
+                  {icon}
+                  {label}
+                </button>
+              ))}
             </div>
+  
+            {renderContent()}
           </div>
+  
+          {/* New Patient Modal */}
+          {showNewPatientModal && (
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+              <div className="bg-white rounded-lg p-6 w-full max-w-md">
+                <h3 className="text-lg font-semibold mb-4">Add New Patient</h3>
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Full Name</label>
+                    <input
+                      type="text"
+                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                    />
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700">Age</label>
+                      <input
+                        type="number"
+                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700">Phone</label>
+                      <input
+                        type="tel"
+                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Email</label>
+                    <input
+                      type="email"
+                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Insurance Provider</label>
+                    <input
+                      type="text"
+                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                    />
+                  </div>
+                </div>
+                <div className="mt-6 flex justify-end space-x-3">
+                  <button
+                    onClick={() => setShowNewPatientModal(false)}
+                    className="px-4 py-2 border rounded-md text-gray-600 hover:bg-gray-50"
+                  >
+                    Cancel
+                  </button>
+                  <button className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600">
+                    Add Patient
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
-      </header>
-
-      {/* Main Content (Where to add more tabs)*/}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="flex space-x-4 mb-8">
-          <button
-            onClick={() => setActiveTab('dashboard')}
-            className={`flex items-center px-4 py-2 rounded-lg ${
-              activeTab === 'dashboard' ? 'bg-blue-500 text-white' : 'bg-white text-gray-600'
-            }`}
-          >
-            <Activity className="h-5 w-5 mr-2" />
-            Dashboard
-          </button>
-          <button
-            onClick={() => setActiveTab('applications')}
-            className={`flex items-center px-4 py-2 rounded-lg ${
-              activeTab === 'applications' ? 'bg-blue-500 text-white' : 'bg-white text-gray-600'
-            }`}
-          >
-            <FileText className="h-5 w-5 mr-2" />
-            Applications
-          </button>
-          <button
-            onClick={() => setActiveTab('employees')}
-            className={`flex items-center px-4 py-2 rounded-lg ${
-              activeTab === 'employees' ? 'bg-blue-500 text-white' : 'bg-white text-gray-600'
-            }`}
-          >
-            <Users className="h-5 w-5 mr-2" />
-            Employee
-          </button>
-          <button
-            onClick={() => setActiveTab('appointments')}
-            className={`flex items-center px-4 py-2 rounded-lg ${
-              activeTab === 'appointments' ? 'bg-blue-500 text-white' : 'bg-white text-gray-600'
-            }`}
-          >
-            <Calendar className="h-5 w-5 mr-2" />
-            Appointments
-          </button>
-          <button
-            onClick={() => setActiveTab('analytics')}
-            className={`flex items-center px-4 py-2 rounded-lg ${
-              activeTab === 'analytics' ? 'bg-blue-500 text-white' : 'bg-white text-gray-600'
-            }`}
-          >
-            <BarChart2 className="h-5 w-5 mr-2" />
-            Analytics
-          </button>
-        </div>
-
-        {renderContent()}
       </div>
-
-      {/* New Patient Modal */}
-      {showNewPatientModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-          <div className="bg-white rounded-lg p-6 w-full max-w-md">
-            <h3 className="text-lg font-semibold mb-4">Add New Patient</h3>
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Full Name</label>
-                <input type="text" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" />
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Age</label>
-                  <input type="number" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Phone</label>
-                  <input type="tel" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" />
-                </div>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Email</label>
-                <input type="email" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Insurance Provider</label>
-                <input type="text" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" />
-              </div>
-            </div>
-            <div className="mt-6 flex justify-end space-x-3">
-              <button
-                onClick={() => setShowNewPatientModal(false)}
-                className="px-4 py-2 border rounded-md text-gray-600 hover:bg-gray-50"
-              >
-                Cancel
-              </button>
-              <button className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600">
-                Add Patient
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
+ 
