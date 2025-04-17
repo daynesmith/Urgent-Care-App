@@ -25,6 +25,7 @@ import AddAppointmentTypes from './pages/AddAppointmentTypes.jsx'
 import AddDoctorTypes from './pages/AddDoctorTypes.jsx'
 import SingleAppointment from './pages/SingleAppointment.jsx';
 import ReceptionistShift from './pages/ReceptionistShift.jsx';
+import DoctorAppointmentsReport from './pages/DoctorAppointmentsReport.jsx';
 
 
 
@@ -63,6 +64,7 @@ function App() {
             <Route path = '/AddDoctorTypes' element = {<AddDoctorTypes />} />
             <Route path = '/visits/:apptid' element = {<SingleAppointment />} />
             <Route path = '/ReceptionistShift' element = {<ReceptionistShift />} />
+            <Route path = '/adminreport' element = {<DoctorAppointmentsReport/>}/>
           </Routes>
       </Router>    
     </UserProvider>
