@@ -54,6 +54,8 @@ export default function ApplicationForm({ job, onClose }) {
     } = formData;
   
     const stafftype = job.jobtype;
+
+
   
     if (!firstname || !lastname || !dateofbirth || !phonenumber || !email || !password || !street || !city || !state || !zip) {
       setError('One of them is empty.');
@@ -84,6 +86,7 @@ export default function ApplicationForm({ job, onClose }) {
     try {
       console.log('Sending JSON application data:', applicationData);
       await axios.post(`${apiUrl}/users/sendingApplications`, applicationData);
+      
   
       setStatus('Application submitted successfully!');
       setFormData({

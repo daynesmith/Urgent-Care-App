@@ -8,12 +8,13 @@ export default function JoinTheTeam() {
       {/* Header */}
       <header className="bg-white shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-2">
+          <h1 className="flex justify-center text-3xl font-bold text-gray-900 flex items-center gap-2">
             <BriefcaseIcon className="h-8 w-8 text-blue-600" />
             Join Our Medical Team
           </h1>
         </div>
       </header>
+
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
