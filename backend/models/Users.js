@@ -115,8 +115,11 @@ module.exports = (sequelize, DataTypes)=>{
             foreignKey: 'receptionistid',
             as: 'receptionistProfile'
         });
-    };
-
+        Users.hasMany(models.Shifts, { 
+            as: 'shifts', 
+            foreignKey: 'staffid'
+        });
+    };   
 
     //insert nurse role once completed
     Users.afterCreate(async (user, options) => {
