@@ -83,7 +83,15 @@ export default function Appointments(props){
             {futureAppointments.length > 0 ? (
                 <ul className="flex flex-row gap-2 bg-gray-200 p-2">
                     {futureAppointments.map((appointment) => (
-                        <SingleAppointment key={appointment.appointmentid} data={appointment} date={appointment.requesteddate} time={appointment.requestedtime} />
+                        <li key={appointment.appointmentid} className="p-2 border rounded bg-white">
+                        <p className="font-bold">{appointment.doctor
+                            ? `Doctor: Dr. ${appointment.doctor.firstname} ${appointment.doctor.lastname}`
+                            : appointment.specialist
+                            ? `Specialist: Dr. ${appointment.specialist.firstname} ${appointment.specialist.lastname}`
+                            : 'Provider: Unknown'}</p>
+                        <p>Date: {appointment.requesteddate}</p>
+                        <p>Time: {appointment.requestedtime}</p>
+                        </li> 
                     ))}
                 </ul>
             ) : (
@@ -93,8 +101,15 @@ export default function Appointments(props){
             {pastAppointments.length > 0 ? (
                 <ul className="flex flex-row gap-2 bg-gray-100 p-2">
                     {pastAppointments.map((appointment) => (
-                        <SingleAppointment key={appointment.appointmentid} data={appointment} date={appointment.requesteddate} time={appointment.requestedtime} />
-
+                        <li key={appointment.appointmentid} className="p-2 border rounded bg-white">
+                        <p className="font-bold">{appointment.doctor
+                            ? `Doctor: Dr. ${appointment.doctor.firstname} ${appointment.doctor.lastname}`
+                            : appointment.specialist
+                            ? `Specialist: Dr. ${appointment.specialist.firstname} ${appointment.specialist.lastname}`
+                            : 'Provider: Unknown'}</p>
+                        <p>Date: {appointment.requesteddate}</p>
+                        <p>Time: {appointment.requestedtime}</p>
+                        </li> 
                     ))}
                 </ul>
             ) : (
@@ -104,8 +119,15 @@ export default function Appointments(props){
             {canceledAppointments.length > 0 ? (
                 <ul className="flex flex-row gap-2 bg-gray-100 p-2">
                     {canceledAppointments.map((appointment) => (
-                        <SingleAppointment key={appointment.appointmentid} data={appointment} date={appointment.requesteddate} time={appointment.requestedtime} />
-
+                        <li key={appointment.appointmentid} className="p-2 border rounded bg-white">
+                        <p className="font-bold">{appointment.doctor
+                            ? `Doctor: Dr. ${appointment.doctor.firstname} ${appointment.doctor.lastname}`
+                            : appointment.specialist
+                            ? `Specialist: Dr. ${appointment.specialist.firstname} ${appointment.specialist.lastname}`
+                            : 'Provider: Unknown'}</p>
+                        <p>Date: {appointment.requesteddate}</p>
+                        <p>Time: {appointment.requestedtime}</p>
+                        </li> 
                     ))}
                 </ul>
             ) : (

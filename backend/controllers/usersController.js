@@ -46,7 +46,11 @@ const loginUser = async (req, res) => {
             return res.status(400).json("Invalid credentials");
         }
         
-        const accessToken = sign({ email: user.email, role: user.role, id: user.id }, process.env.jwtsecret, { //session token created stores role id and email
+        const accessToken = sign({
+            email: user.email, 
+            role: user.role, 
+            userid: user.userid 
+            }, process.env.jwtsecret, { //session token created stores role id and email
             expiresIn: '1h'
         });
         
@@ -66,135 +70,31 @@ const loginUser = async (req, res) => {
     }
 };
 
+const creatingUser = async (req, res) => {
+  const { email, password, role } = req.body;
 
-
-const sendingApplications = async (req, res) => {
-    const {
-        firstname,
-        lastname,
-        dateofbirth,
-        phonenumber,
-        qualifications,
-        certifications,
-        stafftype,
-        email,
-        password,
-        experience,
-        coverletter,
-        street,
-        city,
-        state,
-        zip,
-      } = req.body;
-    try {
-      console.log('Received data for application creation:', {
-        firstname,
-        lastname,
-        dateofbirth,
-        phonenumber,
-        stafftype,
-        email,
-        password,
-        experience,
-        coverletter,
-        street,
-        city,
-        state,
-        zip,
-      });
-  
-      // Validate required fields
-      if (
-        !firstname || !lastname || !dateofbirth || !phonenumber || !stafftype ||
-        !email || !password || !experience  || !street || !city || !state || !zip
-      ) {
-        return res.status(400).json({ error: 'All fields are required.' });
-      }
-  
-      const passwordhash = await bcrypt.hash(password, 10);
-  
-      const applicationData = await Users.create({
-        firstname,
-        lastname,
-        dateofbirth,
-        phonenumber,
-        role: stafftype,
-        email,
-        passwordhash,
-        experience,
-        qualifications,
-        certifications,
-        coverletter,
-        street,
-        city,
-        state,
-        zip,
-      });
-  
-      console.log('Application is created:', applicationData);
-      res.status(201).json({ message: 'Application was created successfully', applicationData });
-  
-    } catch (error) {
-      console.error('Error processing application:', error);
-      res.status(500).json({ error: `Internal server error: ${error.message}` });
+  try {
+    // Check if user already exists
+    const existingUser = await Users.findOne({ where: { email } });
+    if (existingUser) {
+      return res.status(400).json("Email already registered");
     }
-  };
-  
 
+    // Hash the password
+    const hash = await bcrypt.hash(password, 10);
 
+    // Create user in DB
+    const newUser = await Users.create({
+      email: email,
+      passwordhash: hash,
+      role: role
+    });
 
-  const gettingApplications = async (req, res) => {
-    console.log('Request received at backend over here.');
-    try {
-        const applications = await Users.findAll({
-            attributes: [
-              'firstname',
-              'lastname',
-              'dateofbirth',
-              'phonenumber',
-              ['role', 'stafftype'],  // Using alias here to match the frontend expectation
-              'email',
-              'passwordhash',
-              'qualifications',
-              'certifications',
-              'coverletter',
-              'experience',
-              'street',
-              'city',
-              'state',
-              'zip',
-              'status',
-            ],
-            where: {
-                role: ['doctor', 'receptionist', 'admin', 'specialist']
-            }
-        });
-        res.json(applications);
-    } catch (error) {
-        console.error("Error fetching applications:", error);
-        res.status(500).json({ message: "Server error" });
-    }
-};
-
-const creatingUser= async (req, res) => {
-    const { email, password, role} = req.body;
-
-    try {
-        const hash = await bcrypt.hash(password, 10);
-        await Users.create({
-            email: email,
-            passwordhash: hash,
-            role: role
-        });
-        res.status(200).json("success");
-    } catch (error) {
-        if (error.original && error.original.code === 'ER_DUP_ENTRY') {
-            return res.status(400).json('Email already registered');
-          }
-
-        console.error(error);
-        res.status(500).json("Error registering user");
-    }
+    res.status(201).json({ message: "User created successfully", userId: newUser.userid });
+  } catch (error) {
+    console.error("Error registering user:", error);
+    res.status(500).json("Error registering user");
+  }
 };
 
 
@@ -276,4 +176,4 @@ const getStaffShifts = async (req, res) => {
 }
 
 
-module.exports = { registerUser, loginUser, gettingApplications, sendingApplications, creatingUser, updateApplicationStatus, getStaffUsers, getStaffShifts};
+module.exports = { registerUser, loginUser, creatingUser, updateApplicationStatus, getStaffUsers, getStaffShifts};

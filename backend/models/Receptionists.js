@@ -52,7 +52,8 @@ module.exports = (sequelize, DataTypes) => {
         
         Receptionists.belongsTo(models.Users,{
             foreignKey: 'receptionistid',
-            targetKey: 'userid'
+            targetKey: 'userid',
+            as: 'user'
         })
 
         Receptionists.hasMany(models.Appointments, {

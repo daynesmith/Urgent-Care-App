@@ -95,16 +95,31 @@ module.exports = (sequelize, DataTypes)=>{
             type: DataTypes.ENUM("pending", "accepted", "rejected"),
             allowNull: true,
             defaultValue: "pending",
-          }
+        }
+        
     }, {
         timestamps: true, // Automatically add createdAt and updatedAt fields
     });
 
     Users.associate = (models) => {
+        Users.hasOne(models.Doctors, {
+            foreignKey: 'doctorid',
+            as: 'doctorProfile'
+        });
+
+        Users.hasOne(models.Specialists, {
+            foreignKey: 'user_id',
+            as: 'specialistProfile'
+        });
+
+        Users.hasOne(models.Receptionists, {
+            foreignKey: 'receptionistid',
+            as: 'receptionistProfile'
+        });
         Users.hasMany(models.Shifts, { 
             as: 'shifts', 
             foreignKey: 'staffid'
-         });
+        });
     };   
 
     //insert nurse role once completed
