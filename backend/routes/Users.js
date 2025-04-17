@@ -3,6 +3,7 @@ const router = express.Router()
 const { registerUser, loginUser, gettingApplications, creatingUser, updateApplicationStatus, sendingApplications, getStaffUsers, getStaffShifts, clinicLocations} = require('../controllers/usersController')
 const { validateToken } = require('../middlewares/Authmiddleware');
 
+const { registerUser, loginUser, creatingUser} = require('../controllers/usersController')
 
 router.post("/register", registerUser);
 router.post("/login", loginUser);

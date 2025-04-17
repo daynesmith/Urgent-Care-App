@@ -10,7 +10,11 @@ const getPatientAppointments = async (req, res) => {
         }
 
         const appointments = await Appointments.findAll({
-            where: { patientid: patient.dataValues.patientid }
+            where: { patientid: patient.dataValues.patientid },
+            include: [ 
+                {model: Doctors, as: 'doctor', attributes: ['firstname', 'lastname']},
+                {model: Specialists, as: 'specialist', attributes: ['firstname', 'lastname']}
+            ]
         });
 
         if (!appointments.length) {
@@ -120,44 +124,33 @@ const isDoctorAvailable = async (doctorid, requesteddate, requestedtime, appoint
     return conflictingAppointment ? false : true;
 };
 
-
-
 const createAppointment = async (req, res) => {
     try {
-        const { doctorid, requesteddate, requestedtime, cliniclocation } = req.body;
+        const { doctorid, requesteddate, requestedtime } = req.body;
         const patient = await Patients.findOne({ where: { email: req.user.email } });
 
         if (!patient) {
             return res.status(400).json("Please fill out paitent info form patient not authenticated or not found." );
         }
+        if ((!doctorid && !specialistid) || (doctorid && specialistid)) {
+            return res.status(400).json("Provide either doctorid or specialistid, not both.");
+        }
         const patientid = patient.dataValues.patientid;  
  
-        console.log('Received data for appointment creation:', { doctorid, requesteddate, requestedtime, patientid, cliniclocation });
+        console.log('Received data for appointment creation:', { doctorid, requesteddate, requestedtime, patientid });
 
         if (!doctorid || !requesteddate || !requestedtime || !patientid || !cliniclocation) {
             return res.status(400).json("Missing required fields." );
         }
 
-        const formattedTime = convertTo24HourFormat(requestedtime);
-
-        const existingAppointment = await Appointments.findOne({
-            where: {
-                patientid,
-                requesteddate,
-                requestedtime: formattedTime,
-            },
-        });
-        if (existingAppointment) {
-            return res.status(400).json("Patient already has an appointment scheduled at this time.");
-        }
-
-        const available = await isDoctorAvailable(doctorid, requesteddate, requestedtime, { appointmentid: null }, cliniclocation);
+        const available = await isDoctorAvailable(doctorid, requesteddate, requestedtime);
         if (!available) {
             return res.status(400).json("Doctor not available at this time or location." );
         }
 
         const appointment = await Appointments.create({ 
-            doctorid,  
+            doctorid: doctorid || null,
+            specialistid: specialistid || null,  
             requesteddate, 
             requestedtime: formattedTime, 
             patientid,

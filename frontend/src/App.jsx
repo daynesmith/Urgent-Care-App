@@ -1,11 +1,11 @@
 import './styles/App.css'
 import {BrowserRouter as Router, Routes, Route} from 'react-router-dom';
-import Homepage from './pages/Homepage.jsx'
-import Navbar from './components/Navbar.jsx'
+import Homepage from './pages/Homepage.jsx';
+import Navbar from './components/Navbar.jsx';
 import RegistrationForm from './pages/Registrationpage.jsx';
-import LoginPage from './pages/Loginpage.jsx'
+import LoginPage from './pages/Loginpage.jsx';
 import Dashboard from './pages/Dashboard.jsx';
-import { UserProvider } from './context/Usercontext.jsx'
+import { UserProvider } from './context/Usercontext.jsx';
 import RoleForm from './pages/RoleForm.jsx';
 import ScheduleAppointment from './pages/ScheduleAppointment.jsx';
 import DoctorInfoForm from './pages/DoctorInfoForm.jsx';

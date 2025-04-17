@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const { Referral, Patients, Doctors, Specialists } = require("../models");
+const { getApprovedReferralsForPatient } = require("../controllers/ReferralController");
 
 // Get all pending referrals
 router.get("/pending", async (req, res) => {
@@ -40,5 +41,8 @@ router.put("/:id", async (req, res) => {
         res.status(500).json({ error: "Failed to update referral" });
     }
 });
+
+router.get("/approved", getApprovedReferralsForPatient);
+
 
 module.exports = router;
