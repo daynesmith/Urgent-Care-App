@@ -25,6 +25,8 @@ const appointmentsRouter = require('./routes/Appointments');
 app.use('/appointments', appointmentsRouter);
 const inventoryRouter = require('./routes/Inventory');
 app.use('/inventory', inventoryRouter);
+const reportsRoute = require('./routes/Reports');
+app.use('/api/reports', reportsRoute);
 
 
 const referralRoutes = require('./routes/Referral');
