@@ -42,7 +42,8 @@ module.exports = (sequelize, DataTypes)=>{
             unique: true, // Ensures no duplicate email addresses
             validate: {
                 isEmail: true, // Validates email format
-                notEmpty: true, // Ensures email is not empty
+                notEmpty: true, // Ensures email is not
+                //  empty
             },
         },
         role: {

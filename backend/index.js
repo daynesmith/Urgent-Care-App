@@ -23,6 +23,8 @@ const receptionistRouter = require('./routes/Receptionists');
 app.use('/receptionist', receptionistRouter);
 const appointmentsRouter = require('./routes/Appointments');
 app.use('/appointments', appointmentsRouter);
+const inventoryRouter = require('./routes/Inventory');
+app.use('/inventory', inventoryRouter);
 
 
 const referralRoutes = require("./routes/Referral");

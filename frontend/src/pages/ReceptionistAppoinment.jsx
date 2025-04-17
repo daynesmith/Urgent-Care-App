@@ -1,634 +1,497 @@
-/*import React, { useState } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import axios from 'axios';
-import { jwtDecode } from 'jwt-decode'; // Import jwtDecode
-import DoctorDropDown from '../components/DoctorDropDown'
+import {
+  Calendar as CalendarIcon,
+  Clock,
+  User,
+  Phone,
+  FileText,
+  Check,
+  AlertTriangle,
+  ChevronLeft,
+  ChevronRight,
+  Stethoscope
+} from 'lucide-react';
+import { jwtDecode } from 'jwt-decode';
 import PatientDropDown from '../components/PatientDropDown'
+import DoctorDropDown from '../components/DoctorDropDown';
+import {
+  format,
+  startOfMonth,
+  endOfMonth,
+  isSameMonth,
+  isSameDay,
+  parseISO,
+  parse,
+  isToday,
+  addDays,
+  startOfWeek,
+  endOfWeek
+} from 'date-fns';
+
 
 const apiUrl = import.meta.env.VITE_API_URL;
 
 export default function ReceptionistAppointment() {
-  const [date, setDate] = useState('');
-  const [time, setTime] = useState('');
-  const [doctor, setDoctor] = useState('');
-  const [patient, setPatient] = useState('');
-  const [error, setError] = useState('');
-  const [appointmentStatus, setAppointmentStatus] = useState('');
+    const [date, setDate] = useState('');
+    // Searchable Patient Dropdown Logic
+    const [query, setQuery] = useState('');
+    const [filteredPatients, setFilteredPatients] = useState([]);
+    const [time, setTime] = useState('');
+    const [doctor, setDoctor] = useState('');
+    const [patient, setPatient] = useState('');
+    const [allPatients, setAllPatient] = useState([]);
+    const [appointmentStatus, setAppointmentStatus] = useState('');
+    const [currentMonth, setCurrentMonth] = useState(new Date());
+    const [appointments, setAppointments] = useState([]);
+    const [selectedDate, setSelectedDate] = useState(null);
+    const [error, setError] = useState(null);
+    const [formData, setFormData] = useState({
+        doctorid: '',
+        patientid: '',
+        date: '',
+        time: ''
+    });
+    {/*Viewing Appoinments*/}
+  // Generate calendar days for the month
+  const startDate = startOfWeek(startOfMonth(currentMonth));
+  const endDate = endOfWeek(endOfMonth(currentMonth));
 
-  const availableTimes = [
-      "09:00 AM", "09:30 AM", "10:00 AM", "10:30 AM",
-      "11:00 AM", "11:30 AM", "01:00 PM", "01:30 PM",
-      "02:00 PM", "02:30 PM", "03:00 PM", "03:30 PM"
-  ];
+  const calendarDays = [];
+  let currentDay = startDate;
+  while (currentDay <= endDate) {
+    calendarDays.push(currentDay);
+    currentDay = addDays(currentDay, 1);
+  }
 
-  // Convert time to 24-hour format
-  const convertTo24HourFormat = (time12h) => {
-      const [time, modifier] = time12h.split(' ');
-      let [hours, minutes] = time.split(':').map(Number);
+  useEffect(() => {
+    const fetchAppointments = async () => {
+      try {
+        const response = await axios.get(`${apiUrl}/appointments/getappointments`);
+        setAppointments(response.data);
+      } catch (err) {
+        console.error('Failed to fetch appointments:', err);
+        setError('Failed to load appointments');
+      }
+    };
+    fetchAppointments();
+  }, [currentMonth]);
 
-      if (modifier === 'PM' && hours !== 12) hours += 12;
-      if (modifier === 'AM' && hours === 12) hours = 0;
-
-      return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:00`;
+  const handleDateClick = (day) => {
+    setSelectedDate(day);
   };
+
+  const previousMonth = () => {
+    setCurrentMonth(prev => addDays(prev, -30));
+  };
+
+  const nextMonth = () => {
+    setCurrentMonth(prev => addDays(prev, 30));
+  };
+
+  const getAppointmentsForDay = (day) => {
+    return appointments.filter((appointment) => {
+      if (!appointment.requesteddate) return false;
+      const appointmentDate = parseISO(appointment.requesteddate);
+      return isSameDay(appointmentDate, day);
+    });
+  };
+
+  {/*Form Appoinments*/}
+
     
+  const getAvailableTimeSlots = (date, doctorid) => {
 
-  // Handle form submission (Create appointment)
-    const handleSubmit = async (e) => {
-    e.preventDefault();
+    const availableTimes = [
+        "09:00 AM", "09:30 AM", "10:00 AM", "10:30 AM",
+        "11:00 AM", "11:30 AM", "01:00 PM", "01:30 PM",
+        "02:00 PM", "02:30 PM", "03:00 PM", "03:30 PM"
+    ];
+  
 
-    const token = localStorage.getItem('accessToken');
-    if (!token) {
-        setError("No access token found. Please log in again.");
-        return;
-    }
+    const TIME_SLOTS = [
+      "09:00:00", "09:30:00", "10:00:00", "10:30:00",
+      "11:00:00", "11:30:00", "12:00:00", "12:30:00",
+      "13:00:00", "13:30:00", "14:00:00", "14:30:00",
+      "15:00:00", "15:30:00"
+    ];
+    
+    // Function to convert a time string in HH:mm format to 12-hour AM/PM format
+    const convertTo12HourFormat = (time) => {
+        const timeParsed = parse(time, 'HH:mm:ss', new Date()); // Parse the time in 24-hour format
+        return format(timeParsed, 'hh:mm a'); // Convert to 12-hour format
+    };
 
-    if (!date || !time || !doctor || !patient) {
-        setError('Please select a doctor, patient, date, and time.');
-        return;
-    }
-    setError('');
+    if (!date || !doctorid) return availableTimes;
+  
+    // 1. Filter appointments matching selected date & doctor
+    const bookedTimes = appointments
+      .filter(apt => {
+        if (!apt.requesteddate || !apt.doctorid || !apt.requestedtime) return false;
+  
+        const aptDate = new Date(apt.requesteddate).toDateString();
+        const selectedDate = new Date(date).toDateString();
+  
+        return aptDate === selectedDate && String(apt.doctorid) === String(doctorid);
+      })
+      .map(apt => apt.requestedtime); // 2. Get only requested times
+  
+    console.log("Booked Times:", bookedTimes);
+  
+    // 3. Filter out booked times
+    const availableSlots = TIME_SLOTS.filter(slot => !bookedTimes.includes(slot));
+  
+    //Changing the availableSlots to AM/PM
+    const availableSlotsIn12HrFormat = availableSlots
+    .map(convertTo12HourFormat);  // Convert the available slots into AM/PM format
 
-    console.log("Selected patient ID:", patient); 
+    console.log("Available Slots (AM/PM):", availableSlotsIn12HrFormat);  // Log the available time slots in AM/PM format
 
-    const formattedTime = convertTo24HourFormat(time);
-    const requestedDateTime = `${date} ${formattedTime}`;
+    return availableSlotsIn12HrFormat; 
+  };
+  
 
-    try {
-        const decoded = jwtDecode(token);
-        console.log("Decoded Token:", decoded);
+    // Use memoization to avoid recalculating available slots unnecessarily
+    const availableSlots = useMemo(() => {
+        return getAvailableTimeSlots(formData.date, formData.doctorid);
+    }, [formData.date, formData.doctorid, appointments]); // Dependencies for memoization
 
-        if (!decoded.email) {
-            setError("Invalid token structure: missing patientid.");
-            return;
+    const convertTo24HourFormat = (time12h) => {
+        const [time, modifier] = time12h.split(' ');
+        let [hours, minutes] = time.split(':');
+      
+        if (hours === '12') {
+          hours = '00';
         }
-
-        // Prepare the appointment data
+      
+        if (modifier.toUpperCase() === 'PM') {
+          hours = String(parseInt(hours, 10) + 12);
+        }
+      
+        return `${hours.padStart(2, '0')}:${minutes.padStart(2, '0')}:00`;
+      };
+     
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+      
+        const token = localStorage.getItem('accessToken');
+        if (!token) {
+          setError("No access token found. Please log in again.");
+          return;
+        }
+      
+        let decoded;
+        try {
+          decoded = jwtDecode(token);
+        } catch (err) {
+          setError("Invalid token.");
+          return;
+        }
+      
+        if (!formData.date || !formData.time || !formData.doctorid || !patient) {
+          setError('Please select a doctor, patient, date, and time.');
+          return;
+        }
+      
+        const formattedTime = convertTo24HourFormat(formData.time);
+      
+        // Prepare appointment data
         const appointmentData = {
-            doctorid: doctor,
-            patientid: patient,
-            requesteddate: requestedDateTime,
-            requestedtime: formattedTime,
-            receptionistEmail: decoded.email, 
+          doctorid: formData.doctorid,
+          patientid: patient,
+          requesteddate: formData.date,
+          requestedtime: formattedTime,
+          receptionistEmail: decoded.email,
         };
-        
-
-        console.log('Appointment data being sent:', appointmentData);
-
-        await axios.post(`${apiUrl}/appointments/appointments-receptionists`, appointmentData, {
+      
+        // Log info
+        console.log("Appointment Data:", appointmentData);
+      
+        try {
+          await axios.post(`${apiUrl}/appointments/appointments-receptionists`, appointmentData, {
             headers: { 'accessToken': token },
-        });
-
-        setAppointmentStatus('Appointment successfully created!');
-    } catch (error) {
-        console.error('Frontend: Error creating appointment:', error);
-        setError('Failed to create appointment.');
-    }
-};
-
+          });
+      
+          setAppointmentStatus('Appointment successfully created!');
+        } catch (error) {
+          console.error('Frontend: Error creating appointment:', error);
+          setError('Failed to create appointment.');
+        }
+      };
+      
+      
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        setFormData(prev => ({
+          ...prev,
+          [name]: value
+        }));
+      };  
+      
+      useEffect(() => {
+        console.log("Available Slots Updated:", availableSlots);
+      }, [availableSlots]);
+      
+      
 
   return (
-      <div className="fixed inset-0 flex justify-center items-center bg-gray-100">
-          <div className="bg-white shadow-xl rounded-lg p-6 w-96">
-              <h2 className="text-2xl font-bold text-center mb-4">Schedule Appointment</h2>
-
-              <form onSubmit={handleSubmit} className="space-y-4">
-                 
-                  <div>
-                      <label htmlFor="patient" className="block text-sm font-medium text-gray-700">
-                          Choose a patient:
-                      </label>
-                      <PatientDropDown patient={patient} setPatient={setPatient} />
-                  </div>
-
-                  
-                  <div>
-                      <label htmlFor="doctor" className="block text-sm font-medium text-gray-700">
-                          Choose a doctor:
-                      </label>
-                      <DoctorDropDown doctor={doctor} setDoctor={setDoctor} />
-                  </div>
-
-                
-                  <div>
-                      <label htmlFor="date" className="block text-sm font-medium text-gray-700">
-                          Select Date:
-                      </label>
-                      <input
-                          type="date"
-                          id="date"
-                          value={date}
-                          onChange={(e) => setDate(e.target.value)}
-                          className="mt-1 w-full border border-gray-300 rounded-md p-2"
-                      />
-                  </div>
-
-                  
-                  <div>
-                      <label htmlFor="time" className="block text-sm font-medium text-gray-700">
-                          Select Time:
-                      </label>
-                      <select
-                          id="time"
-                          value={time}
-                          onChange={(e) => setTime(e.target.value)}
-                          className="mt-1 w-full border border-gray-300 rounded-md p-2"
-                      >
-                          <option value="">Select a time</option>
-                          {availableTimes.map((t, index) => (
-                              <option key={index} value={t}>{t}</option>
-                          ))}
-                      </select>
-                  </div>
-
-                  
-                  {error && <div className="text-red-500 text-sm">{error}</div>}
-                  {appointmentStatus && <div className="text-green-500 text-sm">{appointmentStatus}</div>}
-
-                  
-                  <button
-                      type="submit"
-                      className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md transition"
-                  >
-                      Create Appointment
-                  </button>
-              </form>
+    <main className="max-w-7xl mx-auto px-4 py-8 sm:px-2 lg:px-8"
+    style={{
+      paddingTop: '10px',
+      paddingLeft: '10px',
+      paddingRight: '10px',
+      paddingBottom: '10px',
+    }}>
+      <div className="grid grid-cols-2 gap-8 lg:grid-cols-2">
+        {/* Calendar Overview */}
+        <div className="bg-white rounded-lg shadow p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-medium">Calendar Overview</h2>
+            <div className="flex space-x-2">
+              <button
+                onClick={previousMonth}
+                className="p-2 hover:bg-gray-100 rounded-full"
+              >
+                <ChevronLeft className="h-5 w-5 text-gray-600" />
+              </button>
+              <button
+                onClick={nextMonth}
+                className="p-2 hover:bg-gray-100 rounded-full"
+              >
+                <ChevronRight className="h-5 w-5 text-gray-600" />
+              </button>
+            </div>
           </div>
-      </div>
-  );
-}*/
 
-import React, { useState, useMemo } from 'react';
-import axios from 'axios';
-import { Calendar as CalendarIcon, Clock, User, Phone, FileText, Check, ChevronLeft, ChevronRight, Stethoscope } from 'lucide-react';
-import { jwtDecode } from 'jwt-decode'; 
-import DoctorDropDown from '../components/DoctorDropDown';
-import PatientDropDown from '../components/PatientDropDown';
-import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay, parseISO, isToday, parse, startOfWeek, endOfWeek } from 'date-fns';
+          <h3 className="text-center font-medium mb-4">
+            {format(currentMonth, 'MMMM yyyy')}
+          </h3>
 
-const apiUrl = import.meta.env.VITE_API_URL;
+          <div className="grid grid-cols-7 gap-1 text-center text-sm mb-2">
+            {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
+              <div key={day} className="font-medium text-gray-500">
+                {day}
+              </div>
+            ))}
+          </div>
 
-const TIME_SLOTS = Array.from({ length: 17 }, (_, i) => {
-  const hour = Math.floor(i / 2) + 9;
-  const minute = i % 2 === 0 ? '00' : '30';
-  return `${hour.toString().padStart(2, '0')}:${minute}`;
-});
+          <div className="grid grid-cols-7 gap-1">
+            {calendarDays.map((day) => {
+              const appointmentsToday = getAppointmentsForDay(day);
+              const hasAppointments = appointmentsToday.length > 0;
+              const isSelected = selectedDate && isSameDay(day, selectedDate);
+              const isCurrentMonth = isSameMonth(day, currentMonth);
+              const isPast = day < new Date(new Date().setHours(0, 0, 0, 0));
 
-const APPOINTMENT_TYPES = ["Regular Checkup", "Follow-up", "Consultation", "Emergency"];
-
-export default function ReceptionistAppointment() {
-  const [currentMonth, setCurrentMonth] = useState(new Date());
-  const [selectedDate, setSelectedDate] = useState(null);
-  const [date, setDate] = useState('');
-  const [time, setTime] = useState('');
-  const [doctor, setDoctor] = useState('');
-  const [patient, setPatient] = useState('');
-  const [appointments, setAppointments] = useState([]);
-  const [error, setError] = useState('');
-  const [appointmentStatus, setAppointmentStatus] = useState('');
-  const [showSuccess, setShowSuccess] = useState(false);
-  const [formData, setFormData] = useState({
-    phone: '', // Make sure phone is initialized
-    // other fields...
-  });
-
-  const convertTo24HourFormat = (time12h) => {
-    const [time, modifier] = time12h.split(' ');
-    let [hours, minutes] = time.split(':').map(Number);
-
-    if (modifier === 'PM' && hours !== 12) hours += 12;
-    if (modifier === 'AM' && hours === 12) hours = 0;
-
-    return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:00`;
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    const token = localStorage.getItem('accessToken');
-    if (!token) {
-      setError("No access token found. Please log in again.");
-      return;
-    }
-
-    const { date, time, doctor } = formData;
-    if (!date || !time || !doctor) {
-      setError('Please select a doctor, patient, date, and time.');
-      return;
-    }
-    setError('');
-
-    const formattedTime = convertTo24HourFormat(time);
-    const requestedDateTime = `${date} ${formattedTime}`;
-
-    try {
-      const decoded = jwtDecode(token);
-      if (!decoded.email) {
-        setError("Invalid token structure: missing email.");
-        return;
-      }
-
-      const appointmentData = {
-        doctorid: doctor,
-        patientid:patient, 
-        requesteddate: requestedDateTime,
-        requestedtime: formattedTime,
-        receptionistEmail: decoded.email,
-      };
-
-      console.log('Appointment data being sent:', appointmentData);
-
-      await axios.post(`${apiUrl}/appointments/appointments-receptionists`, appointmentData, {
-        headers: { 'accessToken': token },
-      });
-
-      setAppointments([...appointments, { ...appointmentData, id: Date.now().toString() }]);
-      setAppointmentStatus('Appointment successfully created!');
-      setShowSuccess(true);
-      setTimeout(() => setShowSuccess(false), 3000);
-
-      // Clear all fields
-        setDate('');
-        setTime('');
-        setDoctor('');
-        setPatient('');
-    } catch (error) {
-      console.error('Frontend: Error creating appointment:', error);
-      setError('Failed to create appointment.');
-    }
-  };
-
-  // Replace the handleChange since you’re no longer using formData:
-const handleChange = (e) => {
-    const { name, value } = e.target;
-  
-    switch (name) {
-      case 'doctor':
-        setDoctor(value);
-        break;
-      case 'patient':
-        setPatient(value);
-        break;
-      case 'date':
-        setDate(value);
-        break;
-      case 'time':
-        setTime(value);
-        break;
-      default:
-        break;
-    }
-  };  
-
-    // Calendar calculations for rendering days
-    const calendarDays = useMemo(() => {
-        const start = startOfWeek(startOfMonth(currentMonth));
-        const end = endOfWeek(endOfMonth(currentMonth));
-        return eachDayOfInterval({ start, end });
-    }, [currentMonth]);
-    
-    const previousMonth = () => {
-        setCurrentMonth(prev => new Date(prev.getFullYear(), prev.getMonth() - 1));
-    };
-    
-    const nextMonth = () => {
-        setCurrentMonth(prev => new Date(prev.getFullYear(), prev.getMonth() + 1));
-    };
-  
-
-    // Fetch appointments for a specific day (you can customize this to match your DB)
-    const getAppointmentsForDay = (day) => {
-        return appointments.filter(appointment =>
-        isSameDay(parseISO(appointment.requesteddate), day)
-        );
-    };
-    
-
-    // When the user clicks a day on the calendar
-    const handleDateClick = (selectedDay) => {
-        setSelectedDate(selectedDay);
-        setDate(format(selectedDay, 'yyyy-MM-dd'));
-    };
-  
-
-    // Determine which time slots are already booked for a doctor on a date
-    const getAvailableTimeSlots = (date, doctorId) => {
-        const bookedSlots = appointments
-        .filter(apt =>
-            apt.requesteddate.startsWith(date) && apt.doctorid === doctorId
-        )
-        .map(apt => apt.requestedtime);
-    
-        return TIME_SLOTS.filter(slot => !bookedSlots.includes(slot));
-    };
-    
-
-    // Memoized available time slots for the selected date and doctor
-    const selectedDateAvailableSlots = useMemo(() => {
-        if (!date || !doctor) return TIME_SLOTS;
-        return getAvailableTimeSlots(date, doctor);
-    }, [date, doctor, appointments]);
-    
-    return (
-        <div className="min-h-screen bg-gray-50">
-
-        {/*Header*/}
-        <header className="bg-white shadow-sm">
-            <div className="max-w-7xl mx-auto px-4 py-4 sm:px-6 lg:px-8">
-            <h1 className="text-2xl font-semibold text-gray-900">Appointment Scheduler</h1>
-            </div>
-        </header>
-
-        <main className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
-            <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
-
-            {/*Calendar Overview*/}
-            <div className="bg-white rounded-lg shadow p-6">
-                <div className="flex items-center justify-between mb-4">
-                <h2 className="text-lg font-medium">Calendar Overview</h2>
-                <div className="flex space-x-2">
-                    <button
-                    onClick={previousMonth}
-                    className="p-2 hover:bg-gray-100 rounded-full"
-                    >
-                    <ChevronLeft className="h-5 w-5 text-gray-600" />
-                    </button>
-                    <button
-                    onClick={nextMonth}
-                    className="p-2 hover:bg-gray-100 rounded-full"
-                    >
-                    <ChevronRight className="h-5 w-5 text-gray-600" />
-                    </button>
-                </div>
-                </div>
-                <h3 className="text-center font-medium mb-4">
-                {format(currentMonth, 'MMMM yyyy')}
-                </h3>
-                <div className="grid grid-cols-7 gap-1 text-center text-sm mb-2">
-                {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
-                    <div key={day} className="font-medium text-gray-500">
-                    {day}
-                    </div>
-                ))}
-                </div>
-
-            <div className="grid grid-cols-7 gap-1">
-                {calendarDays.map((day) => {
-                    const appointmentsToday = getAppointmentsForDay(day);
-                    const hasAppointments = appointmentsToday.length > 0;
-                    const isSelected = selectedDate && isSameDay(day, selectedDate);
-                    const isCurrentMonth = isSameMonth(day, currentMonth);
-                    const isPast = day < new Date(new Date().setHours(0, 0, 0, 0));
-                    return (
-                        <button
-                        key={day.toString()}
-                        onClick={() => !isPast && handleDateClick(day)}
-                        disabled={isPast}
-                        className={`
-                        aspect-square p-1 relative hover:bg-gray-50 cursor-pointer
-                        ${!isCurrentMonth ? 'text-gray-400' : ''}
-                        ${isToday(day) ? 'bg-blue-50 font-semibold text-blue-600' : ''}
-                        ${isSelected ? 'ring-2 ring-blue-500 rounded-md' : ''}
-                        ${isPast ? 'cursor-not-allowed opacity-50 hover:bg-transparent' : ''}
-                        ${hasAppointments && !isPast ? 'font-semibold' : ''}
-                        `}
-                        >
-                        <time dateTime={format(day, 'yyyy-MM-dd')}>
-                            {format(day, 'd')}
-                        </time>
-                        {hasAppointments && !isPast && (
-                        <div 
-                            className={`absolute bottom-1 right-1 w-2 h-2 rounded-full
-                            ${isCurrentMonth ? 'bg-blue-600' : 'bg-gray-400'}
-                            `}
-                        />
-                        )}
-                        {hasAppointments && !isPast && (
-                        <div className="absolute top-0 right-1 text-xs text-blue-600">
-                            {appointmentsToday.length}
-                        </div>
-                        )}
-                        </button>
-                    );
-                    })}
-                </div>
-                </div>
-            </div>
-            
-        {/* Selected Day Appointments */}
-            <div className="bg-white rounded-lg shadow p-6 lg:col-span-2">
-            {selectedDate ? (
-                <>
-                <h4 className="font-medium mb-3">
-                    Appointments for {format(selectedDate, 'MMMM d, yyyy')}
-                </h4>
-                <div className="space-y-2">
-                    {getAppointmentsForDay(selectedDate).length === 0 ? (
-                    <p className="text-sm text-gray-500">No appointments scheduled</p>
-                    ) : (
-                    getAppointmentsForDay(selectedDate).map(apt => (
-                        <div key={apt.id} className="text-sm p-2 bg-gray-50 rounded">
-                        <div className="flex justify-between items-center">
-                            <span className="font-medium">{apt.time}</span>
-                            <span className="text-gray-500">{apt.type}</span>
-                        </div>
-                        <div className="flex items-center gap-1 text-gray-600 mt-1">
-                            <User className="h-3 w-3" />
-                            <span>{apt.name}</span>
-                        </div>
-                        <div className="flex items-center gap-1 text-gray-600">
-                            <Stethoscope className="h-3 w-3" />
-                            <span>{apt.doctor}</span>
-                        </div>
-                        </div>
-                    ))
-                    )}
-                </div>
-                </>
-            ) : (
-                <p className="text-sm text-gray-500">Select a date to see appointments.</p>
-            )}
-            </div>
-            {/* Appointment Form */}
-            <div className="bg-white rounded-lg shadow p-6">
-                <h2 className="text-lg font-medium mb-6">Schedule New Appointment</h2>
-                <form onSubmit={handleSubmit} className="space-y-4">
-                <div className="relative">
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                    </label>
-                    <div>
-                        <label htmlFor="patient" className="block text-sm font-medium text-gray-700">
-                            Choose a patient:
-                        </label>
-                        <PatientDropDown patient={patient} setPatient={setPatient} />
-                    </div>
-                </div>
+              return (
+                <button
+                key={day.toISOString()}
+                onClick={() => !isPast && handleDateClick(day)}
+                disabled={isPast}
+                className={`
+                    aspect-square p-1 relative hover:bg-gray-50 cursor-pointer
+                    ${!isCurrentMonth ? 'text-gray-400' : ''}
+                    ${isToday(day) ? 'bg-blue-50 font-semibold text-blue-600' : ''}
+                    ${isSelected ? 'ring-2 ring-blue-500 rounded-md' : ''}
+                    ${isPast ? 'cursor-not-allowed opacity-50 hover:bg-transparent' : ''}
+                    ${hasAppointments && !isPast ? 'font-semibold' : ''}
+                `}
+                style={{
+                    paddingTop: '8px',
+                    paddingRight: '8px',
+                    paddingBottom: '8px',
+                }}
+                >
 
 
-                <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Phone Number
-                    </label>
-                    <div className="relative">
-                    <Phone className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 h-5 w-5" />
-                    <input
-                        type="tel"
-                        name="phone"
-                        value={formData.phone}
-                        onChange={handleChange}
-                        required
-                        className="pl-10 w-full rounded-md border border-gray-300 py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        placeholder="(123) 456-7890"
+                  <time dateTime={format(day, 'yyyy-MM-dd')}>
+                    {format(day, 'd')}
+                  </time>
+                  {hasAppointments && !isPast && (
+                    <div 
+                      className={`absolute bottom-1 right-1 w-2 h-2 rounded-full
+                        ${isCurrentMonth ? 'bg-blue-600' : 'bg-gray-400'}
+                      `}
                     />
+                  )}
+                  {hasAppointments && !isPast && (
+                    <div className="absolute top-0 right-1 text-xs text-blue-600">
+                      {appointmentsToday.length}
                     </div>
-                </div>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+    {/* Selected Day Appointments */}
+    {selectedDate && (
+    <div className="mt-6 border-t pt-4">
+    <h4 className="flex items-center justify-center text-gray-900 font-medium mb-3">
+      Appointments for {format(selectedDate, 'MMMM d, yyyy')}
+    </h4>
+    <div className="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-1 gap-10">
+    {getAppointmentsForDay(selectedDate).length === 0 ? (
+      <p className="text-sm text-gray-500">No appointments scheduled</p>
+    ) : (
+        <table className="min-w-full divide-y divide-gray-200 text-sm bg-white shadow rounded">
+          <thead className="text-sm p-4 bg-gray-50 text-gray-600 rounded-md border border-gray-200 shadow-sm">
+            {getAppointmentsForDay(selectedDate)
+            .sort((a, b) => {
+                const timeA = parse(a.requestedtime, 'HH:mm:ss', new Date());
+                const timeB = parse(b.requestedtime, 'HH:mm:ss', new Date());
+                return timeA - timeB;
+            })
+            .map((apt) => (
+              <tr key={apt.appointmentid} className="text-sm p-4 bg-gray-50 text-gray-600 rounded-md border border-gray-200 shadow-sm">
+              <td className="px-4 py-2">
+                {apt.requestedtime
+                    ? format(parse(apt.requestedtime, 'HH:mm:ss', new Date()), 'h:mm a')
+                    : 'N/A'}
+                </td>
+                <td className="px-4 py-2 flex items-center gap-1 text-gray-600">
+                  <User className="h-4 w-4" />
+                  {apt.patient
+                    ? `${apt.patient.firstname} ${apt.patient.lastname}`
+                    : 'N/A'}
+                </td>
+                <td className="px-4 py-2 flex items-center gap-1 text-gray-600">
+                  <Stethoscope className="h-4 w-4" />
+                  {apt.doctor
+                    ? `Dr. ${apt.doctor.firstname} ${apt.doctor.lastname}`
+                    : 'N/A'}
+                </td>
+              </tr>
+            ))}
+            </thead>
+            </table>
+        )}
+        </div>
+        </div>
+        )}
+    </div>
 
+    
+    {/* Appointment Form */}
+    <div className="bg-white rounded-lg shadow p-6">
+          <h2 className="text-lg font-medium mb-6">Schedule New Appointment</h2>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="relative">
+            <label htmlFor="patient" className="block text-sm font-medium text-gray-700">
+                Choose a patient:
+            </label>
+            <PatientDropDown
+                patient={patient}
+                setPatient={(selectedPatient) => {
+                    setPatient(selectedPatient);
+                    setFormData(prev => ({
+                    ...prev,
+                    patientid: selectedPatient?.patientid || ''
+                    }));
+                }}
+                />
+
+            </div>
+        
+              <div>
                 <div>
                     <label htmlFor="doctor" className="block text-sm font-medium text-gray-700">
                         Choose a doctor:
                     </label>
-                    <DoctorDropDown doctor={doctor} setDoctor={setDoctor} />
-                </div>
-
-                <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Appointment Type
-                    </label>
-                    <div className="relative">
-                    <FileText className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 h-5 w-5" />
-                    <select
-                        name="type"
-                        value={formData.type}
-                        onChange={handleChange}
-                        required
-                        className="pl-10 w-full rounded-md border border-gray-300 py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    >
-                        {APPOINTMENT_TYPES.map(type => (
-                        <option key={type} value={type}>
-                            {type}
-                        </option>
-                        ))}
-                    </select>
-                    </div>
-                </div>
-
-                <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Date
-                    </label>
-                    <div className="relative">
-                    <CalendarIcon className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 h-5 w-5" />
-                    <input
-                        type="date"
-                        name="date"
-                        value={formData.date}
-                        onChange={(e) => {
-                            handleChange(e);
-                            setDate(e.target.value);
-                        }}
-                        required
-                        className="pl-10 w-full rounded-md border border-gray-300 py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    <DoctorDropDown
+                    doctor={doctor}
+                    setDoctor={(selectedDoctor) => {
+                        console.log("Selected Doctor:", selectedDoctor); // should show something like: 13
+                        setDoctor(selectedDoctor);
+                        setFormData(prev => ({
+                        ...prev,
+                        doctorid: selectedDoctor || '' // no .doctorid needed!
+                        }));
+                    }}
                     />
-                    </div>
                 </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Date
+                </label>
+                <div className="relative">
+                  <CalendarIcon className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 h-5 w-5" />
+                  <input
+                    type="date"
+                    name="date"
+                    value={formData.date}
+                    onChange={handleChange}
+                    min={format(new Date(), 'yyyy-MM-dd')}
+                    required
+                    className="pl-10 w-full rounded-md border border-gray-300 py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Available Time Slots
+                </label>
+                {console.log("Doctor: ", formData.doctorid)}
+                {console.log("Date: ", formData.date)}
+                {console.log("Available Slots:", getAvailableTimeSlots(formData.date, formData.doctorid))}
 
                 <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Available Time Slots
-                    </label>
-                    <div className="grid grid-cols-4 gap-2 mb-4">
-                    {selectedDateAvailableSlots.map((time) => (
+                    
+                {availableSlots.length > 0 ? (
+                    availableSlots.map((slot) => (
                         <button
-                        key={time}
+                        key={slot}
                         type="button"
-                        onClick={() => {
-                            setFormData(prev => ({ ...prev, time }));
-                            setTime(time); 
+                        onClick={() => setFormData({ ...formData, time: slot })}
+                        className={`py-2 px-3 text-sm rounded-md border transition
+                        ${formData.time === slot ? 'bg-blue-500 text-white' : 'border-gray-300'}`}
+                        style={{
+                            marginTop: '5px',
+                            marginRight: '5px',
+                            marginLeft: '5px',
+                            marginBottom: '5px',
+                            paddingRight: '20px',
+                            paddingLeft: '20px'
                         }}
-                        className={`
-                            py-2 px-3 text-sm rounded-md border
-                            ${formData.time === time
-                            ? 'bg-blue-500 text-white border-transparent'
-                            : 'border-gray-300 hover:border-blue-500'
-                            }
-                        `}
-                        >
-                        {time}
-                        </button>
-                    ))}
-                    </div>
-                </div>
-
-                <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Notes
-                    </label>
-                    <div className="relative">
-                    <FileText className="absolute left-3 top-3 text-gray-400 h-5 w-5" />
-                    <textarea
-                        name="notes"
-                        value={formData.notes}
-                        onChange={handleChange}
-                        className="pl-10 w-full rounded-md border border-gray-300 py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        rows={3}
-                        placeholder="Additional notes..."
-                    />
-                    </div>
-                </div>
-
-                <button
-                    type="submit"
-                    className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors"
-                >
-                    Schedule Appointment
-                </button>
-                </form>
-                {/* Upcoming Appointments */}
-            <div className="bg-white rounded-lg shadow p-6">
-                <h2 className="text-lg font-medium mb-6">Upcoming Appointments</h2>
-                <div className="space-y-4">
-                {appointments.length === 0 ? (
-                    <p className="text-gray-500 text-center py-8">No appointments scheduled</p>
-                ) : (
-                    appointments
-                    .sort((a, b) => {
-                        const dateA = new Date(`${a.date} ${a.time}`);
-                        const dateB = new Date(`${b.date} ${b.time}`);
-                        return dateA.getTime() - dateB.getTime();
-                    })
-                    .map(appointment => (
-                        <div
-                        key={appointment.id}
-                        className="border border-gray-200 rounded-lg p-4 hover:bg-gray-50"
-                        >
-                        <div className="flex items-center justify-between mb-2">
-                            <h3 className="font-medium">{appointment.name}</h3>
-                            <span className="text-sm text-gray-500">{appointment.phone}</span>
-                        </div>
-                        <div className="flex items-center text-sm text-gray-600 mb-2">
-                            <CalendarIcon className="h-4 w-4 mr-2" />
-                            <span>{appointment.date}</span>
-                            <Clock className="h-4 w-4 ml-4 mr-2" />
-                            <span>{appointment.time}</span>
-                        </div>
-                        <div className="flex items-center text-sm text-gray-600 mb-2">
-                            <Stethoscope className="h-4 w-4 mr-2" />
-                            <span>{appointment.doctor}</span>
-                        </div>
-                        <div className="text-sm text-gray-600">
-                            <span className="inline-block bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs">
-                            {appointment.type}
-                            </span>
-                        </div>
-                        {appointment.notes && (
-                            <p className="mt-2 text-sm text-gray-600">{appointment.notes}</p>
-                        )}
-                        </div>
+                    >
+                    
+                        {slot}
+                    </button>
                     ))
+                ) : (
+                    <p>No available slots for this date and doctor.</p>
                 )}
                 </div>
+              </div>
+              <button
+                type="submit"
+                className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors"
+              >
+                Schedule Appointment
+              </button>
+            </form>
+            {/* Success Message */}
+                {/* Error Message */}
+                {error && (
+                <div className="flex items-center text-red-600 text-sm mt-2 bg-red-50 p-3 rounded-md">
+                    <AlertTriangle className="h-5 w-5 text-red-500 mr-2" />
+                    {error}
+                </div>
+                )}
+
+                {/* Success Message */}
+                {appointmentStatus && (
+                <div className="flex items-center text-green-700 text-sm mt-2 bg-green-50 p-3 rounded-md">
+                    <Check className="h-5 w-5 text-green-500 mr-2" />
+                    {appointmentStatus}
+                </div>
+                )}
             </div>
-            </div>        
-        </main>
     </div>
-    );
-    };
+    </main>
+  );
+}
+
+
+ 

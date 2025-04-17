@@ -32,9 +32,9 @@ module.exports = (sequelize, DataTypes) => {                      //Appointments
             allowNull: false
         },
         appointmentstatus: {
-            type: DataTypes.ENUM('requested', 'scheduled', 'completed', 'cancelled'),
+            type: DataTypes.ENUM( 'scheduled','waiting', 'in progress', 'completed', 'cancelled'),
             allowNull: false,
-            defaultValue: 'requested'
+            defaultValue: 'scheduled'
         },
         recommendedspecialist: {
             type: DataTypes.ENUM("Oncologist", "Cardiologist", "Neurologist"),
@@ -48,6 +48,11 @@ module.exports = (sequelize, DataTypes) => {                      //Appointments
                 model: 'Receptionists',
                 key: 'receptionistid'
             }
+        },
+
+        isLate: {
+            type: DataTypes.BOOLEAN,
+            allowNull: true,
         }
     })
 
@@ -84,4 +89,5 @@ module.exports = (sequelize, DataTypes) => {                      //Appointments
     })
 
     return Appointments;
+    
 }

@@ -1,4 +1,4 @@
-const { Appointments , Patients, Receptionists } = require('../models'); 
+const { Appointments , Patients, Receptionists, Doctors } = require('../models'); 
 
 const getPatientAppointments = async (req, res) => {
     try {
@@ -24,13 +24,27 @@ const getPatientAppointments = async (req, res) => {
 
 const getAllAppointments = async (req, res) => {
     try {
-        const appointments = await Appointments.findAll();
-        res.json(appointments);
+      const appointments = await Appointments.findAll({
+        include: [
+            {
+              model: Patients,
+              as: 'patient',
+              attributes: ['firstname', 'lastname', 'phonenumber', 'email']
+            },
+            {
+              model: Doctors,
+              as: 'doctor',
+              attributes: ['firstname', 'lastname']
+            }
+          ]
+      });
+  
+      res.status(200).json(appointments);
     } catch (error) {
-        console.error("Error fetching appointments:", error);
-        res.status(500).json({ message: "Server error" });
+      console.error("Error fetching appointments:", error);
+      res.status(500).json({ message: "Server error" });
     }
-}
+  };
 
 const isDoctorAvailable = async (doctorid, requesteddate, requestedtime, appointmentid = null) => {
     const conflictCondition = {
@@ -240,4 +254,30 @@ const updateAppointment = async (req, res) => {
     } 
 };
 
-module.exports = {getAllAppointments, getPatientAppointments, isDoctorAvailable, createAppointmentReceptionist, createAppointment,  updateAppointment, updateAppointmentReceptionist }; 
+const updateStatus = async (req, res) => {
+    try {
+      const { appointmentid, appointmentstatus } = req.body;
+  
+      console.log("Update Request:", { appointmentid, appointmentstatus });
+  
+      const appointment = await Appointments.findByPk(appointmentid);
+  
+      if (!appointment) {
+        console.log("Appointment not found");
+        return res.status(404).json({ error: "Appointment not found" });
+      }
+  
+      await appointment.update({ appointmentstatus });
+  
+      console.log("Updated appointment:", appointment);
+  
+      return res.status(200).json({ message: "Appointment status updated successfully" });
+    } catch (error) {
+      console.error("Error updating appointment status:", error);
+      return res.status(500).json({ error: "Failed to update appointment status" });
+    }
+  };
+  
+  
+
+module.exports = {getAllAppointments, getPatientAppointments, isDoctorAvailable, createAppointmentReceptionist, createAppointment,  updateAppointment, updateAppointmentReceptionist, updateStatus }; 

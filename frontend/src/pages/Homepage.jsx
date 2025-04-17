@@ -174,11 +174,12 @@ export default function Homepage(){
 
 
     return (
+    
     <div className="min-h-screen bg-gray-50">
         {/* Patient Portal Modal */}
         {showPatientPortal && (
-            <div className="fixed inset-0 bg-neutral-50 bg-opacity-25 flex items-center justify-center z-50">
-                <div className="bg-white rounded-lg shadow-xl w-full max-w-md p-6 relative">
+           <div className="fixed top-0 left-0 bottom-0 right-0 w-full h-screen bg-gray backdrop-blur-sm z-50 flex items-center justify-center p-20 border-4 border-black">
+            <div className="bg-white bg-opacity-100 rounded-lg shadow-xl w-full max-w-md p-6 relative">
                     <button 
                     onClick={() => setShowPatientPortal(false)}
                     className="absolute right-4 top-4 text-gray-400 hover:text-gray-600"
@@ -255,8 +256,8 @@ export default function Homepage(){
         )}
         {/* Staff Login Modal */}
         {showStaffLogin && (
-            <div className="fixed inset-0 bg-neutral-50 bg-opacity-25 flex items-center justify-center z-50">
-                <div className="bg-white rounded-lg shadow-xl w-full max-w-md p-6 relative">
+          <div className="fixed top-0 left-0 bottom-0 right-0 w-full h-screen bg-gray backdrop-blur-sm z-50 flex items-center justify-center p-20 border-4 border-black">
+            <div className="bg-white bg-opacity-100 rounded-lg shadow-xl w-full max-w-md p-6 relative">
                     <button 
                     onClick={() => setShowStaffLogin(false)}
                     className="absolute right-4 top-4 text-gray-400 hover:text-gray-600"
@@ -338,7 +339,6 @@ export default function Homepage(){
 
 
         {/* Hero Section */}
-        <div id="home" className="relative pt-16">
     <img 
         src="https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?ixlib=rb-4.0.3&auto=format&fit=crop&q=80&w=1200&h=500"
         alt="Medical facility" 
@@ -357,7 +357,6 @@ export default function Homepage(){
         <p className="text-xl  font-bold mb-4"
         tyle={{ textShadow: '0px 2px 4px rgba(0,0,0,0.7)' }}
         > Providing Quality Healthcare Services Since 1995</p>
-    </div>
     </div>
 
         {/* Quick Access Cards */}
