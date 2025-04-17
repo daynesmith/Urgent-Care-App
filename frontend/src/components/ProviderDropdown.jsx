@@ -15,7 +15,7 @@ export default function ProviderDropDown({ selected, setSelected }) {
 
       try {
         const decoded = jwtDecode(token);
-        console.log(jwtDecode(token))
+        //console.log(jwtDecode(token))
         const patientId = decoded.patientid || decoded.userid;
 
         if (!patientId) {

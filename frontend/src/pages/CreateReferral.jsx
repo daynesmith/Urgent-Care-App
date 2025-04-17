@@ -51,17 +51,26 @@ export default function CreateReferralForm() {
     e.preventDefault();
 
     try {
-      const patient = await Patients.findOne({ where: { userid: user.userid } });
+      const token = localStorage.getItem('accessToken'); // get token if needed
+      //const patient = await Patients.findOne({ where: { userid: user.userid } });
+
       const payload = {
-        userid: user.userid,
-        patientid: patients.patientid,
-        role: 'patient'
+        doctor_id: userId,
+        patient_id: formData.patient_id,   // patient selected
+        specialist_id: formData.specialist_id, // specialist selected
+        reason: formData.reason            // reason typed in
       };
 
-      await axios.post(`${apiUrl}/referrals`, payload);
+      await axios.post(`${apiUrl}/referrals`, payload, {
+        headers: {
+          accessToken: token
+        }}
+      );
       alert('Referral successfully created!');
       setFormData({ patient_id: '', specialist_id: '', reason: '' });
-    } catch (err) {
+
+    } 
+    catch (err) {
       console.error("Error creating referral:", err);
       if (err.response?.data?.error) {
         alert(err.response.data.error);
