@@ -4,44 +4,15 @@ import { format } from 'date-fns';
 import { Link, useLocation } from 'react-router-dom';
 
 import {
-  Activity,
-  Bell,
-  Calendar,
-  Clock,
-  Users,
-  Phone,
-  Mail,
-  MessageSquare,
-  CheckCircle,
-  AlertCircle,
-  Search,
-  Plus,
-  FileText,
-  Stethoscope,
-  Clipboard,
-  ClipboardCheck,
-  UserCheck,
-  Clock4,
-  Home,
-  CalendarClock,
-  Receipt,
-  UserPlus,
-  Settings,
-  LayoutDashboard
+  Activity, Bell, Calendar, Clock, Users, Phone, Mail, MessageSquare, CheckCircle, AlertCircle, Search, 
+  Plus, FileText, Stethoscope, Clipboard,
+  ClipboardCheck, UserCheck, Clock4, Home, CalendarClock, Receipt, UserPlus, Settings, LayoutDashboard
 } from 'lucide-react';
 
 import { jwtDecode } from 'jwt-decode';
 import {
-  startOfMonth,
-  endOfMonth,
-  isSameMonth,
-  isSameDay,
-  parseISO,
-  parse,
-  isToday,
-  addDays,
-  startOfWeek,
-  endOfWeek
+  startOfMonth, endOfMonth, isSameMonth, isSameDay, parseISO, parse, isToday,
+  addDays, startOfWeek, endOfWeek
 } from 'date-fns';
 
 const apiUrl = import.meta.env.VITE_API_URL;

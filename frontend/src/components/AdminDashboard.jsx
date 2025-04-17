@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
-import { Users, Calendar, FileText, X, Edit , Save , Stethoscope, AlertTriangle , Pill , PackagePlus, Settings, Bell, Plus, Search, ChevronDown, Activity, DollarSign, UserPlus, Clock, BarChart2, Filter, Download, CheckCircle, XCircle } from 'lucide-react';
 import {
   Users, Calendar, FileText, Settings, Bell, Plus, Search, ChevronDown,
   Activity, DollarSign, UserPlus, Clock, BarChart2, Filter, Download, CheckCircle, XCircle
@@ -35,12 +34,26 @@ export default function AdminDashboard() {
   const [doctorTypes, setTypeOfDoctor] = useState([]);
   const [appointmentTypes, setTypeOfAppointment] = useState([]);
   const [selectedMaterial, setSelectedMaterial] = useState(null);
+  const [appointments, setAppointments] = useState([]);
+  const [employees, setEmployees] = useState([]);
+  const [roleFilter, setRoleFilter] = useState('all');
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
+  const [showNewPatientModal, setShowNewPatientModal] = useState(false);
+  const [patients, setPatients] = useState([]);
+
   const [newStock, setNewStock] = useState({
     quantity: '',
     cost: '',
     itemname: '',
   });
-
+  const [analytics, setAnalytics] = useState({
+    totalPatients: 0,
+    todayAppointments: 0,
+    pendingPayments: 0,
+    monthlyRevenue: 0
+  });
+  
   {/* Applications */}
   useEffect(() => {
     const fetchEmployees = async () => {
@@ -55,7 +68,17 @@ export default function AdminDashboard() {
         setLoading(false);
       }
     };
-
+    const fetchApplications = async () => {
+      try {
+        const res = await axios.get(`${apiUrl}/admin/applications`);
+        setApplications(res.data);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+  
     fetchApplications();
   }, []);
 
