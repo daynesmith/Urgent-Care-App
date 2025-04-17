@@ -126,7 +126,9 @@ const isDoctorAvailable = async (doctorid, requesteddate, requestedtime, appoint
 
 const createAppointment = async (req, res) => {
     try {
-        const { doctorid, requesteddate, requestedtime } = req.body;
+        console.log('Inside appointments route');
+
+        const { doctorid, requesteddate, requestedtime, specialistid } = req.body;
         const patient = await Patients.findOne({ where: { email: req.user.email } });
 
         if (!patient) {
@@ -149,6 +151,12 @@ const createAppointment = async (req, res) => {
         if (!available) {
             return res.status(400).json("Doctor not available at this time or location." );
         }
+        console.log('doctorid:', doctorid);
+        console.log('specialistid:', specialistid);
+        console.log('patient:', patient);
+        console.log('patientid:', patientid);
+        console.log('requesteddate:', requesteddate);
+        console.log('requestedtime:', requestedtime);
 
         const appointment = await Appointments.create({ 
             doctorid: doctorid || null,
