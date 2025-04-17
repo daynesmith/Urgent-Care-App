@@ -46,7 +46,11 @@ const loginUser = async (req, res) => {
             return res.status(400).json("Invalid credentials");
         }
         
-        const accessToken = sign({ email: user.email, role: user.role, id: user.id }, process.env.jwtsecret, { //session token created stores role id and email
+        const accessToken = sign({
+            email: user.email, 
+            role: user.role, 
+            userid: user.userid 
+            }, process.env.jwtsecret, { //session token created stores role id and email
             expiresIn: '1h'
         });
         
@@ -172,4 +176,4 @@ const getStaffShifts = async (req, res) => {
 }
 
 
-module.exports = { registerUser, loginUser, gettingApplications, sendingApplications, creatingUser, updateApplicationStatus, getStaffUsers, getStaffShifts};
+module.exports = { registerUser, loginUser, creatingUser, updateApplicationStatus, getStaffUsers, getStaffShifts};

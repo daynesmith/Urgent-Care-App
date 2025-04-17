@@ -46,7 +46,7 @@ const updateReferralStatus = async (req, res) => {
   
   const getApprovedReferralsForPatient = async (req, res) => {
     const { patient_id } = req.query;
-    console.log(patient_id, "is the patient id");
+    //console.log(patient_id, "is the patient id");
     if (!patient_id || isNaN(patient_id)) {
       return res.status(400).json({ error: "Invalid patient_id" });
     }

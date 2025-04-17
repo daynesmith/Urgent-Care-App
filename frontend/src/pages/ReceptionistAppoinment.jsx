@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { jwtDecode } from 'jwt-decode'; 
-import DoctorDropDown from '../components/DoctorDropDown'
+import ProviderDropdown from '../components/ProviderDropdown'
 import PatientDropDown from '../components/PatientDropDown'
+import ProviderDropDown from '../components/ProviderDropdown';
 
 const apiUrl = import.meta.env.VITE_API_URL;
 
@@ -11,7 +12,7 @@ export default function ReceptionistAppointment() {
   const [selectedDate, setSelectedDate] = useState(null);
   const [date, setDate] = useState('');
   const [time, setTime] = useState('');
-  const [doctor, setDoctor] = useState('');
+  const [selectedProvider, setSelectedProvider] = useState('');
   const [patient, setPatient] = useState('');
   const [appointments, setAppointments] = useState([]);
   const [error, setError] = useState('');
@@ -317,7 +318,7 @@ const handleChange = (e) => {
                     <label htmlFor="doctor" className="block text-sm font-medium text-gray-700">
                         Choose a doctor:
                     </label>
-                    <DoctorDropDown doctor={doctor} setDoctor={setDoctor} />
+                    <ProviderDropDown selected={selectedProvider} setSelected={setSelectedProvider} />
                 </div>
 
                 <div>

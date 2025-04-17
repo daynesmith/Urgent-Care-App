@@ -109,15 +109,18 @@ const editDoctorInfo = async (req, res) => {
 
 
 const getDoctorsNames = async (req, res) => {
+    
     try {
         const doctors = await Doctors.findAll({
             attributes: ['doctorid','firstname', 'lastname', 'doctortype']
         });
+        console.log("Doctors fetched:", doctors);
 
         const doctorNames = doctors.map(doctor => {
             return {
                 doctorid: doctor.doctorid, 
-                name: `${doctor.firstname} ${doctor.lastname}`,
+                firstname: doctor.firstname,
+                lastname: doctor.lastname,
                 type: doctor.doctortype  
             };
         });
