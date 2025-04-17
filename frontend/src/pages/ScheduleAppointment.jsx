@@ -84,7 +84,8 @@ export default function ScheduleAppointments() {
     };
 
     return (
-        <div className="fixed inset-0 flex justify-center items-center bg-gray-100">
+        
+        <div className="min-h-screen bg-white-50">
             <div className="bg-white shadow-xl rounded-lg p-6 w-96">
                 <h2 className="text-2xl font-bold text-center mb-4">Schedule Appointment</h2>
 

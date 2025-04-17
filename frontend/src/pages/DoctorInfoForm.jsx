@@ -1,11 +1,14 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 import {jwtDecode} from 'jwt-decode';
 import DoctorProfile from '../components/DoctorProfile';
+import { X } from 'lucide-react';
 
 const apiUrl = import.meta.env.VITE_API_URL;
 
 export default function DoctorInfoForm() {
+    const navigate = useNavigate();
     const [firstname, setFirstname] = useState('');
     const [lastname, setLastname] = useState('');
     const [dateofbirth, setDateofbirth] = useState('');
@@ -46,6 +49,10 @@ export default function DoctorInfoForm() {
         };
         checkDoctorInfo();
     }, []);
+
+    const handleCancel = () => {
+        navigate('/dashboard'); 
+      };
 
     // Handle form submission
     const handleSubmit = async (e) => {
@@ -129,6 +136,13 @@ export default function DoctorInfoForm() {
     return (
         <div className="fixed inset-0 flex justify-center items-center bg-gray-100">
             <div className="bg-white shadow-xl rounded-lg p-6 w-96">
+            <button
+                onClick={handleCancel}
+                className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 z-50"
+                >
+                <X className="h-6 w-6" />
+            </button>
+
                 <h2 className="text-2xl font-bold text-center mb-4">Doctor Profile</h2>
 
                 {formFilled ? (

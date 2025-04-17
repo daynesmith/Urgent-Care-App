@@ -24,11 +24,19 @@ import JobOpenings from './components/JobOpenings.jsx';
 import JoinTheTeam from './pages/JoinTheTeam.jsx'
 import ApplicationForm from './components/ApplicationForm.jsx';
 import AdminDasboard from './components/AdminDashboard.jsx';
-
+import ReceptionistPatients from './pages/ReceptionistPatients.jsx'
+import AddStockModal from './pages/AddStockModal.jsx'
+import AddAppointmentTypes from './pages/AddAppointmentTypes.jsx'
+import AddDoctorTypes from './pages/AddDoctorTypes.jsx'
 import SingleAppointment from './pages/SingleAppointment.jsx';
+<<<<<<< HEAD
 import PatientBilling from './pages/PatientBilling.jsx';
 import PaymentSuccess from './pages/PaymentSucess.jsx';
 import PaymentCancelled from './pages/PaymentCancelled.jsx';
+=======
+import ReceptionistShift from './pages/ReceptionistShift.jsx';
+import DoctorAppointmentsReport from './pages/DoctorAppointmentsReport.jsx';
+>>>>>>> main
 
 
 
@@ -40,15 +48,16 @@ function App() {
     <UserProvider>  
       <Router>
           <Navbar/>
-        <div className="flex justify-center content-center">
           <Routes>
-            <Route path = '/' element = {<Homepage/>}/>
             <Route path = '/register' element = {<RegistrationForm/>}/>
             <Route path = '/login' element = {<LoginPage/>}/>
             <Route path = '/dashboard' element = {<Dashboard/>}/>
             <Route path = '/roleform' element = {<RoleForm/>}/>   
             <Route path = '/DoctorInfoForm' element = {<DoctorInfoForm/>}/>
             <Route path = '/visits' element = {<Visits />} />
+            <Route path = '/ReceptionistProfile' element = {<ReceptionistProfile />} />
+            <Route path = '/ReceptionistAppointment' element = {<ReceptionistAppointment />} />
+            <Route path = '/CheckInCheckOut' element = {<CheckInCheckOut />} />
             <Route path = '/ScheduleAppointment' element = {<ScheduleAppointment />} />
             <Route path = '/PatientInfo' element = {<PatientInfo />} />
             <Route path = '/DoctorAppointments' element = {<DoctorAppointments />} />
@@ -63,14 +72,19 @@ function App() {
             <Route path = '/JobOpenings' element = {<JobOpenings />} />
             <Route path = '/ApplicationForm' element = {<ApplicationForm />} />
             <Route path = '/AdminDasboard' element = {<AdminDasboard />} />
-
+            <Route path = '/homepage' element = {<Homepage />} />
+            <Route path = '/ReceptionistPatients' element = {<ReceptionistPatients />} />
+            <Route path = '/AddStockModal' element = {<AddStockModal />} />
+            <Route path = '/AddAppointmentTypes' element = {<AddAppointmentTypes />} />
+            <Route path = '/AddDoctorTypes' element = {<AddDoctorTypes />} />
             <Route path = '/visits/:apptid' element = {<SingleAppointment />} />
             <Route path = '/patient-billing' element = {<PatientBilling />}/>
             <Route path='/payment-success/:billingId' element={<PaymentSuccess />} />
             <Route path='/payment-cancelled' element={<PaymentCancelled />} />
 
+            <Route path = '/ReceptionistShift' element = {<ReceptionistShift />} />
+            <Route path = '/adminreport' element = {<DoctorAppointmentsReport/>}/>
           </Routes>
-        </div>
       </Router>    
     </UserProvider>
     
@@ -78,3 +92,6 @@ function App() {
 }
 
 export default App
+
+
+
