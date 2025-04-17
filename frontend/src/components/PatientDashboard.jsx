@@ -5,7 +5,7 @@ export default function PatientDashboard(){
 
 
     return(
-    <div className="flex justify-center flex-row flex-nowrap gap-2 text-sm font-mono">
+    <div className="border rounded-l flex flex-wrap justify-center gap-3 text-sm font-mono p-4 max-w-screen-lg mx-auto shadow-lg h-full text-center min-w-3xs">
         
         {/* will need to add links to all buttons later */}
         <Link to="/ScheduleAppointment" className="border rounded-l shadow-lg p-3 h-full text-center min-w-3xs"><h4>Schedule an Appointment</h4> </Link> 

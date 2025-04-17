@@ -1,16 +1,16 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { jwtDecode } from 'jwt-decode'; 
-import DoctorDropDown from '../components/DoctorDropDown'
+import ProviderDropDown from '../components/ProviderDropDown';
 
 const apiUrl = import.meta.env.VITE_API_URL;
 
 export default function ScheduleAppointments() {
     const [date, setDate] = useState('');
     const [time, setTime] = useState('');
-    const [doctor, setDoctor] = useState('');
     const [error, setError] = useState('');
     const [appointmentStatus, setAppointmentStatus] = useState('');
+    const [selectedProvider, setSelectedProvider] = useState('');
 
     const availableTimes = [
         "09:00 AM", "09:30 AM", "10:00 AM", "10:30 AM",
@@ -38,7 +38,7 @@ export default function ScheduleAppointments() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        if (!date || !time || !doctor) {
+        if (!date || !time || !selectedProvider) {
             setError('Please select a doctor, date, and time.');
             return;
         }
@@ -54,20 +54,27 @@ export default function ScheduleAppointments() {
 
         try {
             const decoded = jwtDecode(token);
-            console.log("Decoded Token:", decoded);
+            console.log("Decoded token in ProviderDropdown:", decoded);
+
 
             if (!decoded.email) {
                 setError("Invalid token structure: missing patientid.");
                 return;
             }
 
-           
+            const [type, id] = selectedProvider.split('-');
             const appointmentData = {
                 requesteddate: date,
                 requestedtime: formattedTime,
-                doctorid: doctor,
-                patientEmail: decoded.email, 
-            };
+                patientEmail: decoded.email,
+              };
+
+            if (type === 'doctor') {
+                appointmentData.doctorid = id;
+            } 
+            else if (type === 'specialist') {
+                appointmentData.specialistid = id;
+            }
 
             console.log('Appointment data being sent:', appointmentData);
 
@@ -81,7 +88,7 @@ export default function ScheduleAppointments() {
             console.error('Error creating appointment:', error);
             setError('Failed to create appointment.');
         }
-    };
+    };    
 
     return (
         <div className="fixed inset-0 flex justify-center items-center bg-gray-100">
@@ -90,10 +97,10 @@ export default function ScheduleAppointments() {
 
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <div>
-                        <label htmlFor="doctor" className="block text-sm font-medium text-gray-700">
+                        <label htmlFor="provider" className="block text-sm font-medium text-gray-700">
                             Choose a doctor:
                         </label>
-                        <DoctorDropDown doctor={doctor} setDoctor={setDoctor} />
+                        <ProviderDropDown selected={selectedProvider} setSelected={setSelectedProvider} />
                     </div>
 
                     <div>

@@ -51,9 +51,11 @@ export default function CreateReferralForm() {
     e.preventDefault();
 
     try {
+      const patient = await Patients.findOne({ where: { userid: user.userid } });
       const payload = {
-        doctor_id: userId,
-        ...formData,
+        userid: user.userid,
+        patientid: patients.patientid,
+        role: 'patient'
       };
 
       await axios.post(`${apiUrl}/referrals`, payload);

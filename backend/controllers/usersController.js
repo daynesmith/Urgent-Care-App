@@ -66,5 +66,32 @@ const loginUser = async (req, res) => {
     }
 };
 
+const creatingUser = async (req, res) => {
+  const { email, password, role } = req.body;
 
-module.exports = { registerUser, loginUser};
+  try {
+    // Check if user already exists
+    const existingUser = await Users.findOne({ where: { email } });
+    if (existingUser) {
+      return res.status(400).json("Email already registered");
+    }
+
+    // Hash the password
+    const hash = await bcrypt.hash(password, 10);
+
+    // Create user in DB
+    const newUser = await Users.create({
+      email: email,
+      passwordhash: hash,
+      role: role
+    });
+
+    res.status(201).json({ message: "User created successfully", userId: newUser.userid });
+  } catch (error) {
+    console.error("Error registering user:", error);
+    res.status(500).json("Error registering user");
+  }
+};
+
+
+module.exports = { registerUser, loginUser, creatingUser};

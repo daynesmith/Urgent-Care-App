@@ -11,7 +11,7 @@ export default function Dashboard(){
     const {role} = useContext(UserContext)
     
     return(
-        <div className = "bg-[#F8F9FA] m-4 p-8 shadow rounded-lg w-full mt-8">
+        <div className = "bg-[#F8F9FA] grid-cols-3 text-center min-h-[25vh] sm:grid-cols-3 md:grid-cols-4 gap-6 p-10">
             {role === 'receptionist' && <ReceptionistDashboard />}
             {role === 'patient' && <PatientDashboard />}
             {role === 'admin' && <AdminDashboard />}

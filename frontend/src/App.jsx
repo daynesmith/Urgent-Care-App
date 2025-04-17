@@ -1,11 +1,11 @@
 import './styles/App.css'
 import {BrowserRouter as Router, Routes, Route} from 'react-router-dom';
-import Homepage from './pages/Homepage.jsx'
-import Navbar from './components/Navbar.jsx'
+import Homepage from './pages/Homepage.jsx';
+import Navbar from './components/Navbar.jsx';
 import RegistrationForm from './pages/Registrationpage.jsx';
-import LoginPage from './pages/Loginpage.jsx'
+import LoginPage from './pages/Loginpage.jsx';
 import Dashboard from './pages/Dashboard.jsx';
-import { UserProvider } from './context/Usercontext.jsx'
+import { UserProvider } from './context/Usercontext.jsx';
 import RoleForm from './pages/RoleForm.jsx';
 import ScheduleAppointment from './pages/ScheduleAppointment.jsx';
 import DoctorInfoForm from './pages/DoctorInfoForm.jsx';
@@ -18,9 +18,6 @@ import ReceptionistAppointment from './pages/ReceptionistAppoinment.jsx';
 import DoctorPatients from './pages/DoctorPatients.jsx';
 import CreateReferral from './pages/CreateReferral.jsx'
 import CheckInCheckOut from './pages/CheckInCheckOut.jsx';
-import SpecialistDashboard from './components/SpecialistDashboard.jsx';
-import JobOpenings from './components/JobOpenings.jsx';
-import JoinTheTeam from './pages/JoinTheTeam.jsx'
 import AdminDasboard from './components/AdminDashboard.jsx';
 import SingleAppointment from './pages/SingleAppointment.jsx';
 
@@ -52,10 +49,9 @@ function App() {
             <Route path = '/DoctorPatients' element = {<DoctorPatients />} />
             <Route path = '/createreferral' element = {<CreateReferral/> } />
             <Route path = '/CheckInCheckOut' element = {<CheckInCheckOut />} />
-            <Route path = '/JoinTheTeam' element = {<JoinTheTeam />} />
-            <Route path = '/JobOpenings' element = {<JobOpenings />} />
             <Route path = '/AdminDasboard' element = {<AdminDasboard />} />
             <Route path = '/visits/:apptid' element = {<SingleAppointment />} />
+
 
           </Routes>
         </div>

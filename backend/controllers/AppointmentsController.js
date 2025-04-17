@@ -1,4 +1,4 @@
-const { Appointments , Patients, Receptionists } = require('../models'); 
+const { Appointments , Patients, Receptionists, Specialists } = require('../models'); 
 
 const getPatientAppointments = async (req, res) => {
     try {
@@ -9,7 +9,11 @@ const getPatientAppointments = async (req, res) => {
         }
 
         const appointments = await Appointments.findAll({
-            where: { patientid: patient.dataValues.patientid }
+            where: { patientid: patient.dataValues.patientid },
+            include: [ 
+                {model: Doctors, as: 'doctor', attributes: ['firstname', 'lastname']},
+                {model: Specialists, as: 'specialist', attributes: ['firstname', 'lastname']}
+            ]
         });
 
         if (!appointments.length) {
@@ -71,30 +75,54 @@ const isDoctorAvailable = async (doctorid, requesteddate, requestedtime, appoint
 
     return conflictingAppointment ? false : true;
 };
+const isSpecialistAvailable = async (specialistid, requesteddate, requestedtime, appointmentid = null) => {
+    const conflictCondition = {
+        specialistid,
+        requesteddate,
+        requestedtime,
+    };
+
+    if (appointmentid) {
+        conflictCondition.appointmentid = { $ne: appointmentid };
+    }
+
+    const conflictingAppointment = await Appointments.findOne({
+        where: conflictCondition,
+    });
+
+    return conflictingAppointment ? false : true;
+};
 
 const createAppointment = async (req, res) => {
     try {
-        const { doctorid, requesteddate, requestedtime } = req.body;
+        const { doctorid, requesteddate, requestedtime, specialistid } = req.body;
         const patient = await Patients.findOne({ where: { email: req.user.email } });
 
         if (!patient) {
             return res.status(400).json("Please fill out paitent info form patient not authenticated or not found." );
         }
+        if ((!doctorid && !specialistid) || (doctorid && specialistid)) {
+            return res.status(400).json("Provide either doctorid or specialistid, not both.");
+        }
         const patientid = patient.dataValues.patientid;  
- 
+        
         console.log('Received data for appointment creation:', { doctorid, requesteddate, requestedtime, patientid });
 
         if (!doctorid || !requesteddate || !requestedtime || !patientid) {
             return res.status(400).json("Missing required fields." );
         }
 
-        const available = await isDoctorAvailable(doctorid, requesteddate, requestedtime);
+        const available = doctorid
+        ? await isDoctorAvailable(doctorid, requesteddate, requestedtime)
+        : await isSpecialistAvailable(specialistid, requesteddate, requestedtime);
+
         if (!available) {
             return res.status(400).json("Doctor not available at this time." );
         }
 
         const appointment = await Appointments.create({ 
-            doctorid,  
+            doctorid: doctorid || null,
+            specialistid: specialistid || null,  
             requesteddate, 
             requestedtime, 
             patientid 
