@@ -11,12 +11,11 @@ import {
   BarChart, Bar
 } from 'recharts';
 import { motion, AnimatePresence } from 'framer-motion';
-
+import NotificationBell from '../components/NotificationBell';
 const apiUrl = import.meta.env.VITE_API_URL;
 
 export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState('dashboard');
-  const [notifications, setNotifications] = useState(2);
   const [searchTerm, setSearchTerm] = useState('');
   const [employees, setEmployees] = useState([]);
   const [roleFilter, setRoleFilter] = useState("all");
@@ -43,8 +42,6 @@ export default function AdminDashboard() {
   });
 
   {/* Applications */}
-
-/*
   useEffect(() => {
     const fetchEmployees = async () => {
       try {
@@ -58,7 +55,6 @@ export default function AdminDashboard() {
     };
     fetchEmployees();
   }, [roleFilter]);
-*/
   useEffect(() => {
     const fetchApplications = async () => {
       try {
@@ -554,6 +550,11 @@ export default function AdminDashboard() {
       <div className="bg-white p-6 rounded-lg shadow-md">
         <div className="flex justify-between items-center mb-6">
           <div className="flex items-center space-x-4">
+              <div className="p-2 relative">
+                <div className="flex justify-end">
+                  <NotificationBell />
+                </div>
+              </div>
             <div className="relative">
               <Search className="h-5 w-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
               <input

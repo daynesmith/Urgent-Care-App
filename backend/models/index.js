@@ -27,6 +27,8 @@ db.Roomallocation = require('./Roomallocation')(sequelize, Sequelize.DataTypes);
 db.Shifts = require('./Shifts')(sequelize, Sequelize.DataTypes)
 db.Users = require('./Users')(sequelize, Sequelize.DataTypes);
 db.Visitinfo = require('./Visitinfo')(sequelize, Sequelize.DataTypes); 
+db.Notifications = require('./Notifications')(sequelize, Sequelize.DataTypes);
+
 
 Object.keys(db).forEach(modelName => {
   if (db[modelName].associate) {
