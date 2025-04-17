@@ -28,8 +28,28 @@ export default function ProviderDropDown({ selected, setSelected }) {
           axios.get(`${apiUrl}/referrals/approved?patient_id=${patientId}`, { headers: { accessToken: token } }),
         ]);
 
-        setDoctors(doctorRes.data);
-        setSpecialists(referralRes.data.map(ref => ref.specialist));
+        const uniqueDoctors = [];
+        const seenDocs = new Set();
+
+        for (const doc of doctorRes.data) {
+          if (!seenDocs.has(doc.doctorid)) {
+            seenDocs.add(doc.doctorid);
+            uniqueDoctors.push(doc);
+          }
+        }
+        const uniqueSpecialists = [];
+        const seen = new Set();
+
+        for (const ref of referralRes.data) {
+          const spec = ref.specialist;
+          if (!seen.has(spec.user_id)) {
+            seen.add(spec.user_id);
+            uniqueSpecialists.push(spec);
+          }
+        }
+
+        setDoctors(uniqueDoctors);
+        setSpecialists(uniqueSpecialists);
       } catch (error) {
         console.error("Failed to load providers:", error);
       }

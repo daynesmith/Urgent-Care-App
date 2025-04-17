@@ -18,7 +18,7 @@ app.use('/admin', adminRouter);
 const patientRouter = require('./routes/Patients');
 app.use('/patient', patientRouter);
 const doctorRouter = require('./routes/Doctors');
-app.use('/doctor', doctorRouter);
+app.use('/', doctorRouter);
 const receptionistRouter = require('./routes/Receptionists');
 app.use('/receptionist', receptionistRouter);
 const appointmentsRouter = require('./routes/Appointments');
