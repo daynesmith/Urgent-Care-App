@@ -27,6 +27,8 @@ import AdminDasboard from './components/AdminDashboard.jsx';
 
 import SingleAppointment from './pages/SingleAppointment.jsx';
 import PatientBilling from './pages/PatientBilling.jsx';
+import PaymentSuccess from './pages/PaymentSucess.jsx';
+import PaymentCancelled from './pages/PaymentCancelled.jsx';
 
 
 
@@ -64,6 +66,8 @@ function App() {
 
             <Route path = '/visits/:apptid' element = {<SingleAppointment />} />
             <Route path = '/patient-billing' element = {<PatientBilling />}/>
+            <Route path='/payment-success/:billingId' element={<PaymentSuccess />} />
+            <Route path='/payment-cancelled' element={<PaymentCancelled />} />
 
           </Routes>
         </div>

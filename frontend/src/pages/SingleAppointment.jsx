@@ -124,7 +124,7 @@ export default function SingleAppointment(props){
                 <p><span className="font-medium">Date:</span> {date}</p>
                 <p><span className="font-medium">Time:</span> {time}</p>
                 <p><span className="font-medium">Status:</span> {appointment.appointmentstatus}</p>
-                {appointment.appointmentstatus == "requested" && (<div><button onClick={handleCancelAppointment} className="outline p-1 cursor-pointer bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700">Cancel</button>
+                {appointment.appointmentstatus == "requested" && (<div><button onClick={handleCancelAppointment} className="outline p-1 cursor-pointer bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700">Cancel Appointment</button>
                 <button onClick={() => setShowForm(true)} className="outline p-1 cursor-pointer bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700">Reschedule</button></div>)}
             </div>
         </div>
