@@ -58,21 +58,13 @@ export default function ScheduleAppointments() {
 
         try {
             const decoded = jwtDecode(token);
-            console.log("Decoded token in ProviderDropdown:", decoded);
-
-
-            if (!decoded.email) {
-                setError("Invalid token structure: missing patientid.");
-                return;
-            }
+            console.log("Decoded token in ScheduleAppointment:", decoded);
 
             const [type, id] = selectedProvider.split('-');
             const appointmentData = {
                 requesteddate: date,
                 requestedtime: formattedTime,
-                patientEmail: decoded.email,
               };
-
             if (type === 'doctor') {
                 appointmentData.doctorid = id;
             } 
@@ -80,6 +72,10 @@ export default function ScheduleAppointments() {
                 appointmentData.specialistid = id;
             }
 
+            if (!decoded.email) {
+                setError("Invalid token structure: missing patientid.");
+                return;
+            }
             console.log('Appointment data being sent:', appointmentData);
 
             await axios.post(`${apiUrl}/appointments/appointments-actions`, appointmentData, {
@@ -87,7 +83,8 @@ export default function ScheduleAppointments() {
             });
 
             setAppointmentStatus('Appointment successfully created!');
-        } catch (error) {
+        } 
+        catch (error) {
             alert(error.response.data)
             console.error('Error creating appointment:', error);
             setError('Failed to create appointment.');
