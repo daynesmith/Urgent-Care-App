@@ -166,7 +166,7 @@ const sendingApplications = async (req, res) => {
               'status',
             ],
             where: {
-                role: ['doctor', 'receptionist', 'admin', 'specialist']
+                role: ['doctor', 'receptionist', 'admin', 'specialist', 'nurse']
             }
         });
         res.json(applications);
@@ -230,7 +230,7 @@ const getStaffUsers = async (req, res) => {
     try {
         const staffUsers = await Users.findAll({
             where: {
-                role: ['doctor', 'receptionist', 'specialist']
+                role: ['doctor', 'receptionist', 'specialist','nurse']
             }
         });
         const userNames = staffUsers.map(user => {

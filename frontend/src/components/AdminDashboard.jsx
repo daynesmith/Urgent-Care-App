@@ -127,22 +127,22 @@ export default function AdminDasboard() {
   });
 
   {/* Applications */}
+
   useEffect(() => {
-    const fetchApplications = async () => {
-      try {
-        const response = await axios.get(`${apiUrl}/users/getApplication`);
-        console.log(response.data);  
-        setApplications(response.data);
-      } catch (err) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchApplications();
+    fetchApplications(); // Call the function when the component mounts
   }, []);
-
+  
+  const fetchApplications = async () => {
+    try {
+      const response = await axios.get(`${apiUrl}/users/getApplication`);
+      console.log(response.data);  
+      setApplications(response.data);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
   
   const handleAccept = async (application) => {
     const { email, stafftype } = application;
@@ -170,8 +170,13 @@ export default function AdminDasboard() {
       {/*Where to add in other staff*/}
       if (stafftype === 'receptionist') {
         await axios.post(`${apiUrl}/receptionist/syncreceptionists`, { email });
+      }else if (stafftype === 'doctor'){
+        await axios.post(`${apiUrl}/doctor/syncDoctors`, { email });
+      }else if (stafftype === 'specialist'){
+        await axios.post(`${apiUrl}/doctor/syncSpecialists`, { email });
+      }else if (stafftype === 'nurse'){
+        await axios.post(`${apiUrl}/nurses/syncNurses`, { email });
       }
-
       // Ensure only the correct application is moved
       setApplications((prev) =>
       prev.map((app) =>
@@ -227,9 +232,10 @@ export default function AdminDasboard() {
     
   };
 
+  
 
 
-  {/*Billing*/}
+  {/*All of Billing*/}
 
   {/*Fetching*/}
   //Invertory
@@ -264,6 +270,14 @@ export default function AdminDasboard() {
     };
     fetchMaterials();
   }, []);
+
+  const getStockStatusColor = (stock, minStock) => {
+    console.log('Stock:',stock,'Minimum Stock:', minStock);
+    if (stock < minStock * 0.5) return 'text-yellow-600 bg-red-100';
+    console.log('Calculation:', minStock * 2);
+    if (stock < minStock) return 'text-red-600 bg-yellow-100';
+    return 'text-green-600 bg-green-100';
+  };
 
   //Type of Doctor (TypeOfDoctor)
   useEffect(() => {
@@ -388,16 +402,29 @@ export default function AdminDasboard() {
     }
   };
   
-  const getStockStatusColor = (stock, minStock) => {
-    console.log('Stock:',stock,'Minimum Stock:', minStock);
-    if (stock < minStock * 0.5) return 'text-yellow-600 bg-red-100';
-    console.log('Calculation:', minStock * 2);
-    if (stock < minStock) return 'text-red-600 bg-yellow-100';
-    return 'text-green-600 bg-green-100';
-  };
 
   
   
+  {/*All of Employee*/}
+
+  useEffect(() => {
+    const fetchEmpolyee = async () => {
+      try {
+        const response = await axios.get(`${apiUrl}/users/getApplication`);
+        console.log(response.data);  
+        setApplications(response.data);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchApplications();
+  }, []);
+
+
+
   const renderDashboard = () => (
     <div className="space-y-6">
       {/* Analytics Cards */}
@@ -509,76 +536,235 @@ export default function AdminDasboard() {
   );
 
   const renderEmployees = () => (
-    <div className="bg-white p-6 rounded-lg shadow-md">
-      <div className="flex justify-between items-center mb-6">
-        <div className="relative">
-          <Search className="h-5 w-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-          <input
-            type="text"
-            placeholder="Search patients..."
-            className="pl-10 pr-4 py-2 border rounded-md w-64 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
+      <div className="min-h-screen bg-gray-50 p-8">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex justify-between items-center mb-8">
+            <h1 className="text-3xl font-bold text-gray-900">Employee Management</h1>
+            <button
+              onClick={() => setIsFormVisible(!isFormVisible)}
+              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 flex items-center gap-2"
+            >
+              {isFormVisible ? <X className="w-5 h-5" /> : <PlusCircle className="w-5 h-5" />}
+              {isFormVisible ? 'Cancel' : 'Add Employee'}
+            </button>
+          </div>
+  
+          {isFormVisible && (
+            <div className="bg-white rounded-lg shadow-md p-6 mb-8">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <input
+                  type="text"
+                  placeholder="Employee Name"
+                  value={newEmployee.name}
+                  onChange={(e) => setNewEmployee({ ...newEmployee, name: e.target.value })}
+                  className="rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                />
+                <input
+                  type="email"
+                  placeholder="Email Address"
+                  value={newEmployee.email}
+                  onChange={(e) => setNewEmployee({ ...newEmployee, email: e.target.value })}
+                  className="rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                />
+                <input
+                  type="tel"
+                  placeholder="Phone Number"
+                  value={newEmployee.phone}
+                  onChange={(e) => setNewEmployee({ ...newEmployee, phone: e.target.value })}
+                  className="rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                />
+                <select
+                  value={newEmployee.type}
+                  onChange={(e) => setNewEmployee({ ...newEmployee, type: e.target.value })}
+                  className="rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                >
+                  <option value="receptionist">Receptionist</option>
+                  <option value="doctor">Doctor</option>
+                  <option value="nurse">Nurse</option>
+                  <option value="specialist">Specialist</option>
+                </select>
+                {(newEmployee.type === 'doctor' || newEmployee.type === 'specialist') && (
+                  <select
+                    value={newEmployee.specialization}
+                    onChange={(e) => setNewEmployee({ ...newEmployee, specialization: e.target.value })}
+                    className="rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                  >
+                    <option value="">Select Specialization</option>
+                    {newEmployee.type === 'doctor' &&
+                      doctorTypes.map((type) => (
+                        <option key={type} value={type}>
+                          {type}
+                        </option>
+                      ))}
+                    {newEmployee.type === 'specialist' &&
+                      specialistTypes.map((type) => (
+                        <option key={type} value={type}>
+                          {type}
+                        </option>
+                      ))}
+                  </select>
+                )}
+                <input
+                  type="number"
+                  placeholder="Salary"
+                  value={newEmployee.salary}
+                  onChange={(e) => setNewEmployee({ ...newEmployee, salary: e.target.value })}
+                  className="rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                />
+                <input
+                  type="date"
+                  value={newEmployee.joiningDate}
+                  onChange={(e) => setNewEmployee({ ...newEmployee, joiningDate: e.target.value })}
+                  className="rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                />
+              </div>
+              <div className="mt-4 flex justify-end">
+                <button
+                  onClick={addEmployee}
+                  className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 flex items-center gap-2"
+                >
+                  <PlusCircle className="w-5 h-5" />
+                  Add Employee
+                </button>
+              </div>
+            </div>
+          )}
+  
+          <div className="bg-white rounded-lg shadow-md overflow-hidden">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Name
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Role
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Specialization
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Contact
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Salary
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Joining Date
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Actions
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {employees.map((employee) => (
+                  <tr key={employee.id}>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      {editingId === employee.id ? (
+                        <input
+                          type="text"
+                          value={employee.name}
+                          onChange={(e) => saveEdit(employee.id, { name: e.target.value })}
+                          className="rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                        />
+                      ) : (
+                        <div className="text-sm font-medium text-gray-900">{employee.name}</div>
+                      )}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800 capitalize">
+                        {employee.type}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      {editingId === employee.id && (employee.type === 'doctor' || employee.type === 'specialist') ? (
+                        <select
+                          value={employee.specialization || ''}
+                          onChange={(e) => saveEdit(employee.id, { specialization: e.target.value })}
+                          className="rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                        >
+                          <option value="">Select Specialization</option>
+                          {employee.type === 'doctor' &&
+                            doctorTypes.map((type) => (
+                              <option key={type} value={type}>
+                                {type}
+                              </option>
+                            ))}
+                          {employee.type === 'specialist' &&
+                            specialistTypes.map((type) => (
+                              <option key={type} value={type}>
+                                {type}
+                              </option>
+                            ))}
+                        </select>
+                      ) : (
+                        employee.specialization || '-'
+                      )}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm text-gray-900 flex flex-col gap-1">
+                        <div className="flex items-center gap-2">
+                          <Mail className="w-4 h-4 text-gray-500" />
+                          {employee.email}
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Phone className="w-4 h-4 text-gray-500" />
+                          {employee.phone}
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="flex items-center gap-1 text-sm text-gray-900">
+                        <DollarSign className="w-4 h-4 text-gray-500" />
+                        {formatSalary(employee.salary)}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="flex items-center gap-1 text-sm text-gray-900">
+                        <Calendar className="w-4 h-4 text-gray-500" />
+                        {formatDate(employee.joiningDate)}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      <div className="flex items-center gap-2">
+                        {editingId === employee.id ? (
+                          <button
+                            onClick={() => setEditingId(null)}
+                            className="text-green-600 hover:text-green-900"
+                          >
+                            <Check className="w-5 h-5" />
+                          </button>
+                        ) : (
+                          <button
+                            onClick={() => startEditing(employee)}
+                            className="text-blue-600 hover:text-blue-900"
+                          >
+                            <Edit2 className="w-5 h-5" />
+                          </button>
+                        )}
+                        <button
+                          onClick={() => removeEmployee(employee.id)}
+                          className="text-red-600 hover:text-red-900"
+                        >
+                          <Trash2 className="w-5 h-5" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+                {employees.length === 0 && (
+                  <tr>
+                    <td colSpan={7} className="px-6 py-4 text-center text-sm text-gray-500">
+                      No employees added yet
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
         </div>
-        <button 
-          onClick={() => setShowNewPatientModal(true)}
-          className="flex items-center bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600"
-        >
-          <UserPlus className="h-5 w-5 mr-2" />
-          Add New Patient
-        </button>
       </div>
-      <div className="overflow-x-auto">
-        <table className="min-w-full">
-          <thead>
-            <tr className="bg-gray-50">
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Contact</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Insurance</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Last Visit</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Balance</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-            </tr>
-          </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
-            {patients.map(patient => (
-              <tr key={patient.id} className="hover:bg-gray-50">
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="flex items-center">
-                    <div>
-                      <div className="font-medium text-gray-900">{patient.name}</div>
-                      <div className="text-sm text-gray-500">Age: {patient.age}</div>
-                    </div>
-                  </div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="text-sm text-gray-900">{patient.phone}</div>
-                  <div className="text-sm text-gray-500">{patient.email}</div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                    {patient.insurance}
-                  </span>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {patient.lastVisit}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className={`text-sm font-medium ${patient.balance > 0 ? 'text-red-600' : 'text-green-600'}`}>
-                    ${patient.balance.toFixed(2)}
-                  </div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  <button className="text-blue-500 hover:text-blue-700 mr-3">Edit</button>
-                  <button className="text-blue-500 hover:text-blue-700">View History</button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </div>
   );
 
   const renderAppointments = () => (

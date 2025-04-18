@@ -30,7 +30,7 @@ import AddAppointmentTypes from './pages/AddAppointmentTypes.jsx'
 import AddDoctorTypes from './pages/AddDoctorTypes.jsx'
 import SingleAppointment from './pages/SingleAppointment.jsx';
 import ReceptionistShift from './pages/ReceptionistShift.jsx';
-
+import PatientDetail from './pages/PatientDetail.jsx';
 
 
 function App() {
@@ -57,7 +57,7 @@ function App() {
             <Route path = '/medical-history' element = {<MedicalHistory />} />
             <Route path = '/ReceptionistProfile' element = {<ReceptionistProfile />} />
             <Route path = '/ReceptionistAppointment' element = {<ReceptionistAppointment />} />
-
+            <Route path="/patients/:id" element={<PatientDetail />} />
             <Route path = '/DoctorPatients' element = {<DoctorPatients />} />
             <Route path = '/createreferral' element = {<CreateReferral/> } />
             <Route path = '/CheckInCheckOut' element = {<CheckInCheckOut />} />

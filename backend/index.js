@@ -34,7 +34,8 @@ const visitinfoRouter = require('./routes/VisitInfo');
 app.use("/visitinfo", visitinfoRouter);
 const specialistRouter = require('./routes/Specialist');
 app.use("/specialists", specialistRouter)
-
+const nurseRouter = require('./routes/Nurses');
+app.use("/nurses", nurseRouter);
 
 db.sequelize.sync()
   .then(() => {

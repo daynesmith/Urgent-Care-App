@@ -16,7 +16,7 @@ module.exports = {
     dialectOptions: {
       ssl: {
         ca: fs.readFileSync(path.join(__dirname, "certs", "DigiCertGlobalRootCA.crt.pem")),
-        rejectUnauthorized: true
+        rejectUnauthorized: false
         
       }
     }
@@ -30,7 +30,7 @@ module.exports = {
     dialectOptions: {
       ssl: {
         ca: fs.readFileSync(path.join(__dirname, "certs", "DigiCertGlobalRootCA.crt.pem")),
-        rejectUnauthorized: true
+        rejectUnauthorized: false
       }
     }
   },
@@ -43,7 +43,7 @@ module.exports = {
     dialectOptions: {
       ssl: {
         ca: fs.readFileSync(path.join(__dirname, "certs", "DigiCertGlobalRootCA.crt.pem")),
-        rejectUnauthorized: true //Change back to true afterwards
+        rejectUnauthorized: false//Change back to true afterwards
       }
     }
   }
