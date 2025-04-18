@@ -262,7 +262,6 @@ export default function AdminDasboard() {
         setLoading(false);
       }
     };
-
     fetchMaterials();
   }, []);
 
@@ -279,7 +278,6 @@ export default function AdminDasboard() {
         setLoading(false);
       }
     };
-
     fetchTypeOfDoctor();
   }, []);
 
@@ -299,10 +297,7 @@ export default function AdminDasboard() {
     fetchTypeOfAppointment();
   }, []);
 
-  
-
   {/*Editing*/}
-
   const handleEditMaterialCost = async (id, newCost) => {
     try {
       const response = await axios.post(`${apiUrl}/inventory/editMaterials`, {
