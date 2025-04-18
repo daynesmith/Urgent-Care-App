@@ -45,4 +45,4 @@ const syncNurses = async (req, res) => {
   };
   
 
-    module.exports = {syncNurses}; 
+module.exports = {syncNurses}; 
