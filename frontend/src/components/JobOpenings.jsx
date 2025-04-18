@@ -48,6 +48,26 @@ const jobOpenings = [
       'Experience with healthcare regulations and compliance',
     ]
   },
+  {
+    id: 4,
+    title: 'Medical Specialist',
+    department: 'Medical',
+    jobtype: 'specialist',
+    location: 'Specialty Clinic',
+    type: 'Full-time',
+    description: 'Seeking an experienced Specialist to join our growing medical team.',
+    board: {
+      name: 'Board of Certification',
+      certificationRequired: true,
+      boardCertificationLink: '[Link to board certification website]',
+    },
+    requirements: [
+      'Relevant specialty qualifications',
+      'Board certification in the relevant specialty',
+      '5+ years of experience in the field',
+      'Strong clinical and diagnostic skills',
+    ]
+  },
 ];
 
 function JobOpenings() {
