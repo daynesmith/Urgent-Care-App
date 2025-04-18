@@ -58,11 +58,11 @@ export default function SpecialistDashboard() {
           <div className="flex justify-between items-center h-16">
             <h1 className="text-xl font-bold text-gray-900">Specialist Dashboard</h1>
             <div className="flex items-center space-x-4">
-              <button className="p-2 relative">
+              <div className="p-2 relative">
                 <div className="flex justify-end">
                   <NotificationBell />
                 </div>
-              </button>
+              </div>
             </div>
           </div>
         </div>
