@@ -63,6 +63,19 @@ const editPatientInfo = async (req, res) => {
             phonenumber: phonenumber,
         });
 
+        const user = await Users.findOne({
+            where: { email: email },
+        });
+
+        if (user) {
+            await user.update({
+                firstname: firstname,
+                lastname: lastname,
+                dateofbirth: dateofbirth,
+                phonenumber: phonenumber,
+            });
+        }
+
         console.log("Database update successful:");
         res.json({ success: true });
 

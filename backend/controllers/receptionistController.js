@@ -54,37 +54,51 @@ const inputReceptionistInfoForFirstTime = async (req, res) => {
 
 const addNewShift = async (req, res) => {
     try {
-        const { staffid, startshift, endshift, date, notes, cliniclocation} = req.body;
-        
-        console.log('Received data for new shift creation:', { staffid, startshift, endshift, date, notes, cliniclocation });
+        const shifts = Array.isArray(req.body) ? req.body : [req.body]; // Handle both single and multiple shifts
 
-        const existingShift = await Shifts.findOne({
-            where: {
+        const createdShifts = [];
+
+        for (const shift of shifts) {
+            const { staffid, startshift, endshift, date, notes, cliniclocation } = shift;
+
+            console.log('Processing shift:', { staffid, startshift, endshift, date, notes, cliniclocation });
+
+            // Validate required fields
+            if (!staffid || !startshift || !endshift || !date || !cliniclocation) {
+                return res.status(400).json({ message: "Missing required fields in one or more shifts." });
+            }
+
+            // Check for existing shift on the same date
+            const existingShift = await Shifts.findOne({
+                where: {
+                    staffid,
+                    date,
+                },
+            });
+
+            if (existingShift) {
+                return res.status(400).json({
+                    message: `A shift already exists for staff member ${staffid} on ${date}.`,
+                });
+            }
+
+            // Create the shift
+            const newShift = await Shifts.create({
                 staffid,
+                startshift,
+                endshift,
                 date,
-            },
-        });
-        if (existingShift) {
-            return res.status(400).json({ message: "A shift already exists for this staff member on the selected date." });
+                notes,
+                cliniclocation,
+            });
+
+            createdShifts.push(newShift);
         }
 
-        if (!staffid || !startshift || !endshift || !date || !cliniclocation) {
-            return res.status(400).json({ message: "Missing required fields." });
-        }
-
-        const shift = await Shifts.create({
-            staffid,
-            startshift,
-            endshift,
-            date,
-            notes,
-            cliniclocation
-        });
-
-        console.log('Shift created:', shift);
-        res.status(201).json({ message: "Shift created successfully", shift });
+        console.log('Shifts created:', createdShifts);
+        res.status(201).json({ message: "Shifts created successfully", shifts: createdShifts });
     } catch (error) {
-        console.error("Error creating shift:", error);
+        console.error("Error creating shifts:", error);
         res.status(500).json({ message: "Internal Server Error", error });
     }
 };

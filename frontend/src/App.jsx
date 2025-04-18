@@ -27,6 +27,7 @@ import AdminDasboard from './components/AdminDashboard.jsx';
 
 import SingleAppointment from './pages/SingleAppointment.jsx';
 import ReceptionistShift from './pages/ReceptionistShift.jsx';
+import StaffViewShifts from './pages/StaffViewShifts.jsx';
 
 
 
@@ -65,6 +66,7 @@ function App() {
             <Route path = '/visits/:apptid' element = {<SingleAppointment />} />
 
             <Route path = '/ReceptionistShift' element = {<ReceptionistShift />} />
+            <Route path = '/StaffViewShifts' element = {<StaffViewShifts />} />
 
           </Routes>
         </div>

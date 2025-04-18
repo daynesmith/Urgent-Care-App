@@ -65,6 +65,12 @@ export default function ReceptionDashboard() {
               <span className="hidden sm:inline">Shifts</span>
             </Link>
           </li>
+          <li>
+            <Link to="/StaffViewShifts" className="flex items-center space-x-3 px-3 py-2 hover:bg-gray-700 rounded-md">
+              <FaCog size={20} />
+              <span className="hidden sm:inline">View Receptionist Shifts</span>
+            </Link>
+          </li>
         </ul>
       </div>
 

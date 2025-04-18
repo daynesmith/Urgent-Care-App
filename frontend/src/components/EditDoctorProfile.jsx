@@ -8,16 +8,14 @@ export default function EditDoctorProfile(props){
     const [firstname, setFirstname] = useState(props.firstname);
     const [lastname, setLastname] = useState(props.lastname);
     const [dateofbirth, setDateofbirth] = useState(props.dateofbirth);
-    const [phonenumber, setPhonenumber] = useState(props.phonenumber);
-    const [doctortype, setDoctortype] = useState(props.doctortype);
-    
+    const [phonenumber, setPhonenumber] = useState(props.phonenumber);    
     const [error, setError] = useState(null);
 
 
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        if (!firstname || !lastname || !dateofbirth || !phonenumber || !doctortype) {
+        if (!firstname || !lastname || !dateofbirth || !phonenumber ) {
             setError('All fields are required.');
             return;
         }
@@ -30,7 +28,6 @@ export default function EditDoctorProfile(props){
             lastname,
             dateofbirth,
             phonenumber,
-            doctortype
         })
 
         try {
@@ -46,7 +43,6 @@ export default function EditDoctorProfile(props){
                 props.setLastname(lastname);
                 props.setDateofbirth(dateofbirth);
                 props.setPhonenumber(phonenumber);
-                props.setDoctortype(doctortype);
                 props.setIsEditing(false);
             
         } catch (err) {
@@ -104,7 +100,7 @@ export default function EditDoctorProfile(props){
             <label>Date of Birth</label>
             <input
                 className="w-full border"
-                type="text"
+                type="date"
                 value={dateofbirth}
                 onChange={(e) => setDateofbirth(e.target.value)}
             />
@@ -120,15 +116,6 @@ export default function EditDoctorProfile(props){
             />
         </div>
 
-        <div>
-            <label>Doctor Type</label>
-            <input
-                className="w-full border"
-                type="text"
-                value={doctortype}
-                onChange={(e) => setDoctortype(e.target.value)}
-            />
-        </div>
 
         <div>
             <button className="border bg-white shadow-lg rounded-lg w-20 p-2 cursor-pointer" type="submit">Save</button>

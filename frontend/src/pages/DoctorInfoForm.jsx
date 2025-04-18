@@ -10,7 +10,6 @@ export default function DoctorInfoForm() {
     const [lastname, setLastname] = useState('');
     const [dateofbirth, setDateofbirth] = useState('');
     const [phonenumber, setPhonenumber] = useState('');
-    const [doctortype, setDoctortype] = useState('');
     const [error, setError] = useState('');
     const [status, setStatus] = useState('');
     const [formFilled, setFormFilled] = useState(false);
@@ -57,7 +56,7 @@ export default function DoctorInfoForm() {
             return;
         }
 
-        if (!firstname || !lastname || !dateofbirth || !phonenumber || !doctortype) {
+        if (!firstname || !lastname || !dateofbirth || !phonenumber) {
             setError('All fields are required.');
             return;
         }
@@ -83,7 +82,6 @@ export default function DoctorInfoForm() {
                 lastname,
                 dateofbirth: `${dateofbirth} 00:00:00`, 
                 phonenumber,
-                doctortype,
             };
 
             console.log('Doctor data being sent:', doctorData);
@@ -97,7 +95,6 @@ export default function DoctorInfoForm() {
             setLastname('');
             setDateofbirth('');
             setPhonenumber('');
-            setDoctortype('');
         } catch (error) {
             console.error('Error creating doctor profile:', error);
             setError('Failed to create doctor profile.');
@@ -161,18 +158,6 @@ export default function DoctorInfoForm() {
                             onChange={(e) => setPhonenumber(e.target.value)} 
                             className="w-full border p-2 rounded" 
                         />
-
-                        <select 
-                            value={doctortype} 
-                            onChange={(e) => setDoctortype(e.target.value)} 
-                            className="w-full border p-2 rounded"
-                        >
-                            <option value="">Select Doctor Type</option>
-                            <option value="PK">PK</option>
-                            <option value="Oncologist">Oncologist</option>
-                            <option value="Neurologist">Neurologist</option>
-                            <option value="Cardiologist">Cardiologist</option>
-                        </select>
 
                         {error && <div className="text-red-500 text-sm">{error}</div>}
                         {status && <div className="text-green-500 text-sm">{status}</div>}
