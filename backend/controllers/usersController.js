@@ -97,6 +97,111 @@ const creatingUser = async (req, res) => {
   }
 };
 
+const gettingApplications = async (req, res) => {
+    console.log('Request received at backend over here.');
+    try {
+        const applications = await Users.findAll({
+            attributes: [
+              'firstname',
+              'lastname',
+              'dateofbirth',
+              'phonenumber',
+              ['role', 'stafftype'],  // Using alias here to match the frontend expectation
+              'email',
+              'passwordhash',
+              'qualifications',
+              'certifications',
+              'coverletter',
+              'experience',
+              'street',
+              'city',
+              'state',
+              'zip',
+              'status',
+            ],
+            where: {
+                role: ['doctor', 'receptionist', 'admin', 'specialist']
+            }
+        });
+        res.json(applications);
+    } catch (error) {
+        console.error("Error fetching applications:", error);
+        res.status(500).json({ message: "Server error" });
+    }
+};
+
+const sendingApplications = async (req, res) => {
+    const {
+        firstname,
+        lastname,
+        dateofbirth,
+        phonenumber,
+        qualifications,
+        certifications,
+        stafftype,
+        email,
+        password,
+        experience,
+        coverletter,
+        street,
+        city,
+        state,
+        zip,
+      } = req.body;
+    try {
+      console.log('Received data for application creation:', {
+        firstname,
+        lastname,
+        dateofbirth,
+        phonenumber,
+        stafftype,
+        email,
+        password,
+        experience,
+        coverletter,
+        street,
+        city,
+        state,
+        zip,
+      });
+  
+      // Validate required fields
+      if (
+        !firstname || !lastname || !dateofbirth || !phonenumber || !stafftype ||
+        !email || !password || !experience  || !street || !city || !state || !zip
+      ) {
+        return res.status(400).json({ error: 'All fields are required.' });
+      }
+  
+      const passwordhash = await bcrypt.hash(password, 10);
+  
+      const applicationData = await Users.create({
+        firstname,
+        lastname,
+        dateofbirth,
+        phonenumber,
+        role: stafftype,
+        email,
+        passwordhash,
+        experience,
+        qualifications,
+        certifications,
+        coverletter,
+        street,
+        city,
+        state,
+        zip,
+      });
+  
+      console.log('Application is created:', applicationData);
+      res.status(201).json({ message: 'Application was created successfully', applicationData });
+  
+    } catch (error) {
+      console.error('Error processing application:', error);
+      res.status(500).json({ error: `Internal server error: ${error.message}` });
+    }
+  };
+  
 
 const updateApplicationStatus = async (req, res) => {
     const { status, email } = req.body;
@@ -174,6 +279,27 @@ const getStaffShifts = async (req, res) => {
         res.status(500).json({ message: "Server error" });
     }
 }
-
+const clinicLocations = async (req, res) => {
+    try {
+      const clinicLocations = await Shifts.findAll({
+        attributes: ['cliniclocation'],
+        include: [
+          {
+            model: Users, 
+            as: 'staff', 
+            attributes: [], 
+            where: {
+              role: ['doctor', 'specialist'], 
+            },
+          },
+        ],
+        group: ['cliniclocation'], //avoid dupes
+      });
+      res.status(200).json(clinicLocations);
+    } catch (error) {
+      console.error("Error fetching clinic locations:", error);
+      res.status(500).json({ message: "Server error" });
+    };
+  }
 
 module.exports = { registerUser, loginUser, gettingApplications, sendingApplications, creatingUser, updateApplicationStatus, getStaffUsers, getStaffShifts, clinicLocations};

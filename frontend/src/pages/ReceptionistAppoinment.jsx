@@ -13,8 +13,6 @@ import {
   Stethoscope
 } from 'lucide-react';
 import { jwtDecode } from 'jwt-decode';
-import { jwtDecode } from 'jwt-decode'; 
-import ProviderDropdown from '../components/ProviderDropdown'
 import PatientDropDown from '../components/PatientDropDown'
 import DoctorDropDown from '../components/DoctorDropDown';
 import {
@@ -31,7 +29,6 @@ import {
   endOfWeek
 } from 'date-fns';
 
-import ProviderDropDown from '../components/ProviderDropdown';
 
 const apiUrl = import.meta.env.VITE_API_URL;
 
@@ -158,20 +155,6 @@ export default function ReceptionistAppointment() {
     const availableSlots = useMemo(() => {
         return getAvailableTimeSlots(formData.date, formData.doctorid);
     }, [formData.date, formData.doctorid, appointments]); // Dependencies for memoization
-  const [currentMonth, setCurrentMonth] = useState(new Date());
-  const [selectedDate, setSelectedDate] = useState(null);
-  const [date, setDate] = useState('');
-  const [time, setTime] = useState('');
-  const [selectedProvider, setSelectedProvider] = useState('');
-  const [patient, setPatient] = useState('');
-  const [appointments, setAppointments] = useState([]);
-  const [error, setError] = useState('');
-  const [appointmentStatus, setAppointmentStatus] = useState('');
-  const [showSuccess, setShowSuccess] = useState(false);
-  const [formData, setFormData] = useState({
-    phone: '', // Make sure phone is initialized
-    // other fields...
-  });
 
     const convertTo24HourFormat = (time12h) => {
         const [time, modifier] = time12h.split(' ');
@@ -427,30 +410,6 @@ export default function ReceptionistAppointment() {
                     />
                 </div>
               </div>
-                    <ProviderDropDown selected={selectedProvider} setSelected={setSelectedProvider} />
-                </div>
-
-                <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Appointment Type
-                    </label>
-                    <div className="relative">
-                    <FileText className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 h-5 w-5" />
-                    <select
-                        name="type"
-                        value={formData.type}
-                        onChange={handleChange}
-                        required
-                        className="pl-10 w-full rounded-md border border-gray-300 py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    >
-                        {APPOINTMENT_TYPES.map(type => (
-                        <option key={type} value={type}>
-                            {type}
-                        </option>
-                        ))}
-                    </select>
-                    </div>
-                </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">

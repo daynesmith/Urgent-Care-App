@@ -1,6 +1,5 @@
 import { Link } from 'react-router-dom';
 import NotificationBell from '../components/NotificationBell';
-import NotificationBell from '../components/NotificationBell';
 
 export default function PatientDashboard() {
   return (

@@ -103,8 +103,6 @@ export default function AdminDashboard() {
   const [appointmentTypes, setTypeOfAppointment] = useState([]);
   const [selectedMaterial, setSelectedMaterial] = useState(null);
   const [appointments, setAppointments] = useState([]);
-  const [employees, setEmployees] = useState([]);
-  const [roleFilter, setRoleFilter] = useState('all');
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [showNewPatientModal, setShowNewPatientModal] = useState(false);
@@ -149,14 +147,14 @@ export default function AdminDashboard() {
         setLoading(false);
       }
     };
-    const fetchApplications = async () => {
-      try {
-        const response = await axios.get(`${apiUrl}/users/getApplication`);
-        setApplications(response.data);
-      } catch (err) {
-        console.error("Error fetching applications:", err);
-      }
-    };
+    // const fetchApplications = async () => {
+    //   try {
+    //     const response = await axios.get(`${apiUrl}/users/getApplication`);
+    //     setApplications(response.data);
+    //   } catch (err) {
+    //     console.error("Error fetching applications:", err);
+    //   }
+    // };
     const fetchApplications = async () => {
       try {
         const res = await axios.get(`${apiUrl}/admin/applications`);

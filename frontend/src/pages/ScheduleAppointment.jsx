@@ -4,7 +4,6 @@ import { jwtDecode } from 'jwt-decode';
 import ProviderDropDown from '../components/ProviderDropdown';
 import DoctorDropDown from '../components/DoctorDropDown';
 import ClinicLocationDropDown from '../components/ClinicLocationDropDown';
-import ProviderDropDown from '../components/ProviderDropDown';
 
 const apiUrl = import.meta.env.VITE_API_URL;
 
@@ -48,7 +47,8 @@ export default function ScheduleAppointments() {
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (!date || !time || !doctor || !clinicLocation || !selectedProvider) {
-            setError('Please select a doctor, date, time, and clinic location.');
+            setError('Please select a doctor, date, time, and clinic location.')
+        };
         if (!date || !time || !selectedProvider) {
             setError('Please select a doctor, date, and time.');
             return;
@@ -90,11 +90,11 @@ export default function ScheduleAppointments() {
             });
 
             setAppointmentStatus('Appointment successfully created!');
-        } catch (error) {
-            alert(error.response.data)
-            setTimeout(() => {
-                setAppointmentStatus('');
-            }, 3000);
+        // } catch (error) {
+        //     alert(error.response.data)
+        //     setTimeout(() => {
+        //         setAppointmentStatus('');
+        //     }, 3000);
         } catch (error) {
             alert(error.response.data);
             console.error('Error creating appointment:', error);

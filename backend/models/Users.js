@@ -1,11 +1,10 @@
-module.exports = (sequelize, DataTypes)=>{
-    
-    const Users = sequelize.define("Users",{
+module.exports = (sequelize, DataTypes) => {
+    const Users = sequelize.define("Users", {
         userid: {
             type: DataTypes.INTEGER,
             primaryKey: true,
             autoIncrement: true,
-            allowNull: false   
+            allowNull: false,
         },
         firstname: {
             type: DataTypes.STRING,
@@ -19,7 +18,7 @@ module.exports = (sequelize, DataTypes)=>{
             type: DataTypes.DATE,
             allowNull: true,
             validate: {
-                isDate: true, // Ensures the value is a valid date
+                isDate: true,
             },
         },
         phonenumber: {
@@ -27,29 +26,28 @@ module.exports = (sequelize, DataTypes)=>{
             allowNull: true,
             validate: {
                 is: {
-                    args: /^[0-9]{3}-[0-9]{3}-[0-9]{4}$/, // Ensures phone number is in the format XXX-XXX-XXXX
+                    args: /^[0-9]{3}-[0-9]{3}-[0-9]{4}$/,
                     msg: 'Phone number must be in the format XXX-XXX-XXXX',
                 },
             },
         },
         passwordhash: {
             type: DataTypes.STRING,
-            allowNull: false
+            allowNull: false,
         },
         email: {
             type: DataTypes.STRING,
             allowNull: false,
-            unique: true, // Ensures no duplicate email addresses
+            unique: true,
             validate: {
-                isEmail: true, // Validates email format
-                notEmpty: true, // Ensures email is not
-                //  empty
+                isEmail: true,
+                notEmpty: true,
             },
         },
         role: {
             type: DataTypes.ENUM('admin', 'patient', 'doctor', 'receptionist', 'specialist'),
             allowNull: false,
-            defaultValue: 'patient'
+            defaultValue: 'patient',
         },
         qualifications: {
             type: DataTypes.STRING,
@@ -61,10 +59,9 @@ module.exports = (sequelize, DataTypes)=>{
         },
         coverletter: {
             type: DataTypes.TEXT,
-            allowNull: true, 
-            
+            allowNull: true,
         },
-        experience:{
+        experience: {
             type: DataTypes.INTEGER,
             allowNull: true,
         },
@@ -84,9 +81,8 @@ module.exports = (sequelize, DataTypes)=>{
             type: DataTypes.STRING,
             allowNull: true,
             validate: {
-                // Validates that the zip code is in the format XXXXX or XXXXX-XXXX
                 is: {
-                    args: /^\d{5}(-\d{4})?$/, 
+                    args: /^\d{5}(-\d{4})?$/,
                     msg: 'Zip code must be in the format XXXXX or XXXXX-XXXX',
                 },
             },
@@ -95,40 +91,35 @@ module.exports = (sequelize, DataTypes)=>{
             type: DataTypes.ENUM("pending", "accepted", "rejected"),
             allowNull: true,
             defaultValue: "pending",
-        }
-        
-        }
-        
+        },
     }, {
-        timestamps: true, // Automatically add createdAt and updatedAt fields
+        timestamps: true,
     });
 
+    // Correctly combined associations
     Users.associate = (models) => {
         Users.hasOne(models.Doctors, {
             foreignKey: 'doctorid',
-            as: 'doctorProfile'
+            as: 'doctorProfile',
         });
 
         Users.hasOne(models.Specialists, {
             foreignKey: 'user_id',
-            as: 'specialistProfile'
+            as: 'specialistProfile',
         });
 
         Users.hasOne(models.Receptionists, {
             foreignKey: 'receptionistid',
-            as: 'receptionistProfile'
+            as: 'receptionistProfile',
+        });
+
+        Users.hasMany(models.Shifts, {
+            as: 'shifts',
+            foreignKey: 'staffid',
         });
     };
 
-
-    Users.associate = (models) => {
-        Users.hasMany(models.Shifts, { 
-            as: 'shifts', 
-            foreignKey: 'staffid'
-        });
-    };   
-
-    //insert nurse role once completed
+    // Hook for afterCreate
     Users.afterCreate(async (user, options) => {
         const { Doctors, Receptionists, Specialists, Patients } = sequelize.models;
         try {
@@ -167,7 +158,7 @@ module.exports = (sequelize, DataTypes)=>{
                     user_id: user.userid,
                     firstname: user.firstname,
                     lastname: user.lastname,
-                    specialty: "General -> Insert Specialty", 
+                    specialty: "General -> Insert Specialty",
                 });
                 console.log("Specialist row created successfully for user:", user.userid);
             }
@@ -175,6 +166,6 @@ module.exports = (sequelize, DataTypes)=>{
             console.error(`Error creating row for role ${user.role}:`, error);
         }
     });
-    
+
     return Users;
-}
+};
