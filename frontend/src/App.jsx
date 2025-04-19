@@ -71,6 +71,7 @@ function App() {
             <Route path = '/ApplicationForm' element = {<ApplicationForm />} />
             <Route path = '/AdminDasboard' element = {<AdminDasboard />} />
             <Route path = '/homepage' element = {<Homepage />} />
+            <Route path = '/' element = {<Homepage />} />
             <Route path = '/ReceptionistPatients' element = {<ReceptionistPatients />} />
             <Route path = '/AddStockModal' element = {<AddStockModal />} />
             <Route path = '/AddAppointmentTypes' element = {<AddAppointmentTypes />} />
