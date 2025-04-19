@@ -21,6 +21,7 @@ export default function Appointments(props){
         const fetchAppointments = async () => {
             try {
 
+
                 const response = await axios.get(`${apiUrl}/appointments/patient-appointments`,{
                     headers: {
                     'accessToken':token

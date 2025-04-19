@@ -39,7 +39,7 @@ module.exports = {
         allowNull: true,
       },
       date: {
-        type: DataTypes.DATEONLY,
+        type: Sequelize.DataTypes.DATEONLY,
         allowNull: true,
       },
       createdAt: {

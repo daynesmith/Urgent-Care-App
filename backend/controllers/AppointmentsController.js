@@ -2,7 +2,13 @@ const { Appointments , Patients, Receptionists, Doctors } = require('../models')
 
 const getPatientAppointments = async (req, res) => {
     try {
+
+        console.log("req.user", req.user);
+        
+
         const patient = await Patients.findOne({where:{email: req.user.email}})
+
+        console.log("patient", patient);
             
         if (!patient) {
             return res.status(400).json({ message: "patient not found with token." });
@@ -15,7 +21,7 @@ const getPatientAppointments = async (req, res) => {
         if (!appointments.length) {
             return res.status(404).json({ message: "No appointments found for this patient." });
         }
-
+        console.log(appointments);
         res.status(200).json(appointments);
     } catch (error) {
         res.status(500).json({ message: "Internal Server Error", error });
