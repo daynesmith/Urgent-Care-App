@@ -169,6 +169,7 @@ const getMedicalHistory = async (req, res) => {
 const editMedicalHistory = async (req, res) => {
     console.log("Received PATCH request:", req.body);
     const { email } = req.user;
+
     const {
         chronicConditions,
         pastSurgeries,
@@ -177,11 +178,12 @@ const editMedicalHistory = async (req, res) => {
         lifestyleFactors,
         vaccinationStatus
     } = req.body
+
     try {
         const patient = await Patients.findOne({
             where:{email: email},
         })
-
+        
         if (!patient) {
             return res.status(400).json({ message: "patient not found with token." });
         }

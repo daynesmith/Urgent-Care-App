@@ -6,12 +6,11 @@ const { validateToken } = require('../middlewares/Authmiddleware');
 
 router.post("/register", registerUser);
 router.post("/login", loginUser);
-router.get("/getApplication", gettingApplications);
 router.post("/creatingUser", creatingUser);
 router.post("/sendingApplications", sendingApplications); 
 router.post("/updateApplicationStatus", updateApplicationStatus);
 router.get('/getStaffUsers', getStaffUsers); 
 router.get('/getStaffShifts', validateToken(), getStaffShifts); 
 router.get('/clinicLocations', clinicLocations); 
-
+router.get("/getApplication", gettingApplications);
 module.exports = router;

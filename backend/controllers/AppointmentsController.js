@@ -10,7 +10,11 @@ const getPatientAppointments = async (req, res) => {
         }
 
         const appointments = await Appointments.findAll({
-            where: { patientid: patient.dataValues.patientid }
+            where: { patientid: patient.dataValues.patientid },
+            include: [ 
+                {model: Doctors, as: 'doctor', attributes: ['firstname', 'lastname']},
+                {model: Specialists, as: 'specialist', attributes: ['firstname', 'lastname']}
+            ]
         });
 
         if (!appointments.length) {
@@ -119,18 +123,45 @@ const isDoctorAvailable = async (doctorid, requesteddate, requestedtime, appoint
 
     return conflictingAppointment ? false : true;
 };
+const isSpecialistAvailable = async (specialistid, requesteddate, requestedtime, appointmentid = null) => {
+    const conflictCondition = {
+        specialistid,
+        requesteddate,
+        requestedtime,
+    };
 
+    if (appointmentid) {
+        conflictCondition.appointmentid = { $ne: appointmentid };
+    }
 
+    const conflictingAppointment = await Appointments.findOne({
+        where: conflictCondition,
+    });
+
+    return conflictingAppointment ? false : true;
+};
 
 const createAppointment = async (req, res) => {
     try {
-        const { doctorid, requesteddate, requestedtime, cliniclocation } = req.body;
+        const { doctorid, requesteddate, requestedtime, specialistid, cliniclocation } = req.body;
         const patient = await Patients.findOne({ where: { email: req.user.email } });
 
         if (!patient) {
             return res.status(400).json("Please fill out paitent info form patient not authenticated or not found." );
         }
+        
         const patientid = patient.dataValues.patientid;  
+/*
+        if ((!doctorid && !specialistid) || (doctorid && specialistid)) {
+            return res.status(400).json("Provide either doctorid or specialistid, not both.");
+        }
+        if (!requesteddate || !requestedtime || !patientid) {
+            return res.status(400).json("Missing required fields." );
+        }
+        const available = doctorid
+        ? await isDoctorAvailable(doctorid, requesteddate, requestedtime)
+        : await isSpecialistAvailable(specialistid, requesteddate, requestedtime);
+*/
  
         console.log('Received data for appointment creation:', { doctorid, requesteddate, requestedtime, patientid, cliniclocation });
 
@@ -155,13 +186,21 @@ const createAppointment = async (req, res) => {
         if (!available) {
             return res.status(400).json("Doctor not available at this time or location." );
         }
+        console.log('doctorid:', doctorid);
+        console.log('specialistid:', specialistid);
+        console.log('patient:', patient);
+        console.log('patientid:', patientid);
+        console.log('requesteddate:', requesteddate);
+        console.log('requestedtime:', requestedtime);
 
         const appointment = await Appointments.create({ 
-            doctorid,  
+            doctorid: doctorid || null,
+            specialistid: specialistid || null,  
             requesteddate, 
             requestedtime: formattedTime, 
             patientid,
             cliniclocation,
+            appointmentstatus: 'requested'
         });
 
         console.log('Appointment created:', appointment);
@@ -177,15 +216,17 @@ const createAppointmentReceptionist = async (req, res) => {
     try {
         const { doctorid, requesteddate, requestedtime , patientid} = req.body;
 
-        console.log('Searching for receptionist with email:', req.user.email); 
+        //console.log('Searching for receptionist with email:', req.user.email); 
         const receptionist = await Receptionists.findOne({ where: { email: req.user.email } });
+        console.log('Patient from DB lookup:', patient);
+
         if (!receptionist) {
             return res.status(400).json({ message: "receptionist not authenticated or not found." });
         }
 
         const receptionistid = receptionist.dataValues.receptionistid;  
     
-        console.log('Received data for appointment creation:', { doctorid, requesteddate, requestedtime, patientid , receptionistid});
+        //console.log('Received data for appointment creation:', { doctorid, requesteddate, requestedtime, patientid , receptionistid});
 
         if (!doctorid || !requesteddate || !requestedtime || !patientid || !receptionistid) {
             return res.status(400).json({ message: "Missing required fields." });

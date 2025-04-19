@@ -119,15 +119,23 @@ const editDoctorInfo = async (req, res) => {
 
 
 const getDoctorsNames = async (req, res) => {
+    
     try {
         const doctors = await Doctors.findAll({
             attributes: ['doctorid','firstname', 'lastname']
         });
+        //console.log("Doctors fetched:", doctors);
 
         const doctorNames = doctors.map(doctor => {
             return {
                 doctorid: doctor.doctorid, 
+                firstname: doctor.firstname,
+                lastname: doctor.lastname,
+                type: doctor.doctortype,
                 name: `${doctor.firstname} ${doctor.lastname}`,
+                firstname: doctor.firstname,
+                lastname: doctor.lastname,
+                type: doctor.doctortype,
             };
         });
 
@@ -151,7 +159,7 @@ const getAppointmentByDateRange = async (req, res) => {
         }
 
         const doctorid = user.userid;
-        console.log("Doctor ID:", doctorid);
+        //console.log("Doctor ID:", doctorid);
         if (!doctorid) {
             return res.status(400).json({ message: "Doctor ID not found." });
         }
@@ -197,8 +205,8 @@ const getAppointmentByDateRange = async (req, res) => {
         }));
 
 
-        console.log("Appointments found:", formattedAppointments.length);
-        console.log("Raw appointment data with patient include:\n", JSON.stringify(formattedAppointments, null, 2));
+        //console.log("Appointments found:", formattedAppointments.length);
+        //console.log("Raw appointment data with patient include:\n", JSON.stringify(formattedAppointments, null, 2));
 
         return res.status(200).json({appointments: formattedAppointments});
 

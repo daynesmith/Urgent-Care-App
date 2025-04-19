@@ -18,7 +18,7 @@ app.use('/admin', adminRouter);
 const patientRouter = require('./routes/Patients');
 app.use('/patient', patientRouter);
 const doctorRouter = require('./routes/Doctors');
-app.use('/doctor', doctorRouter);
+app.use('/', doctorRouter);
 const receptionistRouter = require('./routes/Receptionists');
 app.use('/receptionist', receptionistRouter);
 const appointmentsRouter = require('./routes/Appointments');
@@ -27,16 +27,13 @@ const inventoryRouter = require('./routes/Inventory');
 app.use('/inventory', inventoryRouter);
 const reportsRoute = require('./routes/Reports');
 app.use('/api/reports', reportsRoute);
-
-
 const referralRoutes = require('./routes/Referral');
 app.use('/referrals', referralRoutes);
-
 const visitinfoRouter = require('./routes/VisitInfo');
 app.use("/visitinfo", visitinfoRouter);
 const specialistRouter = require('./routes/Specialist');
 app.use("/specialists", specialistRouter)
-
+app.use('/notifications', require('./routes/Notifications'));
 app.use('/api/stripe', require('./routes/stripe'));
 
 
@@ -44,11 +41,11 @@ db.sequelize.sync()
   .then(() => {
     const port = process.env.PORT || 3001;
     app.listen(port, '0.0.0.0', () => {
-      console.log(`✅ Server is running on http://localhost:${port}`);
+      console.log(`server is running on http://localhost:${port}`);
     });
   })
   .catch((err) => {
-    console.error("❌ Failed to sync DB or start server:", err);
+    console.error("Failed to sync DB or start server:", err);
   });
 
 

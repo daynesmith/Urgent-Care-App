@@ -17,10 +17,18 @@ module.exports = (sequelize, DataTypes) => {
         },
         doctorid: {
             type: DataTypes.INTEGER,
-            allowNull: false,
+            allowNull: true,
             references:{
                 model: 'Doctors',
                 key: 'doctorid'
+            }
+        },
+        specialistid: {
+            type: DataTypes.INTEGER,
+            allowNull: true, // allowNull = true so only one of doctor or specialist is required
+            references: {
+              model: 'Specialists',
+              key: 'user_id' // or your equivalent key
             }
         },
         requesteddate:{
@@ -76,6 +84,11 @@ module.exports = (sequelize, DataTypes) => {
             foreignKey: 'receptionistid',
             as: 'receptionist'
         })
+        Appointments.belongsTo(models.Specialists, {
+            foreignKey: 'specialistid',
+            as: 'specialist'
+          });
+          
     }
     
     Appointments.afterUpdate(async (appointment, options)=>{
