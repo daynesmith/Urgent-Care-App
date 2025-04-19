@@ -176,4 +176,4 @@ const getStaffShifts = async (req, res) => {
 }
 
 
-module.exports = { registerUser, loginUser, creatingUser, updateApplicationStatus, getStaffUsers, getStaffShifts};
+module.exports = { registerUser, loginUser, gettingApplications, sendingApplications, creatingUser, updateApplicationStatus, getStaffUsers, getStaffShifts, clinicLocations};

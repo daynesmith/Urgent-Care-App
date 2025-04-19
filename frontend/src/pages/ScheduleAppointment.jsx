@@ -47,6 +47,7 @@ export default function ScheduleAppointments() {
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (!date || !time || !doctor || !clinicLocation) {
+        if (!date || !time || !doctor || !clinicLocation || !selectedProvider) {
             setError('Please select a doctor, date, time, and clinic location.');
         if (!date || !time || !selectedProvider) {
             setError('Please select a doctor, date, and time.');
@@ -73,22 +74,29 @@ export default function ScheduleAppointments() {
             }
 
             const [type, id] = selectedProvider.split('-');
+
             const appointmentData = {
                 requesteddate: date,
                 requestedtime: formattedTime,
                 patientEmail: decoded.email,
+                doctorid: doctor,
+                patientEmail: decoded.email, 
+                cliniclocation: clinicLocation,
               };
+
             if (type === 'doctor') {
                 appointmentData.doctorid = id;
-            } 
+            }     
             else if (type === 'specialist') {
                 appointmentData.specialistid = id;
-            }
+            }    
 
             if (!decoded.email) {
                 setError("Invalid token structure: missing patientid.");
                 return;
             }
+            }    
+
             console.log('Appointment data being sent:', appointmentData);
 
             await axios.post(`${apiUrl}/appointments/appointments-actions`, appointmentData, {
@@ -98,6 +106,11 @@ export default function ScheduleAppointments() {
             setAppointmentStatus('Appointment successfully created!');
         } catch (error) {
             alert(error.response.data)
+            setTimeout(() => {
+                setAppointmentStatus('');
+            }, 3000);
+        } catch (error) {
+            alert(error.response.data);
             console.error('Error creating appointment:', error);
             setError('Failed to create appointment.');
             setTimeout(() => {
