@@ -1,4 +1,4 @@
-const { Users, Specialists, Doctors} = require('../models');
+const { Users, Specialists, Doctors, Receptionists} = require('../models');
 
 const sendingApplications = async (req, res) => {
 
@@ -161,4 +161,65 @@ const toSpecialist = async (req, res) =>{
     }
 }
 
-module.exports = {toDoctor, toReceptionist, toAdmin, toSpecialist, sendingApplications};
+const findEmployees = async (req, res) => {
+    try {
+      const { role } = req.query;
+  
+      const rolesToFetch =
+        role && ['doctor', 'specialist', 'receptionist'].includes(role)
+          ? [role]
+          : ['doctor', 'specialist', 'receptionist'];
+  
+      const employees = await Users.findAll({
+        where: {
+          role: rolesToFetch,
+        },
+        include: [
+          {
+            model: Doctors,
+            as: 'doctorProfile',
+            attributes: ['firstname', 'lastname'],
+            required: false,
+          },
+          {
+            model: Specialists,
+            as: 'specialistProfile',
+            attributes: ['firstname', 'lastname'],
+            required: false,
+          },
+          {
+            model: Receptionists,
+            as: 'receptionistProfile',
+            attributes: ['firstname', 'lastname'],
+            required: false,
+          }
+        ]
+      });
+  
+      //console.log(JSON.stringify(employees, null, 2));
+
+      const formatted = employees.map((user) => {
+        let name = '';
+        if (user.role === 'doctor' && user.doctorProfile) {
+          name = `${user.doctorProfile.firstname} ${user.doctorProfile.lastname}`;
+        } else if (user.role === 'specialist' && user.specialistProfile) {
+          name = `${user.specialistProfile.firstname} ${user.specialistProfile.lastname}`;
+        } else if (user.role === 'receptionist' && user.receptionistProfile) {
+          name = `${user.receptionistProfile.firstname} ${user.receptionistProfile.lastname}`;
+        }
+  
+        return {
+          userid: user.userid,
+          role: user.role,
+          name,
+        };
+      });
+  
+      res.status(200).json(formatted);
+    } catch (err) {
+      console.error('Error fetching employees:', err);
+      res.status(500).json({ error: 'Could not retrieve employee list' });
+    }
+  };
+  
+module.exports = {toDoctor, toReceptionist, toAdmin, toSpecialist, sendingApplications, findEmployees};

@@ -95,10 +95,29 @@ module.exports = (sequelize, DataTypes)=>{
             type: DataTypes.ENUM("pending", "accepted", "rejected"),
             allowNull: true,
             defaultValue: "pending",
-          }
+        }
+        
     }, {
         timestamps: true, // Automatically add createdAt and updatedAt fields
     });
+
+    Users.associate = (models) => {
+        Users.hasOne(models.Doctors, {
+            foreignKey: 'doctorid',
+            as: 'doctorProfile'
+        });
+
+        Users.hasOne(models.Specialists, {
+            foreignKey: 'user_id',
+            as: 'specialistProfile'
+        });
+
+        Users.hasOne(models.Receptionists, {
+            foreignKey: 'receptionistid',
+            as: 'receptionistProfile'
+        });
+    };
+
 
     Users.associate = (models) => {
         Users.hasMany(models.Shifts, { 

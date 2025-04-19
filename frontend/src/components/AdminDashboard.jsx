@@ -1,111 +1,25 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-const apiUrl = import.meta.env.VITE_API_URL
 import { Link } from 'react-router-dom';
 import { Users, Calendar, FileText, X, Edit , Save , Stethoscope, AlertTriangle , Pill , PackagePlus, Settings, Bell, Plus, Search, ChevronDown, Activity, DollarSign, UserPlus, Clock, BarChart2, Filter, Download, CheckCircle, XCircle } from 'lucide-react';
 import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  ResponsiveContainer,
-  BarChart,
-  Bar
-} from 'recharts'; 
-//npm install recharts
+  Users, Calendar, FileText, Settings, Bell, Plus, Search, ChevronDown,
+  Activity, DollarSign, UserPlus, Clock, BarChart2, Filter, Download, CheckCircle, XCircle
+} from 'lucide-react';
 import {
-  createColumnHelper,
-  flexRender,
-  getCoreRowModel,
-  useReactTable,
-  getSortedRowModel,
-  getFilteredRowModel,
-} from '@tanstack/react-table';
-//npm install @tanstack/react-table
+  LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
+  BarChart, Bar
+} from 'recharts';
 import { motion, AnimatePresence } from 'framer-motion';
-//npm install framer-motion
-import { format, subDays } from 'date-fns';
 
+const apiUrl = import.meta.env.VITE_API_URL;
 
-
-// Enhanced mock data
-const appointments = [
-  { id: 1, patient: "Sarah Johnson", time: "09:00 AM", status: "Confirmed", type: "Check-up", doctor: "Dr. Smith" },
-  { id: 2, patient: "Mike Smith", time: "10:30 AM", status: "Pending", type: "Follow-up", doctor: "Dr. Brown" },
-  { id: 3, patient: "Emma Davis", time: "02:00 PM", status: "Completed", type: "Consultation", doctor: "Dr. Wilson" },
-];
-
-const patients = [
-  { 
-    id: 1, 
-    name: "Sarah Johnson", 
-    age: 34, 
-    lastVisit: "2024-03-10",
-    email: "sarah.j@email.com",
-    phone: "(555) 123-4567",
-    insurance: "BlueCross",
-    balance: 150.00
-  },
-  { 
-    id: 2, 
-    name: "Mike Smith", 
-    age: 45, 
-    lastVisit: "2024-03-08",
-    email: "mike.s@email.com",
-    phone: "(555) 234-5678",
-    insurance: "Aetna",
-    balance: 0.00
-  },
-  { 
-    id: 3, 
-    name: "Emma Davis", 
-    age: 28, 
-    lastVisit: "2024-03-05",
-    email: "emma.d@email.com",
-    phone: "(555) 345-6789",
-    insurance: "UnitedHealth",
-    balance: 75.50
-  },
-];
-
-const analytics = {
-  totalPatients: 156,
-  todayAppointments: 12,
-  pendingPayments: 8,
-  monthlyRevenue: 24500
-};
-
-// Analytics Data
-const revenueData = Array.from({ length: 30 }, (_, i) => ({
-  date: format(subDays(new Date(), 29 - i), 'MMM dd'),
-  revenue: Math.floor(Math.random() * 5000) + 1000,
-  appointments: Math.floor(Math.random() * 20) + 5,
-}));
-
-const insuranceDistribution = [
-  { name: 'BlueCross', value: 45 },
-  { name: 'Aetna', value: 30 },
-  { name: 'UnitedHealth', value: 25 },
-  { name: 'Medicare', value: 20 },
-  { name: 'Other', value: 10 },
-];
-
-const appointmentAnalytics = [
-  { month: 'Jan', checkups: 45, followups: 30, consultations: 25 },
-  { month: 'Feb', checkups: 50, followups: 35, consultations: 28 },
-  { month: 'Mar', checkups: 40, followups: 38, consultations: 22 },
-];
-
-export default function AdminDasboard() {
+export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [notifications, setNotifications] = useState(2);
-  const [showNewPatientModal, setShowNewPatientModal] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
-  const [dateRange, setDateRange] = useState('30');
-  const [analyticsView, setAnalyticsView] = useState('revenue');
+  const [employees, setEmployees] = useState([]);
+  const [roleFilter, setRoleFilter] = useState("all");
   const [applications, setApplications] = useState([]);
   const [loading, setLoading] = useState(true);
   const [newName, setNewName] = useState('');
@@ -127,19 +41,30 @@ export default function AdminDasboard() {
   });
 
   {/* Applications */}
+
+  useEffect(() => {
+    const fetchEmployees = async () => {
+      try {
+        const res = await axios.get(`${apiUrl}/admin/employees`, {
+          params: roleFilter !== 'all' ? { role: roleFilter } : {}
+        });
+        setEmployees(res.data);
+      } catch (err) {
+        console.error("Failed to load employees:", err);
+      }
+    };
+    fetchEmployees();
+  }, [roleFilter]);
+
   useEffect(() => {
     const fetchApplications = async () => {
       try {
         const response = await axios.get(`${apiUrl}/users/getApplication`);
-        console.log(response.data);  
         setApplications(response.data);
       } catch (err) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
+        console.error("Error fetching applications:", err);
       }
     };
-
     fetchApplications();
   }, []);
 
@@ -538,46 +463,19 @@ export default function AdminDasboard() {
         <table className="min-w-full">
           <thead>
             <tr className="bg-gray-50">
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Contact</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Insurance</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Last Visit</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Balance</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">User ID</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Name</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Role</th>
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
-            {patients.map(patient => (
-              <tr key={patient.id} className="hover:bg-gray-50">
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="flex items-center">
-                    <div>
-                      <div className="font-medium text-gray-900">{patient.name}</div>
-                      <div className="text-sm text-gray-500">Age: {patient.age}</div>
-                    </div>
-                  </div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="text-sm text-gray-900">{patient.phone}</div>
-                  <div className="text-sm text-gray-500">{patient.email}</div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                    {patient.insurance}
-                  </span>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {patient.lastVisit}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className={`text-sm font-medium ${patient.balance > 0 ? 'text-red-600' : 'text-green-600'}`}>
-                    ${patient.balance.toFixed(2)}
-                  </div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  <button className="text-blue-500 hover:text-blue-700 mr-3">Edit</button>
-                  <button className="text-blue-500 hover:text-blue-700">View History</button>
-                </td>
+            {employees.filter(emp =>
+              emp.name.toLowerCase().includes(searchTerm.toLowerCase())
+            ).map((emp) => (
+              <tr key={emp.userid}>
+                <td className="px-6 py-4 whitespace-nowrap">{emp.userid}</td>
+                <td className="px-6 py-4 whitespace-nowrap">{emp.name}</td>
+                <td className="px-6 py-4 whitespace-nowrap capitalize">{emp.role}</td>
               </tr>
             ))}
           </tbody>

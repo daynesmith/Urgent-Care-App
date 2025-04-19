@@ -27,11 +27,8 @@ const inventoryRouter = require('./routes/Inventory');
 app.use('/inventory', inventoryRouter);
 const reportsRoute = require('./routes/Reports');
 app.use('/api/reports', reportsRoute);
-
-
 const referralRoutes = require('./routes/Referral');
 app.use('/referrals', referralRoutes);
-
 const visitinfoRouter = require('./routes/VisitInfo');
 app.use("/visitinfo", visitinfoRouter);
 const specialistRouter = require('./routes/Specialist');
@@ -44,11 +41,11 @@ db.sequelize.sync()
   .then(() => {
     const port = process.env.PORT || 3001;
     app.listen(port, '0.0.0.0', () => {
-      console.log(`✅ Server is running on http://localhost:${port}`);
+      console.log(`erver is running on http://localhost:${port}`);
     });
   })
   .catch((err) => {
-    console.error("❌ Failed to sync DB or start server:", err);
+    console.error("Failed to sync DB or start server:", err);
   });
 
 
