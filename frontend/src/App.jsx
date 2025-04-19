@@ -57,7 +57,8 @@ function App() {
             <Route path = '/medical-history' element = {<MedicalHistory />} />
             <Route path = '/ReceptionistProfile' element = {<ReceptionistProfile />} />
             <Route path = '/ReceptionistAppointment' element = {<ReceptionistAppointment />} />
-            <Route path="/patients/:id" element={<PatientDetail />} />
+            <Route path="/patients/:id"element={<PatientDetail />}/>
+
             <Route path = '/DoctorPatients' element = {<DoctorPatients />} />
             <Route path = '/createreferral' element = {<CreateReferral/> } />
             <Route path = '/CheckInCheckOut' element = {<CheckInCheckOut />} />

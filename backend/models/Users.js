@@ -105,6 +105,11 @@ module.exports = (sequelize, DataTypes)=>{
             as: 'shifts', 
             foreignKey: 'staffid'
          });
+         Users.hasOne(models.Specialists, {
+            foreignKey: 'user_id',
+            as: 'specialist'
+          });
+          
     };   
 
     //insert nurse role once completed

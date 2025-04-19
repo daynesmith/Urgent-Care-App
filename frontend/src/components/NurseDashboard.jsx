@@ -21,7 +21,17 @@ export default function NurseDashboard() {
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [error, setError] = useState(null);
   const location = useLocation();
+  const [selectedDoctor, setSelectedDoctor] = useState('');
   const currentDate = new Date();
+  const [open, setOpen] = useState(false)
+  const [selectedVisitId, setSelectedVisitId] = useState(null)
+  const [selectedVisitDetails, setSelectedVisitDetails] = useState(null)
+
+  const handleOpenDetails = (appointment) => {
+    setSelectedVisitId(appointment.appointmentid)
+    setSelectedVisitDetails(appointment) // or fetch more info here if needed
+    setOpen(true)
+  }
 
   const isActive = (path) => location.pathname === path;
 
@@ -52,6 +62,14 @@ export default function NurseDashboard() {
     };
     fetchAppointments();
   }, [currentMonth]);
+
+
+  const filteredAppointments = selectedDoctor
+    ? appointments.filter(
+        (appointment) => appointment.doctor?.lastname === selectedDoctor
+      )
+    : appointments;
+
 
   return (
     <div className="bg-[#F8F9FA] m-0 p-0 shadow rounded-lg mt-0">
@@ -101,12 +119,22 @@ export default function NurseDashboard() {
                 View all
                 <ArrowRight className="h-4 w-4" />
               </Link>
-            </div>
+                </div>
+                <div className="px-4 py-3 space-y-4">
+                <select
+                    className="border p-2 rounded mb-4"
+                    value={selectedDoctor}
+                    onChange={(e) => setSelectedDoctor(e.target.value)}
+                >
+                    <option value="">All Doctors</option>
+                    {[...new Set(appointments.map(a => a.doctor?.lastname).filter(Boolean))].map(doctor => (
+                    <option key={doctor} value={doctor}>{doctor}</option>
+                    ))}
+                </select>
 
-            <div className="px-4 py-3 space-y-4">
-              {appointments.map((appointment) => (
-                <div key={appointment.appointmentid} className="flex items-center justify-between space-x-4 rounded-md border p-4">
-                  <div className="flex items-center space-x-4">
+                {filteredAppointments.map((appointment) => (
+                    <div key={appointment.appointmentid} className="flex items-center justify-between space-x-4 rounded-md border p-4">
+                  <div className="flex items-center space-x-4"> 
                     <div className="flex h-10 w-10 items-center justify-center rounded-full bg-teal-100">
                       <Clock className="h-5 w-5 text-teal-600" />
                     </div>
@@ -122,8 +150,9 @@ export default function NurseDashboard() {
                       {appointment.appointmentstatus}
                     </span>
                     <Link to={`/patients/${appointment.appointmentid}`} className="text-gray-900 hover:underline">
-                      <ArrowRight className="h-4 w-4" />
+                    <ArrowRight className="h-4 w-4" />
                     </Link>
+
                   </div>
                 </div>
               ))}

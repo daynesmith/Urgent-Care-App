@@ -10,25 +10,64 @@ module.exports = (sequelize, DataTypes)=>{
             },
             allowNull: false    
         },
+        // Optional text fields
         doctornotes: {
-            type: DataTypes.TEXT,
-            allowNull: false,
+          type: DataTypes.TEXT,
+          allowNull: true,
         },
         notesforpatient: {
-            type: DataTypes.TEXT,
-            allowNull: false,
-        }
-    })
-
+          type: DataTypes.TEXT,
+          allowNull: true,
+        },
+  
+        // Vital Signs
+        temperature: {
+          type: DataTypes.FLOAT,
+          allowNull: true,
+        },
+        blood_pressure: {
+          type: DataTypes.STRING,
+          allowNull: true,
+        },
+        heart_rate: {
+          type: DataTypes.INTEGER,
+          allowNull: true,
+        },
+        respiratory_rate: {
+          type: DataTypes.INTEGER,
+          allowNull: true,
+        },
+        oxygen_saturation: {
+          type: DataTypes.FLOAT,
+          allowNull: true,
+        },
+        weight: {
+          type: DataTypes.FLOAT,
+          allowNull: true,
+        },
+        height: {
+          type: DataTypes.FLOAT,
+          allowNull: true,
+        },
+      },
+      {
+        tableName: 'Visitinfos',         // Ensure correct table
+        freezeTableName: true,          // Disable automatic pluralization
+        underscored: true,              // If your DB uses snake_case
+        timestamps: true,
+      }
+    );
+  
     Visitinfo.associate = (models) => {
-
-        Visitinfo.belongsTo(models.Appointments,{
-            foreignKey: 'visitinfoid',
-            targetKey: 'appointmentid'
-        })
-        
-    }
-    
-
+      // Link back to the Appointments model
+      Visitinfo.belongsTo(models.Appointments, {
+        foreignKey: 'appointmentid',
+        targetKey: 'appointmentid',
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE',
+      });
+    };
+  
     return Visitinfo;
-}
+  };
+  

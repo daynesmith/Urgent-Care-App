@@ -1,5 +1,4 @@
 module.exports = (sequelize, DataTypes)=>{
-    
     const Nurses = sequelize.define("Nurses",{
         nurseid: {
             type: DataTypes.INTEGER,

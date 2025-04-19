@@ -1,5 +1,5 @@
 const bcrypt = require('bcrypt');
-const { Users , Patients, Doctors, Applications, Shifts} = require('../models'); // Adjust the path according to your project structure
+const { Users , Patients, Doctors, Applications, Nurses, Receptionists, Shifts, Specialists} = require('../models'); // Adjust the path according to your project structure
 const {sign} = require('jsonwebtoken')
 
 
@@ -246,6 +246,32 @@ const getStaffUsers = async (req, res) => {
         res.status(500).json({ message: "Server error" });
     }
 }
+const getEmployeeUsers = async (req, res) => {
+    try {
+        const staffUsers = await Users.findAll({
+            where: {
+                role: ['doctor', 'receptionist', 'specialist', 'nurse']
+            },
+        });
+        console.log("Staff users:", staffUsers); 
+        // Map through the staffUsers to build the response
+        const userNames = staffUsers.map(user => {
+
+            return {
+                staffid: user.userid,
+                name: `${user.firstname} ${user.lastname}`,
+                role: user.role,
+                phonenumber: user.phonenumber,
+                email: user.email,
+            };
+        });
+
+        res.json(userNames);
+    } catch (error) {
+        console.error("Error fetching staff users:", error);
+        res.status(500).json({ message: "Server error" });
+    }
+};
 
 const getStaffShifts = async (req, res) => {
     try {
@@ -274,6 +300,114 @@ const getStaffShifts = async (req, res) => {
         res.status(500).json({ message: "Server error" });
     }
 }
+const getSpeciality = async (req, res) => {
+    try {
+        const userId = req.params.userid || req.user?.id; // Use req.params.userid if coming from a frontend request
+
+        if (!userId) {
+            return res.status(400).json({ message: "User ID is missing." });
+        }
+
+        const specialist = await Specialists.findOne({
+            where: { user_id: userId },
+            attributes: ['specialty'],
+        });
+
+        if (!specialist) {
+            return res.status(404).json({ message: "Specialty not found." });
+        }
+
+        res.status(200).json(specialist);
+    } catch (error) {
+        console.error("Error fetching specialist type", error);
+        res.status(500).json({ message: "Server error" });
+    }
+};
+
+const updateEmployeeUsers = async (req, res) => {
+  try {
+    const { staffid, name, email, phonenumber, role, specialty } = req.body;
+
+    if (!staffid) {
+      console.warn("❗ Missing staff ID in request");
+      return res.status(400).json({ message: "Staff ID is required" });
+    }
+
+    console.log("📦 Incoming employee update payload:", {
+      staffid,
+      name,
+      email,
+      phonenumber,
+      role,
+      specialty,
+    });
+
+    const [firstname, ...lastNameParts] = name.trim().split(" ");
+    const lastname = lastNameParts.join(" ") || "";
+
+    console.log(`🧩 Parsed name -> Firstname: ${firstname}, Lastname: ${lastname}`);
+
+    const user = await Users.findOne({ where: { userid: staffid } });
+
+    if (!user) {
+      console.warn(`⚠️ User not found with userid: ${staffid}`);
+      return res.status(404).json({ message: "Employee not found" });
+    }
+
+    console.log("🛠️ Updating Users table...");
+    await user.update({ firstname, lastname, email, phonenumber, role });
+    console.log("✅ Users table updated successfully");
+
+    // Role-specific updates only if the entry exists
+    if (role === "specialist") {
+      const specialist = await Specialists.findOne({ where: { user_id: staffid } });
+      if (specialist) {
+        await specialist.update({ firstname, lastname, email, phonenumber, specialty });
+        console.log("✅ Specialist table updated");
+      } else {
+        console.log("❕ No existing Specialist record found — skipping update");
+      }
+    }
+
+    if (role === "doctor") {
+      const doctor = await Doctors.findOne({ where: { doctorid: staffid } });
+      if (doctor) {
+        await doctor.update({ firstname, lastname, email, phonenumber });
+        console.log("✅ Doctor table updated");
+      } else {
+        console.log("❕ No existing Doctor record found — skipping update");
+      }
+    }
+
+    if (role === "nurse") {
+      const nurse = await Nurses.findOne({ where: { nurseid: staffid } });
+      if (nurse) {
+        await nurse.update({ firstname, lastname, email, phonenumber });
+        console.log("✅ Nurse table updated");
+      } else {
+        console.log("❕ No existing Nurse record found — skipping update");
+      }
+    }
+
+    if (role === "receptionist") {
+      const receptionist = await Receptionists.findOne({ where: { receptionistid: staffid } });
+      if (receptionist) {
+        await receptionist.update({ firstname, lastname, email, phonenumber });
+        console.log("✅ Receptionist table updated");
+      } else {
+        console.log("❕ No existing Receptionist record found — skipping update");
+      }
+    }
+
+    res.status(200).json({ message: "Employee updated successfully" });
+
+  } catch (error) {
+    console.error("❌ Error updating employee:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+  
 
 
-module.exports = { registerUser, loginUser, gettingApplications, sendingApplications, creatingUser, updateApplicationStatus, getStaffUsers, getStaffShifts};
+module.exports = { registerUser, loginUser, getSpeciality, updateEmployeeUsers, gettingApplications, getEmployeeUsers, sendingApplications, creatingUser, updateApplicationStatus, getStaffUsers, getStaffShifts};
