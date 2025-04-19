@@ -1,11 +1,12 @@
 const { Users, Specialists, Doctors, Receptionists} = require('../models');
+const { Op } = require("sequelize");
 
 const sendingApplications = async (req, res) => {
 
     try {
         const { firstname, lastname, dateofbirth, phonenumber, qualifications, certifications, stafftype, email, password, experience, coverletter, street, city, state, zip } = req.body;
 
-        console.log('Received data for application creation:', {  firstname, lastname, dateofbirth, phonenumber, stafftype, email, password, experience, coverletter, street, city, state, zip });
+        //console.log('Received data for application creation:', {  firstname, lastname, dateofbirth, phonenumber, stafftype, email, password, experience, coverletter, street, city, state, zip });
 
         // Validate required fields
         if (!firstname || !lastname || !dateofbirth || !phonenumber || !stafftype || !email || !password || !experience || !experience || !coverletter || !street || !city || !state || !zip) {
@@ -31,7 +32,7 @@ const sendingApplications = async (req, res) => {
             zip,
       });
 
-       console.log('Application is created:', applicationData); 
+       //console.log('Application is created:', applicationData); 
         res.status(201).json({ message: "Application was created successfully", applicationData });
 
 
@@ -160,58 +161,93 @@ const toSpecialist = async (req, res) =>{
         return res.status(500).json("error occured while updating the user's role")
     }
 }
+console.log("QUERY:", req.query);
 
 const findEmployees = async (req, res) => {
     try {
-      const { role } = req.query;
-  
+      const { role, startDate, endDate } = req.query;
+      
       const rolesToFetch =
         role && ['doctor', 'specialist', 'receptionist'].includes(role)
           ? [role]
           : ['doctor', 'specialist', 'receptionist'];
-  
+
+      const include = [
+        {
+          model: Doctors,
+          as: 'doctorProfile',
+          attributes: ['firstname', 'lastname', 'createdAt', 'updatedAt'],
+          required: false,
+        },
+        {
+          model: Specialists,
+          as: 'specialistProfile',
+          attributes: ['firstname', 'lastname', 'createdAt', 'updatedAt'],
+          required: false,
+        },
+        {
+          model: Receptionists,
+          as: 'receptionistProfile',
+          attributes: ['firstname', 'lastname', 'createdAt', 'updatedAt'],
+          required: false,
+        }
+      ];
+      
+      if ((startDate || endDate) && role) {
+        const dateFilter = {};
+        if (startDate) {
+          dateFilter[Op.gte] = new Date(startDate);
+        }
+        if (endDate) {
+          dateFilter[Op.lte] = new Date(endDate);
+        }
+        
+        if (role === 'doctor') {
+          include[0].where = { createdAt: dateFilter };
+          include[0].required = true;
+        } else if (role === 'specialist') {
+          include[1].where = { createdAt: dateFilter };
+          include[1].required = true;
+        } else if (role === 'receptionist') {
+          include[2].where = { createdAt: dateFilter };
+          include[2].required = true;
+        }
+      }
       const employees = await Users.findAll({
         where: {
           role: rolesToFetch,
         },
-        include: [
-          {
-            model: Doctors,
-            as: 'doctorProfile',
-            attributes: ['firstname', 'lastname'],
-            required: false,
-          },
-          {
-            model: Specialists,
-            as: 'specialistProfile',
-            attributes: ['firstname', 'lastname'],
-            required: false,
-          },
-          {
-            model: Receptionists,
-            as: 'receptionistProfile',
-            attributes: ['firstname', 'lastname'],
-            required: false,
-          }
-        ]
+        include,
       });
-  
-      //console.log(JSON.stringify(employees, null, 2));
-
+      //(JSON.stringify(employees, null, 2));
+      
       const formatted = employees.map((user) => {
         let name = '';
+        let createdAt = null;
+        let updatedAt = null;
         if (user.role === 'doctor' && user.doctorProfile) {
           name = `${user.doctorProfile.firstname} ${user.doctorProfile.lastname}`;
-        } else if (user.role === 'specialist' && user.specialistProfile) {
+          createdAt = user.doctorProfile.createdAt;
+          updatedAt = user.doctorProfile.updatedAt;
+        } 
+        else if (user.role === 'specialist' && user.specialistProfile) {
           name = `${user.specialistProfile.firstname} ${user.specialistProfile.lastname}`;
-        } else if (user.role === 'receptionist' && user.receptionistProfile) {
+          createdAt = user.specialistProfile.createdAt;
+          updatedAt = user.specialistProfile.updatedAt;
+        } 
+        else if (user.role === 'receptionist' && user.receptionistProfile) {
           name = `${user.receptionistProfile.firstname} ${user.receptionistProfile.lastname}`;
+          createdAt = user.receptionistProfile.createdAt;
+          updatedAt = user.receptionistProfile.updatedAt;
         }
+        //console.log(createdAt, " created" , updatedAt , "updated");
   
         return {
           userid: user.userid,
           role: user.role,
           name,
+          createdAt,
+          updatedAt,
         };
       });
   
