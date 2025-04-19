@@ -12,7 +12,9 @@ import {
 import { motion, AnimatePresence } from 'framer-motion';
 //npm install framer-motion
 import { format, subDays } from 'date-fns';
+import NotificationBell from '../components/NotificationBell';
 
+const apiUrl = import.meta.env.VITE_API_URL
 
 
 // Enhanced mock data
@@ -107,6 +109,9 @@ export default function AdminDashboard() {
   const [endDate, setEndDate] = useState('');
   const [showNewPatientModal, setShowNewPatientModal] = useState(false);
   const [patients, setPatients] = useState([]);
+  const [analyticsView, setAnalyticsView] = useState('revenue'); // default to 'revenue'
+  const [dateRange, setDateRange] = useState('7'); // default to '7 days'
+
 
   const [newStock, setNewStock] = useState({
     quantity: '',

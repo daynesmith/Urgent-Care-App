@@ -1,4 +1,5 @@
 import { useState, useContext } from 'react';
+import JoinTheTeam from './JoinTheTeam.jsx';
 
 import axios from 'axios';
 const apiUrl = import.meta.env.VITE_API_URL
@@ -8,22 +9,8 @@ import { UserContext } from '../context/Usercontext';
 import RegistrationForm from './Registrationpage.jsx';
 
 import { 
-    Users, 
-    UserCircle, 
-    Stethoscope, 
-    Calendar, 
-    Clock, 
-    Phone, 
-    Mail,
-    Building2,
-    UserPlus,
-    LogIn,
-    Heart,
-    Activity,
-    ChevronFirst as FirstAid,
-    X,
-    Eye,
-    EyeOff
+    Users, UserCircle, Stethoscope,  Calendar, Clock, Phone, Mail,
+    Building2, UserPlus,LogIn,Heart,Activity, ChevronFirst as FirstAid, X,Eye, EyeOff
 } from 'lucide-react';
     
     
@@ -163,7 +150,10 @@ export default function Homepage(){
         }
     };
     
-
+    const handleJoinTeamClick = () => {
+        navigate('/JoinTheTeam');
+    };
+    
     const scrollToSection = (id) => {
     const section = document.getElementById(id);
     if (section) {
@@ -355,8 +345,9 @@ export default function Homepage(){
         Welcome to HealthCare Clinic
         </h1>
         <p className="text-xl  font-bold mb-4"
-        tyle={{ textShadow: '0px 2px 4px rgba(0,0,0,0.7)' }}
-        > Providing Quality Healthcare Services Since 1995</p>
+        style={{ textShadow: '0px 2px 4px rgba(0,0,0,0.7)' }}> 
+            Providing Quality Healthcare Services Since 1995
+        </p>
     </div>
 
         {/* Quick Access Cards */}
@@ -385,6 +376,18 @@ export default function Homepage(){
             <button className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition-colors w-full">
                 Login
             </button>
+            </div>
+
+            {/* Join Our Team */}
+            <div
+                onClick={handleJoinTeamClick}
+                className="bg-white rounded-lg shadow-lg p-6 hover:shadow-xl transition-shadow cursor-pointer transform hover:-translate-y-1 transition-transform">
+                <UserPlus className="h-12 w-12 text-purple-600 mb-4" />
+                <h3 className="text-xl font-semibold mb-2">Join Our Team</h3>
+                <p className="text-gray-600 mb-4">Explore career opportunities with us</p>
+                <button className="bg-purple-600 text-white px-4 py-2 rounded-md hover:bg-purple-700 transition-colors w-full">
+                    View Openings
+                </button>
             </div>
 
             {/* New Patient Registration */}

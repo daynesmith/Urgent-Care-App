@@ -30,7 +30,7 @@ import PaymentCancelled from './pages/PaymentCancelled.jsx';
 import ReceptionistShift from './pages/ReceptionistShift.jsx';
 import StaffViewShifts from './pages/StaffViewShifts.jsx';
 import DoctorAppointmentsReport from './pages/DoctorAppointmentsReport.jsx';
-
+import JoinTheTeam from './pages/JoinTheTeam.jsx'
 
 
 function App() {
@@ -70,7 +70,7 @@ function App() {
             <Route path = '/patient-billing' element = {<PatientBilling />}/>
             <Route path='/payment-success/:billingId' element={<PaymentSuccess />} />
             <Route path='/payment-cancelled' element={<PaymentCancelled />} />
-
+            <Route path = '/JoinTheTeam' element = {<JoinTheTeam />} />
             <Route path = '/ReceptionistShift' element = {<ReceptionistShift />} />
             <Route path = '/StaffViewShifts' element = {<StaffViewShifts />} />
             <Route path = '/adminreport' element = {<DoctorAppointmentsReport/>}/>
