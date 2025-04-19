@@ -123,6 +123,23 @@ const isDoctorAvailable = async (doctorid, requesteddate, requestedtime, appoint
 
     return conflictingAppointment ? false : true;
 };
+const isSpecialistAvailable = async (specialistid, requesteddate, requestedtime, appointmentid = null) => {
+    const conflictCondition = {
+        specialistid,
+        requesteddate,
+        requestedtime,
+    };
+
+    if (appointmentid) {
+        conflictCondition.appointmentid = { $ne: appointmentid };
+    }
+
+    const conflictingAppointment = await Appointments.findOne({
+        where: conflictCondition,
+    });
+
+    return conflictingAppointment ? false : true;
+};
 
 const createAppointment = async (req, res) => {
     try {

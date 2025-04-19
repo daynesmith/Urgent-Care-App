@@ -103,5 +103,6 @@ const createReferral = async (req, res) => {
 module.exports = {
   createReferral,
   getPendingReferrals,
-  updateReferralStatus
+  updateReferralStatus,
+  getApprovedReferralsForPatient
 };

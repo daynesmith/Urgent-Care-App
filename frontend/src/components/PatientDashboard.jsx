@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import NotificationBell from '../components/NotificationBell';
+import NotificationBell from '../components/NotificationBell';
 
 export default function PatientDashboard() {
   return (
@@ -26,6 +27,7 @@ export default function PatientDashboard() {
           <Link as={Link} to='/patient-billing' className="border rounded-l shadow-lg p-3 h-full text-center min-w-3xs"><h4>Billing</h4> </Link> 
       </div>
     </div>
-    
-    )
+  );
 }
+
+      //div className="flex justify-center flex-row flex-nowrap gap-2 text-sm font-mono">

@@ -18,10 +18,6 @@ import ReceptionistAppointment from './pages/ReceptionistAppoinment.jsx';
 import DoctorPatients from './pages/DoctorPatients.jsx';
 import CreateReferral from './pages/CreateReferral.jsx'
 import CheckInCheckOut from './pages/CheckInCheckOut.jsx';
-import SpecialistDashboard from './components/SpecialistDashboard.jsx';
-import JobOpenings from './components/JobOpenings.jsx';
-import JoinTheTeam from './pages/JoinTheTeam.jsx'
-import ApplicationForm from './components/ApplicationForm.jsx';
 import AdminDasboard from './components/AdminDashboard.jsx';
 import ReceptionistPatients from './pages/ReceptionistPatients.jsx'
 import AddStockModal from './pages/AddStockModal.jsx'
@@ -64,9 +60,6 @@ function App() {
             <Route path = '/DoctorPatients' element = {<DoctorPatients />} />
             <Route path = '/createreferral' element = {<CreateReferral/> } />
             <Route path = '/CheckInCheckOut' element = {<CheckInCheckOut />} />
-            <Route path = '/JoinTheTeam' element = {<JoinTheTeam />} />
-            <Route path = '/JobOpenings' element = {<JobOpenings />} />
-            <Route path = '/ApplicationForm' element = {<ApplicationForm />} />
             <Route path = '/AdminDasboard' element = {<AdminDasboard />} />
             <Route path = '/homepage' element = {<Homepage />} />
             <Route path = '/ReceptionistPatients' element = {<ReceptionistPatients />} />

@@ -97,6 +97,8 @@ module.exports = (sequelize, DataTypes)=>{
             defaultValue: "pending",
         }
         
+        }
+        
     }, {
         timestamps: true, // Automatically add createdAt and updatedAt fields
     });
@@ -123,7 +125,7 @@ module.exports = (sequelize, DataTypes)=>{
         Users.hasMany(models.Shifts, { 
             as: 'shifts', 
             foreignKey: 'staffid'
-         });
+        });
     };   
 
     //insert nurse role once completed

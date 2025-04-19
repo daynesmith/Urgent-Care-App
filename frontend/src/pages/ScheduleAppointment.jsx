@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { jwtDecode } from 'jwt-decode'; 
+import ProviderDropDown from '../components/ProviderDropdown';
 import DoctorDropDown from '../components/DoctorDropDown';
 import ClinicLocationDropDown from '../components/ClinicLocationDropDown';
 import ProviderDropDown from '../components/ProviderDropDown';
@@ -46,7 +47,6 @@ export default function ScheduleAppointments() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        if (!date || !time || !doctor || !clinicLocation) {
         if (!date || !time || !doctor || !clinicLocation || !selectedProvider) {
             setError('Please select a doctor, date, time, and clinic location.');
         if (!date || !time || !selectedProvider) {
@@ -65,8 +65,7 @@ export default function ScheduleAppointments() {
 
         try {
             const decoded = jwtDecode(token);
-            console.log("Decoded token in ProviderDropdown:", decoded);
-
+            console.log("Decoded Token:", decoded);
 
             if (!decoded.email) {
                 setError("Invalid token structure: missing patientid.");
@@ -82,20 +81,7 @@ export default function ScheduleAppointments() {
                 doctorid: doctor,
                 patientEmail: decoded.email, 
                 cliniclocation: clinicLocation,
-              };
-
-            if (type === 'doctor') {
-                appointmentData.doctorid = id;
-            }     
-            else if (type === 'specialist') {
-                appointmentData.specialistid = id;
-            }    
-
-            if (!decoded.email) {
-                setError("Invalid token structure: missing patientid.");
-                return;
-            }
-            }    
+                };
 
             console.log('Appointment data being sent:', appointmentData);
 
@@ -117,7 +103,7 @@ export default function ScheduleAppointments() {
                 setError('');
             }, 3000);
         }
-    };    
+    };        
 
     return (
         

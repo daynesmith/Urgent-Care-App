@@ -10,8 +10,78 @@ import {
   BarChart, Bar
 } from 'recharts';
 import { motion, AnimatePresence } from 'framer-motion';
-import NotificationBell from '../components/NotificationBell';
-const apiUrl = import.meta.env.VITE_API_URL;
+//npm install framer-motion
+import { format, subDays } from 'date-fns';
+
+
+
+// Enhanced mock data
+const appointments = [
+  { id: 1, patient: "Sarah Johnson", time: "09:00 AM", status: "Confirmed", type: "Check-up", doctor: "Dr. Smith" },
+  { id: 2, patient: "Mike Smith", time: "10:30 AM", status: "Pending", type: "Follow-up", doctor: "Dr. Brown" },
+  { id: 3, patient: "Emma Davis", time: "02:00 PM", status: "Completed", type: "Consultation", doctor: "Dr. Wilson" },
+];
+
+const patients = [
+  { 
+    id: 1, 
+    name: "Sarah Johnson", 
+    age: 34, 
+    lastVisit: "2024-03-10",
+    email: "sarah.j@email.com",
+    phone: "(555) 123-4567",
+    insurance: "BlueCross",
+    balance: 150.00
+  },
+  { 
+    id: 2, 
+    name: "Mike Smith", 
+    age: 45, 
+    lastVisit: "2024-03-08",
+    email: "mike.s@email.com",
+    phone: "(555) 234-5678",
+    insurance: "Aetna",
+    balance: 0.00
+  },
+  { 
+    id: 3, 
+    name: "Emma Davis", 
+    age: 28, 
+    lastVisit: "2024-03-05",
+    email: "emma.d@email.com",
+    phone: "(555) 345-6789",
+    insurance: "UnitedHealth",
+    balance: 75.50
+  },
+];
+
+const analytics = {
+  totalPatients: 156,
+  todayAppointments: 12,
+  pendingPayments: 8,
+  monthlyRevenue: 24500
+};
+
+// Analytics Data
+const revenueData = Array.from({ length: 30 }, (_, i) => ({
+  date: format(subDays(new Date(), 29 - i), 'MMM dd'),
+  revenue: Math.floor(Math.random() * 5000) + 1000,
+  appointments: Math.floor(Math.random() * 20) + 5,
+}));
+
+const insuranceDistribution = [
+  { name: 'BlueCross', value: 45 },
+  { name: 'Aetna', value: 30 },
+  { name: 'UnitedHealth', value: 25 },
+  { name: 'Medicare', value: 20 },
+  { name: 'Other', value: 10 },
+];
+
+const appointmentAnalytics = [
+  { month: 'Jan', checkups: 45, followups: 30, consultations: 25 },
+  { month: 'Feb', checkups: 50, followups: 35, consultations: 28 },
+  { month: 'Mar', checkups: 40, followups: 38, consultations: 22 },
+];
 
 export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -40,8 +110,6 @@ export default function AdminDashboard() {
   const [showNewPatientModal, setShowNewPatientModal] = useState(false);
   const [patients, setPatients] = useState([]);
 
-  const [startDate, setStartDate] = useState('');
-  const [endDate, setEndDate] = useState('');
   const [newStock, setNewStock] = useState({
     quantity: '',
     cost: '',
@@ -69,6 +137,18 @@ export default function AdminDashboard() {
     fetchEmployees();
   }, [roleFilter]);
   useEffect(() => {
+    const fetchEmployees = async () => {
+      try {
+        const res = await axios.get(`${apiUrl}/admin/employees`, {
+          params: roleFilter !== 'all' ? { role: roleFilter } : {}
+        });
+        setEmployees(res.data);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
     const fetchApplications = async () => {
       try {
         const response = await axios.get(`${apiUrl}/users/getApplication`);
@@ -489,15 +569,38 @@ export default function AdminDashboard() {
   const renderEmployees = () => (
     <div className="bg-white p-6 rounded-lg shadow-md">
       <div className="flex justify-between items-center mb-6">
-        <div className="relative">
-          <Search className="h-5 w-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+        <div className="flex space-x-4">
+          <div className="relative">
+            <Search className="h-5 w-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+            <input
+              type="text"
+              placeholder="Search employees..."
+              className="pl-10 pr-4 py-2 border rounded-md w-64 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}/>
+          </div>
+          <select
+            className="border rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            value={roleFilter}
+            onChange={(e) => setRoleFilter(e.target.value)}>
+            <option value="all">All Roles</option>
+            <option value="doctor">Doctors</option>
+            <option value="specialist">Specialists</option>
+            <option value="receptionist">Receptionists</option>
+          </select>
           <input
-            type="text"
-            placeholder="Search patients..."
-            className="pl-10 pr-4 py-2 border rounded-md w-64 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            type="date"
+            value={startDate}
+            onChange={(e) => setStartDate(e.target.value)}
+            className="border px-2 py-1 rounded"
           />
+          <input
+            type="date"
+            value={endDate}
+            onChange={(e) => setEndDate(e.target.value)}
+            className="border px-2 py-1 rounded"
+          />
+          
         </div>
         <button 
           onClick={() => setShowNewPatientModal(true)}
@@ -540,6 +643,7 @@ export default function AdminDashboard() {
           
         </div>
       </div>
+
       <div className="overflow-x-auto">
         <table className="min-w-full">
           <thead>
