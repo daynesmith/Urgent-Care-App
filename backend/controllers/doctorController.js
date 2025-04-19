@@ -9,7 +9,7 @@ const getIfDoctorInfo = async (req, res) => {
     try {
         const docExists = await Doctors.findOne({
             where: { email },
-            attributes: ['firstname', 'lastname', 'dateofbirth', 'phonenumber', 'doctortype']
+            attributes: ['firstname', 'lastname', 'dateofbirth', 'phonenumber']
         });
 
         if (!docExists) {
@@ -31,7 +31,7 @@ const getIfDoctorInfo = async (req, res) => {
 
 const inputInfoForFirstTime = async (req, res) => {
     try {
-        const { firstname, lastname, dateofbirth, phonenumber, doctortype } = req.body;
+        const { firstname, lastname, dateofbirth, phonenumber} = req.body;
         const email = req.user.email;  
 
         const user = await Users.findOne({ where: { email } });
@@ -40,9 +40,9 @@ const inputInfoForFirstTime = async (req, res) => {
         }
         const doctorid = user.userid;   
 
-        console.log('Received data for doctor profile creation:', { doctorid, email, firstname, lastname, dateofbirth, phonenumber, doctortype });
+        console.log('Received data for doctor profile creation:', { doctorid, email, firstname, lastname, dateofbirth, phonenumber });
 
-        if (!firstname || !lastname || !dateofbirth || !phonenumber || !doctortype) {
+        if (!firstname || !lastname || !dateofbirth || !phonenumber ) {
             return res.status(400).json({ message: "Missing required fields." });
         }
 
@@ -54,7 +54,6 @@ const inputInfoForFirstTime = async (req, res) => {
             lastname,
             dateofbirth,
             phonenumber,
-            doctortype
         });
 
         console.log('Doctor profile created:', doctor);
@@ -75,7 +74,6 @@ const editDoctorInfo = async (req, res) => {
         lastname,
         dateofbirth,
         phonenumber,
-        doctortype
     } = req.body
 
     try {
@@ -92,8 +90,20 @@ const editDoctorInfo = async (req, res) => {
             lastname: lastname,
             dateofbirth: dateofbirth,
             phonenumber: phonenumber,
-            doctortype: doctortype
         });
+
+        const user = await Users.findOne({
+            where: { email: email },
+        });
+
+        if (user) {
+            await user.update({
+                firstname: firstname,
+                lastname: lastname,
+                dateofbirth: dateofbirth,
+                phonenumber: phonenumber,
+            });
+        }
 
         console.log("Database update successful:");
         res.json({ success: true });
@@ -111,14 +121,13 @@ const editDoctorInfo = async (req, res) => {
 const getDoctorsNames = async (req, res) => {
     try {
         const doctors = await Doctors.findAll({
-            attributes: ['doctorid','firstname', 'lastname', 'doctortype']
+            attributes: ['doctorid','firstname', 'lastname']
         });
 
         const doctorNames = doctors.map(doctor => {
             return {
                 doctorid: doctor.doctorid, 
                 name: `${doctor.firstname} ${doctor.lastname}`,
-                type: doctor.doctortype  
             };
         });
 

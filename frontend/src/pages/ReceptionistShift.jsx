@@ -2,18 +2,15 @@ import React, { useState } from 'react';
 import { format } from 'date-fns';
 import axios from 'axios';
 import StaffDropDown from '../components/StaffDropDown';
-import ReceptionistShiftTable from '../components/ReceptionistShiftTable'; 
+import ReceptionistShiftTable from '../components/ReceptionistShiftTable';
 
 const apiUrl = import.meta.env.VITE_API_URL;
 
 export default function ReceptionistShift() {
   const [staff, setStaff] = useState('');
-  const [shifts, setShifts] = useState([]); 
-  const [isEditing, setIsEditing] = useState(false);
-  const [editingShift, setEditingShift] = useState(null);
+  const [shifts, setShifts] = useState([]);
+  const [selectedDates, setSelectedDates] = useState([]); // Array to store multiple selected dates
   const [newShift, setNewShift] = useState({
-    staffId: '',
-    date: format(new Date(), 'yyyy-MM-dd'),
     startTime: '',
     endTime: '',
     cliniclocation: '',
@@ -22,6 +19,17 @@ export default function ReceptionistShift() {
   const [locationError, setLocationError] = useState('');
   const [timeError, setTimeError] = useState('');
   const [popupMessage, setPopupMessage] = useState('');
+
+  const handleDateChange = (e) => {
+    const selectedDate = e.target.value;
+    if (!selectedDates.includes(selectedDate)) {
+      setSelectedDates([...selectedDates, selectedDate]);
+    }
+  };
+
+  const removeDate = (date) => {
+    setSelectedDates(selectedDates.filter((d) => d !== date));
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -37,42 +45,48 @@ export default function ReceptionistShift() {
       return;
     }
 
-    setLocationError('');
-    setTimeError('');
-
     if (!staff) {
       setLocationError('Please select a staff member.');
       return;
     }
 
+    if (selectedDates.length === 0) {
+      setLocationError('Please select at least one date.');
+      return;
+    }
+
+    setLocationError('');
+    setTimeError('');
+
     try {
-      const shiftData = {
+      // Prepare the array of shifts
+      const shiftData = selectedDates.map((date) => ({
         staffid: staff,
         startshift: newShift.startTime,
         endshift: newShift.endTime,
-        date: newShift.date,
+        date,
         notes: newShift.notes,
         cliniclocation: newShift.cliniclocation,
-      };
+      }));
 
       const response = await axios.post(`${apiUrl}/receptionist/addNewShift`, shiftData);
 
-      console.log('Shift successfully added:', response.data);
+      console.log('Shifts successfully added:', response.data);
 
-      setShifts([...shifts, { ...newShift, id: response.data.shift.id }]);
+      setShifts([...shifts, ...shiftData]);
 
+      // Reset form
       setNewShift({
-        staffId: '',
-        date: format(new Date(), 'yyyy-MM-dd'),
         startTime: '',
         endTime: '',
         cliniclocation: '',
         notes: '',
       });
       setStaff('');
+      setSelectedDates([]);
     } catch (error) {
-      console.error('Error submitting shift:', error);
-      showPopup('Failed to submit shift. A shift already exists for this staff member. Please try again.');
+      console.error('Error submitting shifts:', error);
+      showPopup('Failed to submit shifts. Please try again.');
     }
   };
 
@@ -101,23 +115,33 @@ export default function ReceptionistShift() {
             onSubmit={handleSubmit}
             className="bg-white p-6 rounded-lg shadow-sm space-y-4 w-full"
           >
-            <h3 className="text-lg font-medium mb-4">
-              {isEditing ? 'Edit Shift' : 'Add New Shift'}
-            </h3>
+            <h3 className="text-lg font-medium mb-4">Add New Shifts</h3>
             <div className="grid grid-cols-12 gap-4">
               <div className="col-span-3">
                 <label className="block text-sm font-medium text-gray-700">Staff Member</label>
                 <StaffDropDown staff={staff} setStaff={setStaff} />
               </div>
               <div className="col-span-3">
-                <label className="block text-sm font-medium text-gray-700">Date</label>
+                <label className="block text-sm font-medium text-gray-700">Select Dates</label>
                 <input
                   type="date"
-                  value={newShift.date}
-                  onChange={(e) => setNewShift({ ...newShift, date: e.target.value })}
+                  onChange={handleDateChange}
                   className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                  required
                 />
+                <ul className="mt-2">
+                  {selectedDates.map((date) => (
+                    <li key={date} className="flex items-center justify-between">
+                      <span>{date}</span>
+                      <button
+                        type="button"
+                        onClick={() => removeDate(date)}
+                        className="text-red-500 hover:underline"
+                      >
+                        Remove
+                      </button>
+                    </li>
+                  ))}
+                </ul>
               </div>
               <div className="col-span-3">
                 <label className="block text-sm font-medium text-gray-700">Start Time</label>
@@ -167,31 +191,11 @@ export default function ReceptionistShift() {
               </div>
             </div>
             <div className="flex justify-end gap-2">
-              {isEditing && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    setIsEditing(false);
-                    setEditingShift(null);
-                    setNewShift({
-                      staffId: '',
-                      date: format(new Date(), 'yyyy-MM-dd'),
-                      startTime: '',
-                      endTime: '',
-                      cliniclocation: '',
-                      notes: '',
-                    });
-                  }}
-                  className="px-4 py-2 text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200"
-                >
-                  Cancel
-                </button>
-              )}
               <button
                 type="submit"
                 className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
               >
-                {isEditing ? 'Update Shift' : 'Add Shift'}
+                Add Shifts
               </button>
             </div>
           </form>

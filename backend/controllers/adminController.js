@@ -62,7 +62,6 @@ const toDoctor = async (req, res) =>{
                 lastname: '',
                 dateofbirth: new Date(),
                 phonenumber: '',
-                doctortype: 'PK',
                 email: user.email,
                 createdAt: new Date(),
                 updatedAt: new Date()
