@@ -14,7 +14,6 @@ const { validateToken } = require('../middlewares/Authmiddleware');
 
 router.post("/todoctor", validateToken('admin'), toDoctor);
 router.post("/toreceptionist", validateToken('admin'), toReceptionist);
-router.post("/toreceptionist", validateToken('admin'), toReceptionist);
 router.post("/toadmin", toAdmin);
 router.post("/tospecialist", validateToken('admin'), toSpecialist);
 router.post("/sendingApplications", sendingApplications);
