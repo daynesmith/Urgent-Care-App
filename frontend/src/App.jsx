@@ -29,8 +29,14 @@ import AddStockModal from './pages/AddStockModal.jsx'
 import AddAppointmentTypes from './pages/AddAppointmentTypes.jsx'
 import AddDoctorTypes from './pages/AddDoctorTypes.jsx'
 import SingleAppointment from './pages/SingleAppointment.jsx';
+<<<<<<< HEAD
+import PatientBilling from './pages/PatientBilling.jsx';
+import PaymentSuccess from './pages/PaymentSucess.jsx';
+import PaymentCancelled from './pages/PaymentCancelled.jsx';
+=======
 import ReceptionistShift from './pages/ReceptionistShift.jsx';
 import DoctorAppointmentsReport from './pages/DoctorAppointmentsReport.jsx';
+>>>>>>> main
 
 
 
@@ -72,6 +78,10 @@ function App() {
             <Route path = '/AddAppointmentTypes' element = {<AddAppointmentTypes />} />
             <Route path = '/AddDoctorTypes' element = {<AddDoctorTypes />} />
             <Route path = '/visits/:apptid' element = {<SingleAppointment />} />
+            <Route path = '/patient-billing' element = {<PatientBilling />}/>
+            <Route path='/payment-success/:billingId' element={<PaymentSuccess />} />
+            <Route path='/payment-cancelled' element={<PaymentCancelled />} />
+
             <Route path = '/ReceptionistShift' element = {<ReceptionistShift />} />
             <Route path = '/adminreport' element = {<DoctorAppointmentsReport/>}/>
           </Routes>

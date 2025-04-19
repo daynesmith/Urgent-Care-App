@@ -37,6 +37,8 @@ app.use("/visitinfo", visitinfoRouter);
 const specialistRouter = require('./routes/Specialist');
 app.use("/specialists", specialistRouter)
 
+app.use('/api/stripe', require('./routes/stripe'));
+
 
 db.sequelize.sync()
   .then(() => {

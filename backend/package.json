@@ -22,6 +22,7 @@
     "nodemon": "^3.1.9",
     "react-big-calendar": "^1.18.0",
     "sequelize": "^6.37.6",
-    "sequelize-cli": "^6.6.2"
+    "sequelize-cli": "^6.6.2",
+    "stripe": "^18.0.0"
   }
 }
