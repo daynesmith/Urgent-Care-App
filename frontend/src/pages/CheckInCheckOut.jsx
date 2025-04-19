@@ -4,16 +4,8 @@ import axios from 'axios';
 const apiUrl = import.meta.env.VITE_API_URL;
 
 import {
-    CalendarClock,
-    ClipboardCheck,
-    Clock,
-    UserCircle,
-    CheckCircle2,
-    XCircle,
-    Search,
-    Plus,
-    AlertCircle,
-    Clock4
+    CalendarClock, ClipboardCheck, Clock, UserCircle, CheckCircle2, XCircle,
+    Search, Plus, AlertCircle, Clock4
 } from 'lucide-react';
 
 export default function CheckInCheckOut() {

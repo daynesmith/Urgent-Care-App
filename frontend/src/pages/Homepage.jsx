@@ -5,7 +5,6 @@ const apiUrl = import.meta.env.VITE_API_URL
 
 import {useNavigate} from 'react-router-dom'
 import { UserContext } from '../context/Usercontext';
-import JoinTheTeam from './JoinTheTeam.jsx';
 import RegistrationForm from './Registrationpage.jsx';
 
 import { 
@@ -39,10 +38,6 @@ export default function Homepage(){
 
     const navigate = useNavigate()
     const { setRole, setUserId} = useContext(UserContext)
-
-    const handleJoinTeamClick = () => {
-        navigate('/JoinTheTeam'); // Navigate to the JoinTheTeam page
-    };
 
     const handleRegisterNow = () => {
         navigate('/register'); 
@@ -390,20 +385,6 @@ export default function Homepage(){
             <button className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition-colors w-full">
                 Login
             </button>
-            </div>
-
-            {/* Careers */}
-            <div
-                onClick={handleJoinTeamClick} // Set the state to true when clicked
-                className="bg-white rounded-lg shadow-lg p-6 hover:shadow-xl transition-shadow cursor-pointer transform hover:-translate-y-1 transition-transform"
-            >
-                <UserPlus className="h-12 w-12 text-purple-600 mb-4" />
-                <h3 className="text-xl font-semibold mb-2">Join Our Team</h3>
-                <p className="text-gray-600 mb-4">Explore career opportunities with us</p>
-                <button className="bg-purple-600 text-white px-4 py-2 rounded-md hover:bg-purple-700 transition-colors w-full">
-                    View Openings
-                </button>
-                
             </div>
 
             {/* New Patient Registration */}

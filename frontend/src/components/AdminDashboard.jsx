@@ -1,30 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-const apiUrl = import.meta.env.VITE_API_URL
 import { Link } from 'react-router-dom';
-import { Users, Calendar, FileText, X, Edit , Save , Stethoscope, AlertTriangle , Pill , PackagePlus, Settings, Bell, Plus, Search, ChevronDown, Activity, DollarSign, UserPlus, Clock, BarChart2, Filter, Download, CheckCircle, XCircle } from 'lucide-react';
 import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  ResponsiveContainer,
-  BarChart,
-  Bar
-} from 'recharts'; 
-//npm install recharts
+  Users, Calendar, FileText, Settings, Bell, Plus, Search, ChevronDown,
+  Activity, DollarSign, UserPlus, Clock, BarChart2, Filter, Download, CheckCircle, XCircle
+} from 'lucide-react';
 import {
-  createColumnHelper,
-  flexRender,
-  getCoreRowModel,
-  useReactTable,
-  getSortedRowModel,
-  getFilteredRowModel,
-} from '@tanstack/react-table';
-//npm install @tanstack/react-table
+  LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
+  BarChart, Bar
+} from 'recharts';
 import { motion, AnimatePresence } from 'framer-motion';
 //npm install framer-motion
 import { format, subDays } from 'date-fns';
@@ -99,13 +83,11 @@ const appointmentAnalytics = [
   { month: 'Mar', checkups: 40, followups: 38, consultations: 22 },
 ];
 
-export default function AdminDasboard() {
+export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState('dashboard');
-  const [notifications, setNotifications] = useState(2);
-  const [showNewPatientModal, setShowNewPatientModal] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
-  const [dateRange, setDateRange] = useState('30');
-  const [analyticsView, setAnalyticsView] = useState('revenue');
+  const [employees, setEmployees] = useState([]);
+  const [roleFilter, setRoleFilter] = useState("all");
   const [applications, setApplications] = useState([]);
   const [loading, setLoading] = useState(true);
   const [newName, setNewName] = useState('');
@@ -120,26 +102,70 @@ export default function AdminDasboard() {
   const [doctorTypes, setTypeOfDoctor] = useState([]);
   const [appointmentTypes, setTypeOfAppointment] = useState([]);
   const [selectedMaterial, setSelectedMaterial] = useState(null);
+  const [appointments, setAppointments] = useState([]);
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
+  const [showNewPatientModal, setShowNewPatientModal] = useState(false);
+  const [patients, setPatients] = useState([]);
+
   const [newStock, setNewStock] = useState({
     quantity: '',
     cost: '',
     itemname: '',
   });
-
+  const [analytics, setAnalytics] = useState({
+    totalPatients: 0,
+    todayAppointments: 0,
+    pendingPayments: 0,
+    monthlyRevenue: 0
+  });
+  
   {/* Applications */}
   useEffect(() => {
-    const fetchApplications = async () => {
+    const fetchEmployees = async () => {
       try {
-        const response = await axios.get(`${apiUrl}/users/getApplication`);
-        console.log(response.data);  
-        setApplications(response.data);
+        const res = await axios.get(`${apiUrl}/admin/employees`, {
+          params: roleFilter !== 'all' ? { role: roleFilter } : {}
+        });
+        setEmployees(res.data);
+      } catch (err) {
+        console.error("Failed to load employees:", err);
+      }
+    };
+    fetchEmployees();
+  }, [roleFilter]);
+  useEffect(() => {
+    const fetchEmployees = async () => {
+      try {
+        const res = await axios.get(`${apiUrl}/admin/employees`, {
+          params: roleFilter !== 'all' ? { role: roleFilter } : {}
+        });
+        setEmployees(res.data);
       } catch (err) {
         setError(err.message);
       } finally {
         setLoading(false);
       }
     };
-
+    // const fetchApplications = async () => {
+    //   try {
+    //     const response = await axios.get(`${apiUrl}/users/getApplication`);
+    //     setApplications(response.data);
+    //   } catch (err) {
+    //     console.error("Error fetching applications:", err);
+    //   }
+    // };
+    const fetchApplications = async () => {
+      try {
+        const res = await axios.get(`${apiUrl}/admin/applications`);
+        setApplications(res.data);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+  
     fetchApplications();
   }, []);
 
@@ -513,18 +539,66 @@ export default function AdminDasboard() {
     </div>
   );
 
+
+  const fetchFilteredEmployees = async () => {
+    try {
+      const res = await axios.get(`${apiUrl}/admin/employees`, {
+        params: {
+          role: roleFilter !== 'all' ? roleFilter : undefined,
+          startDate: startDate || undefined,
+          endDate: endDate || undefined
+        }
+      });
+      setEmployees(res.data);
+    } catch (err) {
+      console.error("Failed to load employees:", err);
+    }
+  };
+
+  //Optionally fetch all on load
+  useEffect(() => {
+    fetchFilteredEmployees();
+  }, []);
+
+  useEffect(() => {
+    fetchFilteredEmployees();
+  }, [roleFilter, startDate, endDate]);
+
   const renderEmployees = () => (
     <div className="bg-white p-6 rounded-lg shadow-md">
       <div className="flex justify-between items-center mb-6">
-        <div className="relative">
-          <Search className="h-5 w-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+        <div className="flex space-x-4">
+          <div className="relative">
+            <Search className="h-5 w-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+            <input
+              type="text"
+              placeholder="Search employees..."
+              className="pl-10 pr-4 py-2 border rounded-md w-64 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}/>
+          </div>
+          <select
+            className="border rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            value={roleFilter}
+            onChange={(e) => setRoleFilter(e.target.value)}>
+            <option value="all">All Roles</option>
+            <option value="doctor">Doctors</option>
+            <option value="specialist">Specialists</option>
+            <option value="receptionist">Receptionists</option>
+          </select>
           <input
-            type="text"
-            placeholder="Search patients..."
-            className="pl-10 pr-4 py-2 border rounded-md w-64 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            type="date"
+            value={startDate}
+            onChange={(e) => setStartDate(e.target.value)}
+            className="border px-2 py-1 rounded"
           />
+          <input
+            type="date"
+            value={endDate}
+            onChange={(e) => setEndDate(e.target.value)}
+            className="border px-2 py-1 rounded"
+          />
+          
         </div>
         <button 
           onClick={() => setShowNewPatientModal(true)}
@@ -533,51 +607,62 @@ export default function AdminDasboard() {
           <UserPlus className="h-5 w-5 mr-2" />
           Add New Patient
         </button>
+        <div className="flex space-x-4">
+          <div className="relative">
+            <Search className="h-5 w-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+            <input
+              type="text"
+              placeholder="Search employees..."
+              className="pl-10 pr-4 py-2 border rounded-md w-64 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}/>
+          </div>
+          <select
+            className="border rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            value={roleFilter}
+            onChange={(e) => setRoleFilter(e.target.value)}>
+            <option value="all">All Roles</option>
+            <option value="doctor">Doctors</option>
+            <option value="specialist">Specialists</option>
+            <option value="receptionist">Receptionists</option>
+          </select>
+          <input
+            type="date"
+            value={startDate}
+            onChange={(e) => setStartDate(e.target.value)}
+            className="border px-2 py-1 rounded"
+          />
+          <input
+            type="date"
+            value={endDate}
+            onChange={(e) => setEndDate(e.target.value)}
+            className="border px-2 py-1 rounded"
+          />
+          
+        </div>
       </div>
+
       <div className="overflow-x-auto">
         <table className="min-w-full">
           <thead>
             <tr className="bg-gray-50">
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Contact</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Insurance</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Last Visit</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Balance</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">User ID</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Name</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Role</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Created At</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Updated On</th>
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
-            {patients.map(patient => (
-              <tr key={patient.id} className="hover:bg-gray-50">
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="flex items-center">
-                    <div>
-                      <div className="font-medium text-gray-900">{patient.name}</div>
-                      <div className="text-sm text-gray-500">Age: {patient.age}</div>
-                    </div>
-                  </div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="text-sm text-gray-900">{patient.phone}</div>
-                  <div className="text-sm text-gray-500">{patient.email}</div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                    {patient.insurance}
-                  </span>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {patient.lastVisit}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className={`text-sm font-medium ${patient.balance > 0 ? 'text-red-600' : 'text-green-600'}`}>
-                    ${patient.balance.toFixed(2)}
-                  </div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  <button className="text-blue-500 hover:text-blue-700 mr-3">Edit</button>
-                  <button className="text-blue-500 hover:text-blue-700">View History</button>
-                </td>
+            {employees.filter(emp =>
+              emp.name.toLowerCase().includes(searchTerm.toLowerCase())
+            ).map((emp) => (
+              <tr key={emp.userid}>
+                <td className="px-6 py-4 whitespace-nowrap">{emp.userid}</td>
+                <td className="px-6 py-4 whitespace-nowrap">{emp.name}</td>
+                <td className="px-6 py-4 whitespace-nowrap capitalize">{emp.role}</td>
+                <td className="px-6 py-4 whitespace-nowrap capitalize">{emp.createdAt ? new Date(emp.createdAt).toLocaleDateString() : '—'}</td>
+                <td className="px-6 py-4 whitespace-nowrap capitalize">{emp.updatedAt ? new Date(emp.updatedAt).toLocaleDateString() : '—'}</td>
               </tr>
             ))}
           </tbody>
@@ -591,6 +676,11 @@ export default function AdminDasboard() {
       <div className="bg-white p-6 rounded-lg shadow-md">
         <div className="flex justify-between items-center mb-6">
           <div className="flex items-center space-x-4">
+              <div className="p-2 relative">
+                <div className="flex justify-end">
+                  <NotificationBell />
+                </div>
+              </div>
             <div className="relative">
               <Search className="h-5 w-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
               <input

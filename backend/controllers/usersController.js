@@ -46,7 +46,11 @@ const loginUser = async (req, res) => {
             return res.status(400).json("Invalid credentials");
         }
         
-        const accessToken = sign({ email: user.email, role: user.role, id: user.id }, process.env.jwtsecret, { //session token created stores role id and email
+        const accessToken = sign({
+            email: user.email, 
+            role: user.role, 
+            userid: user.userid 
+            }, process.env.jwtsecret, { //session token created stores role id and email
             expiresIn: '1h'
         });
         
@@ -66,7 +70,65 @@ const loginUser = async (req, res) => {
     }
 };
 
+const creatingUser = async (req, res) => {
+  const { email, password, role } = req.body;
 
+  try {
+    // Check if user already exists
+    const existingUser = await Users.findOne({ where: { email } });
+    if (existingUser) {
+      return res.status(400).json("Email already registered");
+    }
+
+    // Hash the password
+    const hash = await bcrypt.hash(password, 10);
+
+    // Create user in DB
+    const newUser = await Users.create({
+      email: email,
+      passwordhash: hash,
+      role: role
+    });
+
+    res.status(201).json({ message: "User created successfully", userId: newUser.userid });
+  } catch (error) {
+    console.error("Error registering user:", error);
+    res.status(500).json("Error registering user");
+  }
+};
+
+const gettingApplications = async (req, res) => {
+    console.log('Request received at backend over here.');
+    try {
+        const applications = await Users.findAll({
+            attributes: [
+              'firstname',
+              'lastname',
+              'dateofbirth',
+              'phonenumber',
+              ['role', 'stafftype'],  // Using alias here to match the frontend expectation
+              'email',
+              'passwordhash',
+              'qualifications',
+              'certifications',
+              'coverletter',
+              'experience',
+              'street',
+              'city',
+              'state',
+              'zip',
+              'status',
+            ],
+            where: {
+                role: ['doctor', 'receptionist', 'admin', 'specialist']
+            }
+        });
+        res.json(applications);
+    } catch (error) {
+        console.error("Error fetching applications:", error);
+        res.status(500).json({ message: "Server error" });
+    }
+};
 
 const sendingApplications = async (req, res) => {
     const {
@@ -141,63 +203,6 @@ const sendingApplications = async (req, res) => {
   };
   
 
-
-
-  const gettingApplications = async (req, res) => {
-    console.log('Request received at backend over here.');
-    try {
-        const applications = await Users.findAll({
-            attributes: [
-              'firstname',
-              'lastname',
-              'dateofbirth',
-              'phonenumber',
-              ['role', 'stafftype'],  // Using alias here to match the frontend expectation
-              'email',
-              'passwordhash',
-              'qualifications',
-              'certifications',
-              'coverletter',
-              'experience',
-              'street',
-              'city',
-              'state',
-              'zip',
-              'status',
-            ],
-            where: {
-                role: ['doctor', 'receptionist', 'admin', 'specialist']
-            }
-        });
-        res.json(applications);
-    } catch (error) {
-        console.error("Error fetching applications:", error);
-        res.status(500).json({ message: "Server error" });
-    }
-};
-
-const creatingUser= async (req, res) => {
-    const { email, password, role} = req.body;
-
-    try {
-        const hash = await bcrypt.hash(password, 10);
-        await Users.create({
-            email: email,
-            passwordhash: hash,
-            role: role
-        });
-        res.status(200).json("success");
-    } catch (error) {
-        if (error.original && error.original.code === 'ER_DUP_ENTRY') {
-            return res.status(400).json('Email already registered');
-          }
-
-        console.error(error);
-        res.status(500).json("Error registering user");
-    }
-};
-
-
 const updateApplicationStatus = async (req, res) => {
     const { status, email } = req.body;
   
@@ -249,16 +254,11 @@ const getStaffUsers = async (req, res) => {
 
 const getStaffShifts = async (req, res) => {
     try {
-        console.log("Decoded Token (req.user):", req.user);
+        const staffid = req.user.id;
 
-        const email = req.user.email; // Use email from the token
-        const user = await Users.findOne({ where: { email } });
-
-        if (!user) {
-            return res.status(404).json({ message: "User not found." });
+        if (!staffid) {
+            return res.status(400).json({ message: "User ID is missing in the token." });
         }
-
-        const staffid = user.userid;
 
         const staffShifts = await Shifts.findAll({
             where: {
@@ -268,38 +268,38 @@ const getStaffShifts = async (req, res) => {
                 {
                     model: Users,
                     as: 'staff',
-                    attributes: ['firstname', 'lastname', 'role'],
+                    attributes: ['firstname', 'lastname', 'role'], 
                 },
             ],
         });
+
         res.status(200).json(staffShifts);
     } catch (error) {
         console.error("Error fetching staff shifts:", error);
         res.status(500).json({ message: "Server error" });
     }
 }
-
 const clinicLocations = async (req, res) => {
-  try {
-    const clinicLocations = await Shifts.findAll({
-      attributes: ['cliniclocation'],
-      include: [
-        {
-          model: Users, 
-          as: 'staff', 
-          attributes: [], 
-          where: {
-            role: ['doctor', 'specialist'], 
+    try {
+      const clinicLocations = await Shifts.findAll({
+        attributes: ['cliniclocation'],
+        include: [
+          {
+            model: Users, 
+            as: 'staff', 
+            attributes: [], 
+            where: {
+              role: ['doctor', 'specialist'], 
+            },
           },
-        },
-      ],
-      group: ['cliniclocation'], //avoid dupes
-    });
-    res.status(200).json(clinicLocations);
-  } catch (error) {
-    console.error("Error fetching clinic locations:", error);
-    res.status(500).json({ message: "Server error" });
-  };
-}
+        ],
+        group: ['cliniclocation'], //avoid dupes
+      });
+      res.status(200).json(clinicLocations);
+    } catch (error) {
+      console.error("Error fetching clinic locations:", error);
+      res.status(500).json({ message: "Server error" });
+    };
+  }
 
 module.exports = { registerUser, loginUser, gettingApplications, sendingApplications, creatingUser, updateApplicationStatus, getStaffUsers, getStaffShifts, clinicLocations};
