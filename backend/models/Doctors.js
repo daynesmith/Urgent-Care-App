@@ -35,11 +35,6 @@ module.exports = (sequelize, DataTypes)=>{
                 }
             }
         },
-        doctortype: {
-            type: DataTypes.ENUM("PK", "Oncologist", "Neurologist", "Cardiologist"),
-            allowNull: false,
-            defaultValue: "PK"
-        },
         email: {
             type: DataTypes.STRING,
             allowNull: false, // Ensures the email is required
@@ -50,6 +45,7 @@ module.exports = (sequelize, DataTypes)=>{
             },
         }
     })
+    
     Doctors.associate = (models) => {
         
         Doctors.belongsTo(models.Users,{
@@ -64,6 +60,5 @@ module.exports = (sequelize, DataTypes)=>{
         }); 
     };
     
-
     return Doctors;
 }

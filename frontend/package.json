@@ -15,6 +15,8 @@
     "@headlessui/react": "^2.2.2",
     "@mui/icons-material": "^7.0.2",
     "@mui/material": "^7.0.2",
+    "@stripe/react-stripe-js": "^3.6.0",
+    "@stripe/stripe-js": "^7.1.0",
     "@tailwindcss/vite": "^4.0.14",
     "@tanstack/react-table": "^8.21.2",
     "axios": "^1.8.1",
@@ -33,7 +35,8 @@
     "react-international-phone": "^4.5.0",
     "react-router-dom": "^7.2.0",
     "react-router-hash-link": "^2.4.0-next.0",
-    "recharts": "^2.15.2"
+    "recharts": "^2.15.2",
+    "stripe": "^18.0.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.19.0",

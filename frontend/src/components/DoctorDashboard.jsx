@@ -33,7 +33,22 @@ export default function DoctorDashboard() {
           <Link to="/CreateReferral" className="border rounded shadow-lg p-6 text-center min-w-[180px] bg-white hover:bg-gray-50">
             <h4>Create Referrals</h4>
           </Link>
+          <Link to="/StaffViewShifts" className="border rounded-l shadow-lg p-3 h-full text-center min-w-3xs">
+            <h4>View Shifts</h4> 
+          </Link> 
         </div>
+      <Link to="/DoctorInfoForm" className="border rounded-l shadow-lg p-3 h-full text-center min-w-3xs">
+        <h4>View Profile</h4> 
+      </Link> 
+      <Link to="/DoctorAppointments" className="border rounded-l shadow-lg p-3 h-full text-center min-w-3xs">
+        <h4>View Scheduled Appointments</h4> 
+      </Link> 
+      <Link to="/DoctorPatients" className="border rounded-l shadow-lg p-3 h-full text-center min-w-3xs">
+        <h4>View Patients</h4> 
+      </Link> 
+      <Link to="/CreateReferral" className="border rounded-l shadow-lg p-3 h-full text-center min-w-3xs">
+        <h4>Create Referrals</h4> 
+      </Link> 
       </div>
     </div>
   );

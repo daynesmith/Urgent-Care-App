@@ -15,7 +15,11 @@ export default function DoctorDropDown({ doctor, setDoctor }) {
         const fetchDoctors = async () => {
             try {
                 const response = await axios.get(`${apiUrl}/doctor/doctorsNames`); 
-                setDoctors(response.data);  
+                const formattedDoctors = response.data.map((doc) => ({
+                    ...doc,
+                    name: capitalizeName(doc.name), 
+                }));
+                setDoctors(formattedDoctors);  
                 setLoading(false);
             } catch (err) {
                 console.error('Error fetching doctors:', err);
@@ -26,6 +30,13 @@ export default function DoctorDropDown({ doctor, setDoctor }) {
         
         fetchDoctors();
     }, []);
+
+    const capitalizeName = (name) => {
+        return name
+            .split(' ')
+            .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+            .join(' ');
+    };
 
     if (loading) {
         return <option>Loading doctors...</option>;
@@ -45,7 +56,7 @@ export default function DoctorDropDown({ doctor, setDoctor }) {
             <option value="">Select a doctor</option>
             {doctors.map((doc) => (
                 <option key={doc.doctorid} value={doc.doctorid}>  {/* use doctorid here */}
-                    {doc.name} ({doc.type})
+                    Dr. {doc.name}
                 </option>
             ))}
         </select>

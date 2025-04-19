@@ -1,13 +1,23 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { jwtDecode } from 'jwt-decode'; 
+<<<<<<< HEAD
 import ProviderDropDown from '../components/ProviderDropdown';
+=======
+import DoctorDropDown from '../components/DoctorDropDown';
+import ClinicLocationDropDown from '../components/ClinicLocationDropDown';
+>>>>>>> d766ca2beebdb5cf91bd18860d2f56acaf358a26
 
 const apiUrl = import.meta.env.VITE_API_URL;
 
 export default function ScheduleAppointments() {
     const [date, setDate] = useState('');
     const [time, setTime] = useState('');
+<<<<<<< HEAD
+=======
+    const [doctor, setDoctor] = useState('');
+    const [clinicLocation, setClinicLocation] = useState(''); 
+>>>>>>> d766ca2beebdb5cf91bd18860d2f56acaf358a26
     const [error, setError] = useState('');
     const [appointmentStatus, setAppointmentStatus] = useState('');
     const [selectedProvider, setSelectedProvider] = useState('');
@@ -42,8 +52,13 @@ export default function ScheduleAppointments() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+<<<<<<< HEAD
         if (!date || !time || !selectedProvider) {
             setError('Please select a doctor, date, and time.');
+=======
+        if (!date || !time || !doctor || !clinicLocation) {
+            setError('Please select a doctor, date, time, and clinic location.');
+>>>>>>> d766ca2beebdb5cf91bd18860d2f56acaf358a26
             return;
         }
         setError('');
@@ -76,6 +91,18 @@ export default function ScheduleAppointments() {
                 setError("Invalid token structure: missing patientid.");
                 return;
             }
+<<<<<<< HEAD
+=======
+
+            const appointmentData = {
+                requesteddate: date,
+                requestedtime: formattedTime,
+                doctorid: doctor,
+                patientEmail: decoded.email, 
+                cliniclocation: clinicLocation,
+            };
+
+>>>>>>> d766ca2beebdb5cf91bd18860d2f56acaf358a26
             console.log('Appointment data being sent:', appointmentData);
 
             await axios.post(`${apiUrl}/appointments/appointments-actions`, appointmentData, {
@@ -83,11 +110,22 @@ export default function ScheduleAppointments() {
             });
 
             setAppointmentStatus('Appointment successfully created!');
+<<<<<<< HEAD
         } 
         catch (error) {
             alert(error.response.data)
+=======
+            setTimeout(() => {
+                setAppointmentStatus('');
+            }, 3000);
+        } catch (error) {
+            alert(error.response.data);
+>>>>>>> d766ca2beebdb5cf91bd18860d2f56acaf358a26
             console.error('Error creating appointment:', error);
             setError('Failed to create appointment.');
+            setTimeout(() => {
+                setError('');
+            }, 3000);
         }
     };    
 
@@ -134,6 +172,16 @@ export default function ScheduleAppointments() {
                                 <option key={index} value={t}>{t}</option>
                             ))}
                         </select>
+                    </div>
+
+                    <div>
+                        <label htmlFor="clinicLocation" className="block text-sm font-medium text-gray-700">
+                            Select a Clinic Location:
+                        </label>
+                        <ClinicLocationDropDown 
+                            location={clinicLocation} 
+                            setLocation={setClinicLocation} 
+                        />
                     </div>
 
                     {error && <div className="text-red-500 text-sm">{error}</div>}

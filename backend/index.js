@@ -38,6 +38,8 @@ app.use("/specialists", specialistRouter)
 app.use('/notifications', require('./routes/Notifications'));
 
 
+app.use('/api/stripe', require('./routes/stripe'));
+
 
 db.sequelize.sync()
   .then(() => {

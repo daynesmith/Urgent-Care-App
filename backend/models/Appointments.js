@@ -1,4 +1,4 @@
-module.exports = (sequelize, DataTypes) => {                      //Appointments table keeps track of an appointment requested by a patient.
+module.exports = (sequelize, DataTypes) => {      
     
     const Appointments = sequelize.define("Appointments",{
         appointmentid: {
@@ -56,6 +56,11 @@ module.exports = (sequelize, DataTypes) => {                      //Appointments
                 model: 'Receptionists',
                 key: 'receptionistid'
             }
+        },
+
+        cliniclocation: {
+            type: DataTypes.STRING,
+            allowNull: true
         },
 
         isLate: {
