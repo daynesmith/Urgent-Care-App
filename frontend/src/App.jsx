@@ -33,6 +33,7 @@ import PatientBilling from './pages/PatientBilling.jsx';
 import PaymentSuccess from './pages/PaymentSucess.jsx';
 import PaymentCancelled from './pages/PaymentCancelled.jsx';
 import ReceptionistShift from './pages/ReceptionistShift.jsx';
+import StaffViewShifts from './pages/StaffViewShifts.jsx';
 import DoctorAppointmentsReport from './pages/DoctorAppointmentsReport.jsx';
 
 
@@ -80,6 +81,7 @@ function App() {
             <Route path='/payment-cancelled' element={<PaymentCancelled />} />
 
             <Route path = '/ReceptionistShift' element = {<ReceptionistShift />} />
+            <Route path = '/StaffViewShifts' element = {<StaffViewShifts />} />
             <Route path = '/adminreport' element = {<DoctorAppointmentsReport/>}/>
           </Routes>
       </Router>    

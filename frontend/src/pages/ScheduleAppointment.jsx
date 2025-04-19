@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { jwtDecode } from 'jwt-decode'; 
-import DoctorDropDown from '../components/DoctorDropDown'
+import DoctorDropDown from '../components/DoctorDropDown';
+import ClinicLocationDropDown from '../components/ClinicLocationDropDown';
 
 const apiUrl = import.meta.env.VITE_API_URL;
 
@@ -9,6 +10,7 @@ export default function ScheduleAppointments() {
     const [date, setDate] = useState('');
     const [time, setTime] = useState('');
     const [doctor, setDoctor] = useState('');
+    const [clinicLocation, setClinicLocation] = useState(''); 
     const [error, setError] = useState('');
     const [appointmentStatus, setAppointmentStatus] = useState('');
 
@@ -38,8 +40,8 @@ export default function ScheduleAppointments() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        if (!date || !time || !doctor) {
-            setError('Please select a doctor, date, and time.');
+        if (!date || !time || !doctor || !clinicLocation) {
+            setError('Please select a doctor, date, time, and clinic location.');
             return;
         }
         setError('');
@@ -61,12 +63,12 @@ export default function ScheduleAppointments() {
                 return;
             }
 
-           
             const appointmentData = {
                 requesteddate: date,
                 requestedtime: formattedTime,
                 doctorid: doctor,
                 patientEmail: decoded.email, 
+                cliniclocation: clinicLocation,
             };
 
             console.log('Appointment data being sent:', appointmentData);
@@ -76,10 +78,16 @@ export default function ScheduleAppointments() {
             });
 
             setAppointmentStatus('Appointment successfully created!');
+            setTimeout(() => {
+                setAppointmentStatus('');
+            }, 3000);
         } catch (error) {
-            alert(error.response.data)
+            alert(error.response.data);
             console.error('Error creating appointment:', error);
             setError('Failed to create appointment.');
+            setTimeout(() => {
+                setError('');
+            }, 3000);
         }
     };
 
@@ -126,6 +134,16 @@ export default function ScheduleAppointments() {
                                 <option key={index} value={t}>{t}</option>
                             ))}
                         </select>
+                    </div>
+
+                    <div>
+                        <label htmlFor="clinicLocation" className="block text-sm font-medium text-gray-700">
+                            Select a Clinic Location:
+                        </label>
+                        <ClinicLocationDropDown 
+                            location={clinicLocation} 
+                            setLocation={setClinicLocation} 
+                        />
                     </div>
 
                     {error && <div className="text-red-500 text-sm">{error}</div>}

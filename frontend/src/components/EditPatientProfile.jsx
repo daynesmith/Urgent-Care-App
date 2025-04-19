@@ -38,7 +38,6 @@ export default function EditPatientProfile(props){
                     'Content-Type': 'application/json'
                     },
                 });
-
                 
                 props.setFirstname(firstname);
                 props.setLastname(lastname);
@@ -101,7 +100,7 @@ export default function EditPatientProfile(props){
             <label>Date of Birth</label>
             <input
                 className="w-full border"
-                type="text"
+                type="date"
                 value={dateofbirth}
                 onChange={(e) => setDateofbirth(e.target.value)}
             />
