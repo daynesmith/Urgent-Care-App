@@ -131,7 +131,7 @@ const getDoctorsNames = async (req, res) => {
                 doctorid: doctor.doctorid, 
                 firstname: doctor.firstname,
                 lastname: doctor.lastname,
-                type: doctor.doctortype  
+                type: doctor.doctortype,
                 name: `${doctor.firstname} ${doctor.lastname}`,
             };
         });
