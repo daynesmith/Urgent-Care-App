@@ -31,6 +31,21 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.DATE,
         defaultValue: DataTypes.NOW,
       },
+      status: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        defaultValue: 'unpaid'
+      },
+      dueDate: {
+        type: DataTypes.DATE
+      },
+      paymentDate: {
+        type: DataTypes.DATE
+      },
+      method: {
+        type: DataTypes.STRING
+      }
+
     });
     
     return Billing;

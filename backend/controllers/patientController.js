@@ -1,4 +1,4 @@
-const { Patients, Users, Appointments } = require('../models');
+const { Patients, Users, Appointments, Billing } = require('../models');
 
 const getIfPatientInfo = async (req,res) =>{
     const email = req.user.email
@@ -165,6 +165,7 @@ const getMedicalHistory = async (req, res) => {
     }
 };
 
+
 const editMedicalHistory = async (req, res) => {
     console.log("Received PATCH request:", req.body);
     const { email } = req.user;
@@ -200,6 +201,76 @@ const editMedicalHistory = async (req, res) => {
     } catch (error) {
         console.error("Error updating medical history:", error);
         return res.status(500).json({ message: "Internal Server Error" });
+    }
+};
+
+const getPatientBilling = async (req, res) => {
+
+    try {
+        const patient = await Patients.findOne({
+            where:{email: req.user.email},
+            attributes: ['patientid']
+        })
+            
+        if (!patient) {
+            return res.status(400).json({ message: "patient not found with token." });
+        }
+
+        const billings = await Billing.findAll({
+            where: { patientid: patient.patientid },
+            order: [['dueDate', 'ASC']],
+          });
+
+          if (!billings.length) {
+            return res.status(404).json({ message: 'No billing records found for this patient.' });
+          }
+          return res.status(200).json(billings); 
+    } catch (error) {
+        console.error('Error fetching billing:', error);
+        res.status(500).json({ message: "Internal Server Error", error });
+    }
+};
+
+const getSinglePatientBill = async (req, res) => {
+    const billPageId = parseInt(req.params.billingid);
+
+    try {
+            
+        const bill = await Billing.findOne({
+            where: { billingid: billPageId },
+          });
+
+          if (!bill) {
+            return res.status(404).json({ message: 'No billing records found for this patient.' });
+          }
+          return res.status(200).json(bill); 
+    } catch (error) {
+        console.error('Error fetching bill:', error);
+        res.status(500).json({ message: "Internal Server Error", error });
+    }
+};
+
+const updateBillStatus  = async (req, res) => {
+    const { billingid } = req.params;
+    const { status } = req.body;
+  
+    try {
+      const bill = await Billing.findOne({ where: { billingid: parseInt(billingid) } });
+  
+      if (!bill) {
+        return res.status(404).json({ message: 'Bill not found' });
+      }
+  
+      bill.status = status;
+      if (status === 'paid') {
+        bill.paymentDate = new Date(); 
+        }
+      await bill.save();
+  
+      res.status(200).json({ message: 'Status updated successfully' });
+    } catch (error) {
+      console.error('Error updating bill status:', error);
+      res.status(500).json({ message: 'Internal Server Error' });
     }
 };
 
@@ -255,5 +326,8 @@ module.exports = {
   editMedicalHistory, 
   getPatientInfo, 
   editPatientInfo,
-  getPatientsByDoctor
+  getPatientsByDoctor,
+  getPatientBilling,
+  getSinglePatientBill,
+  updateBillStatus
 };
