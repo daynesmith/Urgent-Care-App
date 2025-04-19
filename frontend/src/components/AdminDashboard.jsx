@@ -612,7 +612,6 @@ export default function AdminDashboard() {
           <UserPlus className="h-5 w-5 mr-2" />
           Add New Patient
         </button>
-        <div className="flex space-x-4">
           <div className="relative">
             <Search className="h-5 w-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
             <input
@@ -622,27 +621,8 @@ export default function AdminDashboard() {
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}/>
           </div>
-          <select
-            className="border rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            value={roleFilter}
-            onChange={(e) => setRoleFilter(e.target.value)}>
-            <option value="all">All Roles</option>
-            <option value="doctor">Doctors</option>
-            <option value="specialist">Specialists</option>
-            <option value="receptionist">Receptionists</option>
-          </select>
-          <input
-            type="date"
-            value={startDate}
-            onChange={(e) => setStartDate(e.target.value)}
-            className="border px-2 py-1 rounded"
-          />
-          <input
-            type="date"
-            value={endDate}
-            onChange={(e) => setEndDate(e.target.value)}
-            className="border px-2 py-1 rounded"
-          />
+        <div className="flex space-x-4">
+          
           
         </div>
       </div>

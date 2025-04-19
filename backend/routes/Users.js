@@ -12,5 +12,5 @@ router.post("/updateApplicationStatus", updateApplicationStatus);
 router.get('/getStaffUsers', getStaffUsers); 
 router.get('/getStaffShifts', validateToken(), getStaffShifts); 
 router.get('/clinicLocations', clinicLocations); 
-
+router.get("/getApplication", gettingApplications);
 module.exports = router;
