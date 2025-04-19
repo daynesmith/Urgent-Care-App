@@ -145,13 +145,7 @@ const isSpecialistAvailable = async (specialistid, requesteddate, requestedtime,
 
 const createAppointment = async (req, res) => {
     try {
-<<<<<<< HEAD
-        console.log('Inside appointments route');
-
-        const { doctorid, requesteddate, requestedtime, specialistid } = req.body;
-=======
-        const { doctorid, requesteddate, requestedtime, cliniclocation } = req.body;
->>>>>>> d766ca2beebdb5cf91bd18860d2f56acaf358a26
+        const { doctorid, requesteddate, requestedtime, specialistid, cliniclocation } = req.body;
         const patient = await Patients.findOne({ where: { email: req.user.email } });
 
         if (!patient) {
@@ -159,23 +153,17 @@ const createAppointment = async (req, res) => {
         }
         
         const patientid = patient.dataValues.patientid;  
-<<<<<<< HEAD
-
+/*
         if ((!doctorid && !specialistid) || (doctorid && specialistid)) {
             return res.status(400).json("Provide either doctorid or specialistid, not both.");
         }
-        
-        //console.log('Received data for appointment creation:', { doctorid, requesteddate, requestedtime, patientid });
-
         if (!requesteddate || !requestedtime || !patientid) {
             return res.status(400).json("Missing required fields." );
         }
-
         const available = doctorid
         ? await isDoctorAvailable(doctorid, requesteddate, requestedtime)
         : await isSpecialistAvailable(specialistid, requesteddate, requestedtime);
-
-=======
+*/
  
         console.log('Received data for appointment creation:', { doctorid, requesteddate, requestedtime, patientid, cliniclocation });
 
@@ -197,7 +185,6 @@ const createAppointment = async (req, res) => {
         }
 
         const available = await isDoctorAvailable(doctorid, requesteddate, requestedtime, { appointmentid: null }, cliniclocation);
->>>>>>> d766ca2beebdb5cf91bd18860d2f56acaf358a26
         if (!available) {
             return res.status(400).json("Doctor not available at this time or location." );
         }
@@ -212,15 +199,10 @@ const createAppointment = async (req, res) => {
             doctorid: doctorid || null,
             specialistid: specialistid || null,  
             requesteddate, 
-<<<<<<< HEAD
-            requestedtime, 
-            patientid,
-            appointmentstatus: 'requested'
-=======
             requestedtime: formattedTime, 
             patientid,
             cliniclocation,
->>>>>>> d766ca2beebdb5cf91bd18860d2f56acaf358a26
+            appointmentstatus: 'requested'
         });
 
         console.log('Appointment created:', appointment);

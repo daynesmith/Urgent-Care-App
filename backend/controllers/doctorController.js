@@ -129,13 +129,10 @@ const getDoctorsNames = async (req, res) => {
         const doctorNames = doctors.map(doctor => {
             return {
                 doctorid: doctor.doctorid, 
-<<<<<<< HEAD
                 firstname: doctor.firstname,
                 lastname: doctor.lastname,
                 type: doctor.doctortype  
-=======
                 name: `${doctor.firstname} ${doctor.lastname}`,
->>>>>>> d766ca2beebdb5cf91bd18860d2f56acaf358a26
             };
         });
 

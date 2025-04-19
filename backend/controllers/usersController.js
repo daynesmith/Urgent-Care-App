@@ -202,8 +202,4 @@ const clinicLocations = async (req, res) => {
   };
 }
 
-<<<<<<< HEAD
-module.exports = { registerUser, loginUser, creatingUser, updateApplicationStatus, getStaffUsers, getStaffShifts};
-=======
 module.exports = { registerUser, loginUser, gettingApplications, sendingApplications, creatingUser, updateApplicationStatus, getStaffUsers, getStaffShifts, clinicLocations};
->>>>>>> d766ca2beebdb5cf91bd18860d2f56acaf358a26
