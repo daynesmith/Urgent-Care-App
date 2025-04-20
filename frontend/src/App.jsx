@@ -31,7 +31,7 @@ import AddDoctorTypes from './pages/AddDoctorTypes.jsx'
 import SingleAppointment from './pages/SingleAppointment.jsx';
 import ReceptionistShift from './pages/ReceptionistShift.jsx';
 import PatientDetail from './pages/PatientDetail.jsx';
-
+import ReceptionistBilling from './pages/ReceptionistBilling.jsx'
 
 function App() {
 
@@ -73,7 +73,7 @@ function App() {
             <Route path = '/AddDoctorTypes' element = {<AddDoctorTypes />} />
             <Route path = '/visits/:apptid' element = {<SingleAppointment />} />
             <Route path = '/ReceptionistShift' element = {<ReceptionistShift />} />
-
+            <Route path = '/ReceptionistBilling' element = {<ReceptionistBilling />} />
           </Routes>
       </Router>    
     </UserProvider>

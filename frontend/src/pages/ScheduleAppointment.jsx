@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { jwtDecode } from 'jwt-decode'; 
-import DoctorDropDown from '../components/DoctorDropDown'
+import DoctorDropDown from '../components/DoctorDropDown';
 
 const apiUrl = import.meta.env.VITE_API_URL;
 
@@ -11,6 +11,9 @@ export default function ScheduleAppointments() {
     const [doctor, setDoctor] = useState('');
     const [error, setError] = useState('');
     const [appointmentStatus, setAppointmentStatus] = useState('');
+    const [typeOfAppointment, setTypeOfAppointment] = useState([]);
+    const [selectedAppointmentType, setSelectedAppointmentType] = useState('');
+    const [loading, setLoading] = useState(true);
 
     const availableTimes = [
         "09:00 AM", "09:30 AM", "10:00 AM", "10:30 AM",
@@ -29,23 +32,34 @@ export default function ScheduleAppointments() {
     const convertTo24HourFormat = (time12h) => {
         const [time, modifier] = time12h.split(' ');
         let [hours, minutes] = time.split(':').map(Number);
-
         if (modifier === 'PM' && hours !== 12) hours += 12;
         if (modifier === 'AM' && hours === 12) hours = 0;
-
         return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:00`;
     };
 
+    useEffect(() => {
+        const fetchTypeOfAppointment = async () => {
+            try {
+                const response = await axios.get(`${apiUrl}/inventory/getappointmenttypes`);
+                setTypeOfAppointment(response.data);
+            } catch (err) {
+                setError('Failed to fetch appointment types.');
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchTypeOfAppointment();
+    }, []);
+
     const handleSubmit = async (e) => {
         e.preventDefault();
-        if (!date || !time || !doctor) {
-            setError('Please select a doctor, date, and time.');
+        if (!date || !time || !doctor || !typeOfAppointment) {
+            setError('Please fill in all fields.');
             return;
         }
         setError('');
 
         const formattedTime = convertTo24HourFormat(time);
-
         const token = localStorage.getItem('accessToken');
         if (!token) {
             setError("No access token found. Please log in again.");
@@ -54,22 +68,18 @@ export default function ScheduleAppointments() {
 
         try {
             const decoded = jwtDecode(token);
-            console.log("Decoded Token:", decoded);
-
             if (!decoded.email) {
-                setError("Invalid token structure: missing patientid.");
+                setError("Invalid token structure: missing patient email.");
                 return;
             }
 
-           
             const appointmentData = {
                 requesteddate: date,
                 requestedtime: formattedTime,
                 doctorid: doctor,
-                patientEmail: decoded.email, 
+                patientEmail: decoded.email,
+                appointmenttype: selectedAppointmentType
             };
-
-            console.log('Appointment data being sent:', appointmentData);
 
             await axios.post(`${apiUrl}/appointments/appointments-actions`, appointmentData, {
                 headers: { 'accessToken': token },
@@ -77,14 +87,12 @@ export default function ScheduleAppointments() {
 
             setAppointmentStatus('Appointment successfully created!');
         } catch (error) {
-            alert(error.response.data)
             console.error('Error creating appointment:', error);
-            setError('Failed to create appointment.');
+            setError(error?.response?.data || 'Failed to create appointment.');
         }
     };
 
     return (
-        
         <div className="min-h-screen bg-white-50">
             <div className="bg-white shadow-xl rounded-lg p-6 w-96">
                 <h2 className="text-2xl font-bold text-center mb-4">Schedule Appointment</h2>
@@ -96,6 +104,26 @@ export default function ScheduleAppointments() {
                         </label>
                         <DoctorDropDown doctor={doctor} setDoctor={setDoctor} />
                     </div>
+
+                    <div>
+                    <label htmlFor="type" className="block text-sm font-medium text-gray-700">
+                        Choose an appointment:
+                    </label>
+                    <select
+                        id="type"
+                        value={selectedAppointmentType}
+                        onChange={(e) => setSelectedAppointmentType(e.target.value)}
+                        className="mt-1 w-full border border-gray-300 rounded-md p-2"
+                    >
+                        <option value="">Select an appointment</option>
+                        {typeOfAppointment.map((item) => (
+                        <option key={item.inventoryid} value={item.itemname}>
+                            {item.itemname}
+                        </option>
+                        ))}
+                    </select>
+                    </div>
+
 
                     <div>
                         <label htmlFor="date" className="block text-sm font-medium text-gray-700">
