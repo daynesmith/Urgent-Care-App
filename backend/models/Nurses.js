@@ -4,6 +4,7 @@ module.exports = (sequelize, DataTypes)=>{
             type: DataTypes.INTEGER,
             primaryKey: true,
             references:{
+                
                 model:'Users',
                 key: 'userid'
             },  
