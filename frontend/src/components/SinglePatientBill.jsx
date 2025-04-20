@@ -38,10 +38,10 @@ export default function SinglePatientBill(props){
             <p className="text-sm text-gray-600">
             Due: {new Date(props.data.dueDate).toLocaleDateString()}
             </p>
-        </div>
-            <button onClick={() => handlePay(props.data.billingid, props.data.amount)} className="bg-blue-400 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition cursor-pointer">
+        </div>{props.data.status != "paid" && (<button onClick={() => handlePay(props.data.billingid, props.data.amount)} className="bg-blue-400 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition cursor-pointer">
                 Pay
-            </button>
+            </button>)}
+            
       </div>
     )
 }

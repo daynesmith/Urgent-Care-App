@@ -42,7 +42,10 @@ export default function ReceptionistAppointment() {
     const [patient, setPatient] = useState('');
     const [allPatients, setAllPatient] = useState([]);
     const [appointmentStatus, setAppointmentStatus] = useState('');
+    const [typeOfAppointment, setTypeOfAppointment] = useState([]);
+    const [selectedAppointmentType, setSelectedAppointmentType] = useState('');
     const [currentMonth, setCurrentMonth] = useState(new Date());
+    const [loading, setLoading] = useState(true);
     const [appointments, setAppointments] = useState([]);
     const [selectedDate, setSelectedDate] = useState(null);
     const [error, setError] = useState(null);
@@ -76,6 +79,22 @@ export default function ReceptionistAppointment() {
     };
     fetchAppointments();
   }, [currentMonth]);
+
+  
+  useEffect(() => {
+    const fetchTypeOfAppointment = async () => {
+        try {
+            const response = await axios.get(`${apiUrl}/inventory/getappointmenttypes`);
+            setTypeOfAppointment(response.data);
+        } catch (err) {
+            setError('Failed to fetch appointment types.');
+        } finally {
+            setLoading(false);
+        }
+    };
+    fetchTypeOfAppointment();
+}, []);
+
 
   const handleDateClick = (day) => {
     setSelectedDate(day);
@@ -188,7 +207,7 @@ export default function ReceptionistAppointment() {
           return;
         }
       
-        if (!formData.date || !formData.time || !formData.doctorid || !patient) {
+        if (!formData.date || !formData.time || !formData.doctorid || !patient || !selectedAppointmentType ) {
           setError('Please select a doctor, patient, date, and time.');
           return;
         }
@@ -202,6 +221,7 @@ export default function ReceptionistAppointment() {
           requesteddate: formData.date,
           requestedtime: formattedTime,
           receptionistEmail: decoded.email,
+          appointmenttype: selectedAppointmentType
         };
       
         // Log info
@@ -410,7 +430,24 @@ export default function ReceptionistAppointment() {
                     />
                 </div>
               </div>
-
+              <div>
+                    <label htmlFor="type" className="block text-sm font-medium text-gray-700">
+                        Choose an appointment:
+                    </label>
+                    <select
+                        id="type"
+                        value={selectedAppointmentType}
+                        onChange={(e) => setSelectedAppointmentType(e.target.value)}
+                        className="mt-1 w-full border border-gray-300 rounded-md p-2"
+                    >
+                        <option value="">Select an appointment</option>
+                        {typeOfAppointment.map((item) => (
+                        <option key={item.inventoryid} value={item.itemname}>
+                            {item.itemname}
+                        </option>
+                        ))}
+                    </select>
+                    </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Date

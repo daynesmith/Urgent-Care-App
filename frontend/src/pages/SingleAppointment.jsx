@@ -78,7 +78,7 @@ export default function SingleAppointment(props) {
         const token = localStorage.getItem('accessToken');
 
         try {
-            await axios.patch(`${apiUrl}/appointments/cancel-appointment/${apptid}`, {}, {
+            await axios.delete(`${apiUrl}/appointments/cancel-appointment/${apptid}`, {
                 headers: {
                     'accessToken': token,
                 },
@@ -139,7 +139,7 @@ export default function SingleAppointment(props) {
                         <p><span className="font-medium">Time:</span> {time}</p>
                         <p><span className="font-medium">Clinic Location:</span> {clinicLocation}</p>
                         <p><span className="font-medium">Status:</span> {appointment.appointmentstatus}</p>
-                        {appointment.appointmentstatus === "requested" && (
+                        {appointment.appointmentstatus === "scheduled" && (
                             <div>
                                 <button onClick={handleCancelAppointment} className="outline p-1 cursor-pointer bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700">Cancel Appointment Appointment</button>
                                 <button onClick={() => setShowForm(true)} className="outline p-1 cursor-pointer bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700">Reschedule</button>

@@ -3,7 +3,13 @@ const { Op } = require("sequelize");
 
 const getPatientAppointments = async (req, res) => {
     try {
+
+        console.log("req.user", req.user);
+        
+
         const patient = await Patients.findOne({where:{email: req.user.email}})
+
+        console.log("patient", patient);
             
         if (!patient) {
             return res.status(400).json({ message: "patient not found with token." });
@@ -16,7 +22,7 @@ const getPatientAppointments = async (req, res) => {
         if (!appointments.length) {
             return res.status(404).json({ message: "No appointments found for this patient." });
         }
-
+        console.log(appointments);
         res.status(200).json(appointments);
     } catch (error) {
         res.status(500).json({ message: "Internal Server Error", error });
@@ -47,6 +53,7 @@ const getAllAppointments = async (req, res) => {
     }
   };
 
+  //add appointment type in here?
 const getSingleAppointment = async (req, res) => {
     const apptPageId = parseInt(req.params.appointmentid)
 
@@ -161,15 +168,15 @@ const isSpecialistAvailable = async (specialistid, requesteddate, requestedtime,
 
 const createAppointment = async (req, res) => {
     try {
-        const { doctorid, requesteddate, requestedtime, cliniclocation} = req.body;
+        const { doctorid, requesteddate, requestedtime, cliniclocation, appointmenttype} = req.body;
         const patient = await Patients.findOne({ where: { email: req.user.email } });
-
+        console.log("The patient:", patient)
         if (!patient) {
             return res.status(400).json("Please fill out paitent info form patient not authenticated or not found." );
         }
         const patientid = patient.dataValues.patientid;  
  
-        console.log('Received data for appointment creation:', { doctorid, requesteddate, requestedtime, patientid, cliniclocation });
+        console.log('Received data for appointment creation:', { doctorid, requesteddate, requestedtime, patientid , cliniclocation, appointmenttype });
 
         if ( !doctorid|| !requesteddate || !requestedtime || !patientid || !cliniclocation) {
             return res.status(400).json("Missing required fields." );
@@ -194,11 +201,12 @@ const createAppointment = async (req, res) => {
         }
 
         const appointment = await Appointments.create({ 
-            doctorid,  
+            doctorid: parseInt(doctorid, 10),  
             requesteddate, 
             requestedtime: formattedTime, 
             patientid,
             cliniclocation,
+            appointmenttype
         });
 
         console.log('Appointment created:', appointment);
@@ -209,6 +217,7 @@ const createAppointment = async (req, res) => {
     }
 };
 
+//add appointmenttype in here
 const createAppointmentSpecialist = async (req, res) => {
     try {
         const { specialistid, requesteddate, requestedtime, cliniclocation } = req.body;
@@ -278,7 +287,7 @@ const createAppointmentSpecialist = async (req, res) => {
 
 const createAppointmentReceptionist = async (req, res) => {
     try {
-        const { doctorid, requesteddate, requestedtime , patientid} = req.body;
+        const { doctorid, requesteddate, requestedtime , patientid, appointmenttype} = req.body;
 
         console.log('Searching for receptionist with email:', req.user.email); 
         const receptionist = await Receptionists.findOne({ where: { email: req.user.email } });
@@ -288,7 +297,7 @@ const createAppointmentReceptionist = async (req, res) => {
 
         const receptionistid = receptionist.dataValues.receptionistid;  
     
-        console.log('Received data for appointment creation:', { doctorid, requesteddate, requestedtime, patientid , receptionistid});
+        console.log('Received data for appointment creation:', { doctorid, requesteddate, requestedtime, patientid , receptionistid, appointmenttype});
 
         if (!doctorid || !requesteddate || !requestedtime || !patientid || !receptionistid) {
             return res.status(400).json({ message: "Missing required fields." });
@@ -299,6 +308,7 @@ const createAppointmentReceptionist = async (req, res) => {
                 patientid,
                 requesteddate,
                 requestedtime,
+                appointmenttype
             },
         });
         if (existingAppointment) {
@@ -317,7 +327,8 @@ const createAppointmentReceptionist = async (req, res) => {
             requesteddate, 
             requestedtime, 
             patientid,
-            receptionistid
+            receptionistid,
+            appointmenttype
         });
 
         console.log('Appointment created:', appointment);
@@ -446,9 +457,7 @@ const cancelAppointment = async (req,res) => {
             return res.status(404).json({ message: 'Appointment not found' });
         }
 
-        await appointment.update({
-            appointmentstatus: "cancelled"
-        });
+        await appointment.destroy();
 
         console.log("Database update successful:");
         res.json({ success: true });

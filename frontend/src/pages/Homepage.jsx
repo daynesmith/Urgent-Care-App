@@ -149,7 +149,7 @@ export default function Homepage(){
             setStatus(userStatus);
     
             // Check if the user is staff and accepted
-            const isStaff = ["doctor", "receptionist", "admin", "specialist"].includes(userRole);
+            const isStaff = ["doctor", "receptionist", "admin", "specialist", "nurse"].includes(userRole);
             if (isStaff && userStatus === "accepted") {
                 console.log("User is a staff.");
                 navigate('/dashboard');

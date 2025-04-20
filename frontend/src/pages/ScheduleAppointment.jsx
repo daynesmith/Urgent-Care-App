@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { jwtDecode } from 'jwt-decode';
 import { useNavigate } from 'react-router-dom';
@@ -18,6 +18,9 @@ export default function ScheduleAppointments() {
     const [error, setError] = useState('');
     const [appointmentStatus, setAppointmentStatus] = useState('');
     const navigate = useNavigate();
+    const [typeOfAppointment, setTypeOfAppointment] = useState([]);
+    const [selectedAppointmentType, setSelectedAppointmentType] = useState('');
+    const [loading, setLoading] = useState(true);
 
     const availableTimes = [
         "09:00 AM", "09:30 AM", "10:00 AM", "10:30 AM",
@@ -36,18 +39,30 @@ export default function ScheduleAppointments() {
     const convertTo24HourFormat = (time12h) => {
         const [time, modifier] = time12h.split(' ');
         let [hours, minutes] = time.split(':').map(Number);
-
         if (modifier === 'PM' && hours !== 12) hours += 12;
         if (modifier === 'AM' && hours === 12) hours = 0;
-
         return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:00`;
     };
+
+    useEffect(() => {
+        const fetchTypeOfAppointment = async () => {
+            try {
+                const response = await axios.get(`${apiUrl}/inventory/getappointmenttypes`);
+                setTypeOfAppointment(response.data);
+            } catch (err) {
+                setError('Failed to fetch appointment types.');
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchTypeOfAppointment();
+    }, []);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        if (!date || !time || !clinicLocation || (!doctor && !selectedSpecialist)) {
-            setError('Please select a date, time, clinic location, and either a doctor or a specialist.');
+        if (!date || !time || !clinicLocation || !typeOfAppointment || (!doctor && !selectedSpecialist)) {
+            setError('Please select a date, time, clinic location, appointment type, and either a doctor or a specialist.');
             return;
         }
 
@@ -67,8 +82,6 @@ export default function ScheduleAppointments() {
 
         try {
             const decoded = jwtDecode(token);
-            console.log("Decoded Token:", decoded);
-
             if (!decoded.email) {
                 setError("Invalid token structure: missing email.");
                 return;
@@ -77,6 +90,7 @@ export default function ScheduleAppointments() {
             const appointmentData = {
                 requesteddate: date,
                 requestedtime: formattedTime,
+                appointmenttype: selectedAppointmentType,
                 cliniclocation: clinicLocation,
             };
 
@@ -127,7 +141,6 @@ export default function ScheduleAppointments() {
                     </svg>
                 </button>
 
-                {/* Scheduling Form */}
                 <div className="w-full md:w-1/2">
                     <h2 className="text-4xl font-bold text-center mb-6">Schedule Appointment</h2>
 
@@ -157,6 +170,26 @@ export default function ScheduleAppointments() {
                                 }}
                             />
                         </div>
+
+                        <div>
+                        <label htmlFor="type" className="block text-sm font-medium text-gray-700">
+                            Choose an appointment type:
+                        </label>
+                        <select
+                            id="type"
+                            value={selectedAppointmentType}
+                            onChange={(e) => setSelectedAppointmentType(e.target.value)}
+                            className="mt-1 w-full border border-gray-300 rounded-md p-2"
+                        >
+                            <option value="">Select an appointment</option>
+                            {typeOfAppointment.map((item) => (
+                            <option key={item.inventoryid} value={item.itemname}>
+                                {item.itemname}
+                            </option>
+                            ))}
+                        </select>
+                        </div>
+
 
                         <div>
                             <label htmlFor="date" className="block text-lg font-medium text-gray-700">

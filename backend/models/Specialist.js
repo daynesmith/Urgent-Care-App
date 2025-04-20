@@ -2,7 +2,12 @@ module.exports = (sequelize, DataTypes) => {
     const Specialists = sequelize.define("Specialists", {
         user_id: {
             type: DataTypes.INTEGER,
-            primaryKey: true
+            primaryKey: true,
+            references:{
+                model:'Users',
+                key: 'userid'
+            },
+            allowNull: false   
         },
         firstname: {
             type: DataTypes.STRING,
@@ -12,14 +17,41 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.STRING,
             allowNull: true,
         },
+        dateofbirth: {
+            type: DataTypes.DATE,
+            allowNull: false,
+            validate:{
+                isDate: true
+            },
+        },
+        phonenumber: {
+            type: DataTypes.STRING,
+            allowNull: false, 
+            validate:{
+                is:{
+                    args: /^[0-9]{3}-[0-9]{3}-[0-9]{4}$/,
+                    msg: 'Phone number must be in the format XXX-XXX-XXXX'
+                }
+            }
+        },
+        email: {
+            type: DataTypes.STRING,
+            allowNull: false, 
+            unique: true, 
+            validate: {
+                isEmail: true, 
+                notEmpty: true, 
+            },
+        },
         specialty: {
             type: DataTypes.STRING,
-            allowNull: false,
+            allowNull: true,
         },
         department: {
             type: DataTypes.STRING,
             allowNull: true,
         },
+        
         accepting_referrals: {
             type: DataTypes.BOOLEAN,
             defaultValue: true,
