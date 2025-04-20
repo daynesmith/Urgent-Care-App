@@ -1,7 +1,7 @@
 // routes/reports.js
 const express = require('express');
 const router = express.Router();
-const { Doctors, Appointments, sequelize } = require('../models');
+const { Doctors, Appointments, Shifts, Users, sequelize } = require('../models');
 const { Op } = require('sequelize');
 
 router.get('/doctor-appointments', async (req, res) => {
@@ -41,6 +41,34 @@ router.get('/doctor-appointments', async (req, res) => {
   } catch (error) {
     console.error('Error fetching doctor appointment report:', error);
     res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+router.get('/shift-info', async (req, res) => {
+  const { role, location, date, lastname } = req.query;
+  
+  const whereClause = {};
+
+  if (role) whereClause['$staff.role$'] = role;  // Assuming role is on the Users table
+  if (location) whereClause.cliniclocation = location;
+  if (date) whereClause.date = date;
+
+  // For last name filter, we use MySQL's case-insensitive LIKE
+  if (lastname) whereClause['$staff.lastname$'] = { [Op.like]: `%${lastname.toLowerCase()}%` };
+
+  try {
+    const shifts = await Shifts.findAll({
+      where: whereClause,
+      include: {
+        model: Users,
+        as: "staff",  // Ensuring you are joining the staff (users) table
+        attributes: ['firstname', 'lastname', 'role'],
+      },
+    });
+    res.json(shifts);
+  } catch (err) {
+    console.error("Error fetching shift report:", err);
+    res.status(500).json({ error: "Failed to fetch shift data." });
   }
 });
 
