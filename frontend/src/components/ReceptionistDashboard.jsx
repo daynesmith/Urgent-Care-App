@@ -293,7 +293,7 @@ const getAvailableTimeSlots = (date, doctorid) => {
             <Link
               to="/ReceptionistBilling"
               className={`w-full flex items-center space-x-3 px-4 py-2.5 rounded-lg ${
-                isActive('/Billing') ? 'bg-blue-50 text-blue-600' : 'text-gray-600 hover:bg-gray-50'
+                isActive('/ReceptionistBilling"') ? 'bg-blue-50 text-blue-600' : 'text-gray-600 hover:bg-gray-50'
               }`}
             >
               <Receipt  className="h-5 w-5" />
@@ -325,6 +325,15 @@ const getAvailableTimeSlots = (date, doctorid) => {
             >
               <CalendarClock className="h-5 w-5" />
               <span>View Receptionist Shifts</span>
+            </Link>
+            <Link
+              to="/shiftreport"
+              className={`w-full flex items-center space-x-3 px-4 py-2.5 rounded-lg ${
+                isActive('/Appointments') ? 'bg-blue-50 text-blue-600' : 'text-gray-600 hover:bg-gray-50'
+              }`}
+            >
+              <CalendarClock className="h-5 w-5" />
+              <span>View Shift Report</span>
             </Link>
           </nav>
         </div>

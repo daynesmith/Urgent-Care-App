@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState , useCallback, useMemo} from 'react';
 import axios from 'axios';
 const apiUrl = import.meta.env.VITE_API_URL
 import { Link } from 'react-router-dom';
-import { Users, Calendar, FileText, X, Edit , Save , Stethoscope, AlertTriangle , Pill , PackagePlus, Settings, Bell, Plus, Search, ChevronDown, Activity, DollarSign, UserPlus, Clock, BarChart2, Filter, Download, CheckCircle, XCircle } from 'lucide-react';
+import { Users, Calendar, Trash2 , Pencil, FileText, X, Edit , Save , Stethoscope, AlertTriangle , Pill , PackagePlus, Settings, Bell, Plus, Search, ChevronDown, Activity, DollarSign, UserPlus, Clock, BarChart2, Filter, Download, CheckCircle, XCircle } from 'lucide-react';
 import {
   LineChart,
   Line,
@@ -16,6 +16,8 @@ import {
   Bar
 } from 'recharts'; 
 //npm install recharts
+import { toast, Toaster } from "sonner";
+//npm install sonner
 import {
   createColumnHelper,
   flexRender,
@@ -99,6 +101,96 @@ const appointmentAnalytics = [
   { month: 'Mar', checkups: 40, followups: 38, consultations: 22 },
 ];
 
+const allowedRoles = ["doctor", "nurse", "receptionist", "specialist"];
+
+
+const specialistOptions = [
+  "Cardiology",
+  "Dermatology",
+  "Neurology",
+  "Orthopedics",
+  "Pediatrics",
+  "Psychiatry",
+  "Oncology",
+  "Urology"
+];
+
+const initialEmployees = [
+  {
+    id: "1",
+    name: "Dr. Jane Smith",
+    email: "jane.smith@hospital.com",
+    role: "doctor",
+    specialistType: "Primary Care",
+    phone: "(555) 123-4567",
+    hireDate: "2020-05-12",
+  },
+  {
+    id: "2",
+    name: "Michael Johnson",
+    email: "michael.j@hospital.com",
+    role: "nurse",
+    specialistType: "N/A",
+    phone: "(555) 234-5678",
+    hireDate: "2021-03-15",
+  },
+  {
+    id: "3",
+    name: "Sarah Williams",
+    email: "sarah.w@hospital.com",
+    role: "receptionist",
+    specialistType: "N/A",
+    phone: "(555) 345-6789",
+    hireDate: "2022-01-10",
+  },
+  {
+    id: "4",
+    name: "Dr. Robert Brown",
+    email: "robert.b@hospital.com",
+    role: "doctor",
+    specialistType: "Primary Care",
+    phone: "(555) 456-7890",
+    hireDate: "2019-11-20",
+  },
+  {
+    id: "5",
+    name: "Emily Davis",
+    email: "emily.d@hospital.com",
+    role: "nurse",
+    specialistType: "N/A",
+    phone: "(555) 567-8901",
+    hireDate: "2021-07-22",
+  },
+  {
+    id: "6",
+    name: "Dr. Alex Chen",
+    email: "alex.c@hospital.com",
+    role: "specialist",
+    specialistType: "Cardiology",
+    phone: "(555) 678-9012",
+    hireDate: "2018-09-15",
+  },
+  {
+    id: "7",
+    name: "Tina Rodriguez",
+    email: "tina.r@hospital.com",
+    role: "nurse",
+    specialistType: "N/A",
+    phone: "(555) 789-0123",
+    hireDate: "2022-04-18",
+  },
+  {
+    id: "8",
+    name: "Dr. Samantha Lee",
+    email: "samantha.l@hospital.com",
+    role: "specialist",
+    specialistType: "Neurology",
+    phone: "(555) 890-1234",
+    hireDate: "2019-08-30",
+  }
+];
+
+
 export default function AdminDasboard() {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [notifications, setNotifications] = useState(2);
@@ -125,24 +217,261 @@ export default function AdminDasboard() {
     cost: '',
     itemname: '',
   });
+  
+{/*Employees*/}  
+const [employees, setEmployees] = useState(initialEmployees);
+const [searchQuery, setSearchQuery] = useState("");
+const [roleFilter, setRoleFilter] = useState("all");
+const [isDialogOpen, setIsDialogOpen] = useState(false);
+const [currentEmployee, setCurrentEmployee] = useState(null);
+const [employeesDB, setEmployeesDB] = useState([]);  // Initializing as an empty array
+const [isEditing, setIsEditing] = useState(false);
+const [formErrors, setFormErrors] = useState({});
+const [dropdownOpen, setDropdownOpen] = useState(false);
 
-  {/* Applications */}
+
+  {/*All of Employee*/}
   useEffect(() => {
-    const fetchApplications = async () => {
+    const fetchEmployees = async () => {
       try {
-        const response = await axios.get(`${apiUrl}/users/getApplication`);
-        console.log(response.data);  
-        setApplications(response.data);
+        const res = await axios.get(`${apiUrl}/users/getEmployeeUsers`);
+        const employees = res.data;
+  
+        // Fetch specialties for specialists
+        const updatedEmployees = await Promise.all(
+          employees.map(async (employee) => {
+            if (employee.role === "specialist") {
+              try {
+                const specRes = await axios.get(`${apiUrl}/users/getSpeciality/${employee.staffid}`);
+                return { ...employee, specialty: specRes.data.specialty };
+              } catch (err) {
+                console.warn(`Could not fetch specialty for ${employee.name}`);
+                return { ...employee, specialty: "Not available" };
+              }
+            } else if (employee.role === "doctor") {
+              return { ...employee, specialty: "Primary Care" };
+            } else {
+              return { ...employee, specialty: "N/A" };
+            }
+          })
+        ); 
+        console.log("Phonenumbers", updatedEmployees.phonenumber)
+        setEmployeesDB(updatedEmployees);
       } catch (err) {
         setError(err.message);
       } finally {
         setLoading(false);
       }
     };
-
-    fetchApplications();
+  
+    fetchEmployees();
   }, []);
 
+  console.log("Getting employees from the db:", employeesDB); 
+
+  console.log("Phonenumbers:", employeesDB.map(emp => emp.phonenumber));
+
+
+  const filteredEmployees = useMemo(() => {
+    return employeesDB.filter((employee) => {
+      // Check if the employee matches the search query in any of the fields
+      const matchesSearch =
+        employee.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        employee.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        employee.specialty?.toLowerCase().includes(searchQuery.toLowerCase()) |
+        employee.phonenuber.toLowerCase().includes(searchQuery.toLowerCase());
+  
+      // Check if the employee matches the selected role
+      const matchesRole = roleFilter === "all" || employee.role === roleFilter;
+  
+      // Return true if both search and role filters match
+      return matchesSearch && matchesRole;
+    });
+  }, [employeesDB, searchQuery, roleFilter]);
+  
+
+const generateEmployeeId = () => {
+  return Math.random().toString(36).substring(2, 9);
+};
+
+const formatDate = (date) => {
+  return new Date(date).toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  });
+};
+
+const getRoleBadgeColor = (role) => {
+  switch (role) {
+    case "doctor":
+      return "bg-blue-100 text-blue-800 hover:bg-blue-100/80";
+    case "specialist":
+      return "bg-amber-100 text-amber-800 hover:bg-amber-100/80";
+    case "nurse":
+      return "bg-green-100 text-green-800 hover:bg-green-100/80";
+    case "receptionist":
+      return "bg-purple-100 text-purple-800 hover:bg-purple-100/80";
+    default:
+      return "";
+  }
+};
+
+const validateEmail = (email) => {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email);
+};
+
+const validatePhone = (phonenumber) => {
+  const phoneRegex = /^\d{3}-\d{3}-\d{4}$/;
+  return phoneRegex.test(phonenumber);
+};
+
+const handleEdit = (employee) => {
+  setCurrentEmployee({ ...employee });
+  setIsEditing(true);
+  setIsDialogOpen(true);
+};
+
+const handleDelete = (id) => {
+  if (confirm("Are you sure you want to delete this employee?")) {
+    setEmployeesDB(employeesDB.filter((emp) => emp.id !== id));
+    toast.success("Employee deleted successfully");
+  }
+};
+
+const handleInputChange = (field, value) => {
+  setFormErrors((prev) => ({ ...prev, [field]: "" }));
+
+  setCurrentEmployee((prev) =>
+    prev
+      ? {
+          ...prev,
+          [field]: value,
+        }
+      : null
+  );
+};
+// Log currentEmployee changes after state update
+useEffect(() => {
+  console.log("Employee updated:", currentEmployee);
+}, [currentEmployee]);  // This will trigger every time currentEmployee changes
+
+
+useEffect(() => {
+  const UpdatingEmployee = async () => {
+    if (!currentEmployee) return;  // Ensure currentEmployee is not null
+
+    try {
+      const res = await axios.post(`${apiUrl}/users/updateEmployeeUsers`, currentEmployee);
+      console.log("Employee updated successfully:", res.data);
+    } catch (error) {
+      console.error("Error updating employee:", error);
+    }
+  };
+
+  // Trigger the update when currentEmployee changes
+  if (currentEmployee) {
+    UpdatingEmployee();
+  }
+}, [currentEmployee]);  // This hook will run every time `currentEmployee` is updated
+
+
+const handleRoleChange = (value) => {
+  if (!currentEmployee) return;
+
+  let specialistType = currentEmployee.specialistType;
+
+  if (value === "doctor") {
+    specialistType = "Primary Care";
+  } else if (value === "specialist") {
+    specialistType = "";
+  } else {
+    specialistType = "N/A";
+  }
+
+  setCurrentEmployee({
+    ...currentEmployee,
+    role: value,
+    specialistType,
+  });
+};
+
+const validateForm = () => {
+  if (!currentEmployee) return false;
+
+  const newErrors = {};
+
+  if (!currentEmployee.name?.trim()) {
+    newErrors.name = "Name is required";
+  }
+
+  if (!currentEmployee.email?.trim()) {
+    newErrors.email = "Email is required";
+  } else if (!validateEmail(currentEmployee.email)) {
+    newErrors.email = "Please enter a valid email address";
+  }
+
+  if (!currentEmployee.phonenumber?.trim()) {
+    newErrors.phonenumber  = "Phone number is required";
+  } else if (!validatePhone(currentEmployee.phonenumber)) {
+    newErrors.phonenumber  = "Please enter a valid phone number XXX-XXX-XXXX";
+  }
+
+  if (currentEmployee.role === "specialist" && !currentEmployee.specialty) {
+    newErrors.specialistType = "Specialist type is required";
+  }
+
+  setFormErrors(newErrors);
+  return Object.keys(newErrors).length === 0;
+};
+
+const handleSave = (e) => {
+  e.preventDefault();
+
+  if (!validateForm() || !currentEmployee) return;
+
+  if (isEditing && currentEmployee.staffid) {
+    setEmployeesDB(
+      employeesDB.map((emp) =>
+        emp.id === currentEmployee.staffid ? currentEmployee : emp
+      )
+    );
+    toast.success("Employee updated successfully");
+  } else {
+    const newEmployee = {
+      ...currentEmployee,
+      id: generateEmployeeId(),
+    };
+    setEmployeesDB([...employeesDB, newEmployee]);
+    toast.success("Employee added successfully");
+  }
+  setIsDialogOpen(false);
+};
+
+const handleClearFilters = () => {
+  setSearchQuery("");
+  setRoleFilter("all");
+};
+
+
+  {/* Applications */}
+
+  useEffect(() => {
+    fetchApplications(); // Call the function when the component mounts
+  }, []);
+  
+  const fetchApplications = async () => {
+    try {
+      const response = await axios.get(`${apiUrl}/users/getApplication`);
+      console.log(response.data);  
+      setApplications(response.data);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
   
   const handleAccept = async (application) => {
     const { email, stafftype } = application;
@@ -170,8 +499,13 @@ export default function AdminDasboard() {
       {/*Where to add in other staff*/}
       if (stafftype === 'receptionist') {
         await axios.post(`${apiUrl}/receptionist/syncreceptionists`, { email });
+      }else if (stafftype === 'doctor'){
+        await axios.post(`${apiUrl}/doctor/syncDoctors`, { email });
+      }else if (stafftype === 'specialist'){
+        await axios.post(`${apiUrl}/doctor/syncSpecialists`, { email });
+      }else if (stafftype === 'nurse'){
+        await axios.post(`${apiUrl}/nurses/syncNurse`, { email });
       }
-
       // Ensure only the correct application is moved
       setApplications((prev) =>
       prev.map((app) =>
@@ -227,9 +561,10 @@ export default function AdminDasboard() {
     
   };
 
+  
 
 
-  {/*Billing*/}
+  {/*All of Billing*/}
 
   {/*Fetching*/}
   //Invertory
@@ -262,9 +597,16 @@ export default function AdminDasboard() {
         setLoading(false);
       }
     };
-
     fetchMaterials();
   }, []);
+
+  const getStockStatusColor = (stock, minStock) => {
+    console.log('Stock:',stock,'Minimum Stock:', minStock);
+    if (stock < minStock * 0.5) return 'text-yellow-600 bg-red-100';
+    console.log('Calculation:', minStock * 2);
+    if (stock < minStock) return 'text-red-600 bg-yellow-100';
+    return 'text-green-600 bg-green-100';
+  };
 
   //Type of Doctor (TypeOfDoctor)
   useEffect(() => {
@@ -279,7 +621,6 @@ export default function AdminDasboard() {
         setLoading(false);
       }
     };
-
     fetchTypeOfDoctor();
   }, []);
 
@@ -299,10 +640,7 @@ export default function AdminDasboard() {
     fetchTypeOfAppointment();
   }, []);
 
-  
-
   {/*Editing*/}
-
   const handleEditMaterialCost = async (id, newCost) => {
     try {
       const response = await axios.post(`${apiUrl}/inventory/editMaterials`, {
@@ -393,16 +731,8 @@ export default function AdminDasboard() {
     }
   };
   
-  const getStockStatusColor = (stock, minStock) => {
-    console.log('Stock:',stock,'Minimum Stock:', minStock);
-    if (stock < minStock * 0.5) return 'text-yellow-600 bg-red-100';
-    console.log('Calculation:', minStock * 2);
-    if (stock < minStock) return 'text-red-600 bg-yellow-100';
-    return 'text-green-600 bg-green-100';
-  };
 
-  
-  
+
   const renderDashboard = () => (
     <div className="space-y-6">
       {/* Analytics Cards */}
@@ -514,76 +844,323 @@ export default function AdminDasboard() {
   );
 
   const renderEmployees = () => (
-    <div className="bg-white p-6 rounded-lg shadow-md">
-      <div className="flex justify-between items-center mb-6">
-        <div className="relative">
-          <Search className="h-5 w-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-          <input
-            type="text"
-            placeholder="Search patients..."
-            className="pl-10 pr-4 py-2 border rounded-md w-64 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
-        </div>
-        <button 
-          onClick={() => setShowNewPatientModal(true)}
-          className="flex items-center bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600"
-        >
-          <UserPlus className="h-5 w-5 mr-2" />
-          Add New Patient
-        </button>
-      </div>
-      <div className="overflow-x-auto">
-        <table className="min-w-full">
-          <thead>
-            <tr className="bg-gray-50">
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Contact</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Insurance</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Last Visit</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Balance</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-            </tr>
-          </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
-            {patients.map(patient => (
-              <tr key={patient.id} className="hover:bg-gray-50">
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="flex items-center">
-                    <div>
-                      <div className="font-medium text-gray-900">{patient.name}</div>
-                      <div className="text-sm text-gray-500">Age: {patient.age}</div>
+      <>
+        <div className="container mx-auto py-8 px-4">
+          <motion.div 
+            className="flex flex-col space-y-6"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3 }}
+          >
+            <div className="flex items-center justify-between">
+              <div className="flex flex-col space-y-2">
+                <div className="flex items-center gap-2">
+                  <Users className="h-8 w-8 text-primary" />
+                  <h1 className="text-3xl font-bold tracking-tight">Employee Management</h1>
+                </div>
+                <p className="text-muted-foreground">
+                  Manage healthcare staff including doctors, specialists, nurses, and receptionists.
+                </p>
+              </div>
+            </div>
+  
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+              <div className="flex flex-col sm:flex-row gap-2 w-full">
+                <div className="relative w-full">
+                  <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                  <input
+                    type="search"
+                    placeholder="Search employees..."
+                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 pl-8"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                  />
+                </div>
+  
+                <div className="flex gap-2">
+                  <div className="relative">
+                    <button
+                      type="button"
+                      onClick={() => setDropdownOpen(!dropdownOpen)}
+                      className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2"
+                    >
+                      <Filter className="h-4 w-4 mr-2" />
+                      <span className="hidden sm:inline">Filter</span>
+                      {roleFilter !== "all" && (
+                        <span className="ml-1 w-2 h-2 rounded-full bg-blue-500" />
+                      )}
+                    </button>
+  
+                    {dropdownOpen && (
+                      <div className="absolute right-0 mt-2 w-48 rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-10">
+                        <div className="py-1">
+                          {["all", "doctor", "specialist", "nurse", "receptionist"].map((role) => (
+                            <button
+                              key={role}
+                              onClick={() => {
+                                setRoleFilter(role);
+                                setDropdownOpen(false);
+                              }}
+                              className={`block w-full text-left px-4 py-2 text-sm ${
+                                roleFilter === role
+                                  ? "bg-gray-100 text-gray-900"
+                                  : "text-gray-700 hover:bg-gray-50"
+                              }`}
+                            >
+                              {role === "all" ? "All Roles" : role.charAt(0).toUpperCase() + role.slice(1) + "s"}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+  
+                  {(searchQuery || roleFilter !== "all") && (
+                    <button
+                      onClick={handleClearFilters}
+                      className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 w-10"
+                    >
+                      <span className="sr-only">Clear filters</span>
+                      ×
+                    </button>
+                  )}
+                </div>
+              </div>
+            </div>
+  
+            <div className="rounded-md border shadow-sm overflow-hidden">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted">
+                    <th className="h-12 px-4 text-left align-middle font-medium text-muted-foreground [&:has([role=checkbox])]:pr-0">Name</th>
+                    <th className="h-12 px-4 text-left align-middle font-medium text-muted-foreground [&:has([role=checkbox])]:pr-0">Role</th>
+                    <th className="h-12 px-4 text-left align-middle font-medium text-muted-foreground [&:has([role=checkbox])]:pr-0 hidden md:table-cell">Specialist Type</th>
+                    <th className="h-12 px-4 text-left align-middle font-medium text-muted-foreground [&:has([role=checkbox])]:pr-0 hidden md:table-cell">Email</th>
+                    <th className="h-12 px-4 text-left align-middle font-medium text-muted-foreground [&:has([role=checkbox])]:pr-0 hidden lg:table-cell">Phone</th>
+                    <th className="h-12 px-4 text-right align-middle font-medium text-muted-foreground [&:has([role=checkbox])]:pr-0">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredEmployees.length === 0 ? (
+                    <tr>
+                      <td colSpan={7} className="h-24 text-center">
+                        No employees found.
+                      </td>
+                    </tr>
+                  ) : (
+                    filteredEmployees.map((employee) => (
+                      <motion.tr
+                        key={employee.staffid}
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 0.2 }}
+                        className="border-b transition-colors hover:bg-muted/30 data-[state=selected]:bg-muted"
+                      >
+                        <td className="p-4 align-middle font-medium">{employee.name}</td>
+                        <td className="p-4 align-middle">
+                          <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${getRoleBadgeColor(employee.role)}`}>
+                            {employee.role.charAt(0).toUpperCase() + employee.role.slice(1)}
+                          </span>
+                        </td>
+                        <td className="p-4 align-middle hidden md:table-cell">{employee.specialty}</td>
+                        <td className="p-4 align-middle hidden md:table-cell">
+                          <a href={`mailto:${employee.email}`} className="hover:underline">
+                            {employee.email}
+                          </a>
+                        </td>
+                        <td className="p-4 align-middle">
+                          <a href={`tel:${employee.phonenumber}`} className="hover:underline">
+                            {employee.phonenumber || 'N/A'}
+                          </a>
+                        </td>
+                        <td className="p-4 align-middle text-right">
+                          <div className="flex justify-end gap-2">
+                            <button
+                              onClick={() => handleEdit(employee)}
+                              className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-accent hover:text-accent-foreground h-10 w-10"
+                            >
+                              <Pencil className="h-4 w-4" />
+                              <span className="sr-only">Edit</span>
+                            </button>
+                            <button
+                              onClick={() => handleDelete(employee.id)}
+                              className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-accent hover:text-accent-foreground h-10 w-10"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                              <span className="sr-only">Delete</span>
+                            </button>
+                          </div>
+                        </td>
+                      </motion.tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+            {console.log("Filtered employees:", filteredEmployees) || null}
+
+            <div className="text-sm text-muted-foreground">
+              Showing {filteredEmployees.length} {filteredEmployees.length === 1 ? 'employee' : 'employees'}
+              {roleFilter !== "all" && ` in role: ${roleFilter}`}
+              {searchQuery && ` matching "${searchQuery}"`}
+            </div>
+          </motion.div>
+  
+          {isDialogOpen && (
+            <div className="fixed inset-0 z-50 bg-background/80 backdrop-blur-sm">
+              <div className="fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border bg-background p-6 shadow-lg duration-200 sm:rounded-lg">
+                <div className="flex flex-col space-y-1.5 text-center sm:text-left">
+                  <h2 className="text-lg font-semibold leading-none tracking-tight">
+                    {isEditing ? "Edit Employee" : "Add New Employee"}
+                  </h2>
+                  <p className="text-sm text-muted-foreground">
+                    {isEditing ? "Update the employee information below." : "Fill in the details to add a new employee."}
+                  </p>
+                </div>
+  
+                <form onSubmit={handleSave} className="space-y-4">
+                  <div className="grid gap-4 py-4">
+                    <div className="grid grid-cols-4 items-center gap-4">
+                      <label htmlFor="name" className="text-right text-sm font-medium leading-none">
+                        Name
+                      </label>
+                      <div className="col-span-3 space-y-1">
+                        <input
+                          id="name"
+                          value={currentEmployee?.name || ""}
+                          onChange={(e) => handleInputChange("name", e.target.value)}
+                          className={`flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 ${
+                            formErrors.name ? "border-red-500" : ""
+                          }`}
+                        />
+                        {formErrors.name && <p className="text-xs text-red-500">{formErrors.name}</p>}
+                      </div>
+                    </div>
+  
+                    <div className="grid grid-cols-4 items-center gap-4">
+                      <label htmlFor="email" className="text-right text-sm font-medium leading-none">
+                        Email
+                      </label>
+                      <div className="col-span-3 space-y-1">
+                        <input
+                          id="email"
+                          type="email"
+                          value={currentEmployee?.email || ""}
+                          onChange={(e) => handleInputChange("email", e.target.value)}
+                          className={`flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 ${
+                            formErrors.email ? "border-red-500" : ""
+                          }`}
+                        />
+                        {formErrors.email && <p className="text-xs text-red-500">{formErrors.email}</p>}
+                      </div>
+                    </div>
+  
+                    <div className="grid grid-cols-4 items-center gap-4">
+                      <label htmlFor="role" className="text-right text-sm font-medium leading-none">
+                        Role
+                      </label>
+                      <div className="col-span-3">
+                        <select
+                          id="role"
+                          value={currentEmployee?.role || "nurse"}
+                          onChange={(e) => handleRoleChange(e.target.value)}
+                          className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                        >
+                          <option value="doctor">Doctor</option>
+                          <option value="specialist">Specialist</option>
+                          <option value="nurse">Nurse</option>
+                          <option value="receptionist">Receptionist</option>
+                        </select>
+                      </div>
+                    </div>
+  
+                    <div className="grid grid-cols-4 items-center gap-4">
+                      <label htmlFor="specialistType" className="text-right text-sm font-medium leading-none">
+                        Specialty
+                      </label>
+                      <div className="col-span-3 space-y-1">
+                        {currentEmployee?.role === "doctor" ? (
+                          <input
+                            id="specialty"
+                            value="Primary Care"
+                            disabled
+                            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                          />
+                        ) : currentEmployee?.role === "specialist" ? (
+                          <>
+                            <select
+                              id="specialty"
+                              value={currentEmployee?.specialty || ""}
+                              onChange={(e) => handleInputChange("specialty", e.target.value)}
+                              className={`flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 ${
+                                formErrors.specialty ? "border-red-500" : ""
+                              }`}
+                            >
+                              <option value="">Select specialty</option>
+                                {doctorTypes.map((option) => (
+                                  <option key={option.inventoryid} value={option.itemname}>
+                                    {option.itemname}
+                                  </option>
+                                ))}
+
+                            </select>
+                            {formErrors.specialty && (
+                              <p className="text-xs text-red-500">{formErrors.specialty}</p>
+                            )}
+                          </>
+                        ) : (
+                          <input
+                            id="specialty"
+                            value="N/A"
+                            disabled
+                            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                          />
+                        )}
+                      </div>
+                    </div>
+  
+                    <div className="grid grid-cols-4 items-center gap-4">
+                      <label htmlFor="phonenumber" className="text-right text-sm font-medium leading-none">
+                        Phone
+                      </label>
+                      <div className="col-span-3 space-y-1">
+                        <input
+                          id="phonenumber"
+                          value={currentEmployee?.phonenumber || ""}
+                          onChange={(e) => handleInputChange("phonenumber", e.target.value)}
+                          placeholder="XXX-XXX-XXXX"
+                          className={`flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 ${
+                            formErrors.phonenumber ? "border-red-500" : ""
+                          }`}
+                        />
+                        {formErrors.phonenumber && <p className="text-xs text-red-500">{formErrors.phonenumber}</p>}
+                      </div>
                     </div>
                   </div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="text-sm text-gray-900">{patient.phone}</div>
-                  <div className="text-sm text-gray-500">{patient.email}</div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                    {patient.insurance}
-                  </span>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {patient.lastVisit}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className={`text-sm font-medium ${patient.balance > 0 ? 'text-red-600' : 'text-green-600'}`}>
-                    ${patient.balance.toFixed(2)}
+  
+                  <div className="flex justify-end gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setIsDialogOpen(false)}
+                      className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2"
+                    >
+                      Save
+                    </button>
                   </div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  <button className="text-blue-500 hover:text-blue-700 mr-3">Edit</button>
-                  <button className="text-blue-500 hover:text-blue-700">View History</button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </div>
+                </form>
+              </div>
+            </div>
+          )}
+        </div>
+        <Toaster />
+      </>
   );
 
   const renderAppointments = () => (

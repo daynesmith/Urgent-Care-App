@@ -31,6 +31,8 @@ export default function ReceptionistShiftTable({ shifts, setShifts }) {
     fetchShifts();
   }, [setShifts]);
 
+  console.log("all of the shifts:", shifts)
+
   useEffect(() => {
     const applyFilters = () => {
       let filtered = shifts;
@@ -185,7 +187,7 @@ export default function ReceptionistShiftTable({ shifts, setShifts }) {
         </thead>
         <tbody className="bg-white divide-y divide-gray-200">
           {filteredShifts.map((shift) => (
-            <tr key={shift.id}>
+            <tr key={shift.staffid}>
               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                 {capitalize(`${shift.staff?.firstname} ${shift.staff?.lastname}`)}
               </td>

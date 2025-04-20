@@ -130,15 +130,15 @@ const isDoctorAvailable = async (doctorid, requesteddate, requestedtime, appoint
 
 const createAppointment = async (req, res) => {
     try {
-        const { doctorid, requesteddate, requestedtime, cliniclocation } = req.body;
+        const { doctorid, requesteddate, requestedtime, cliniclocation, appointmenttype } = req.body;
         const patient = await Patients.findOne({ where: { email: req.user.email } });
-
+        console.log("The patient:", patient)
         if (!patient) {
             return res.status(400).json("Please fill out paitent info form patient not authenticated or not found." );
         }
         const patientid = patient.dataValues.patientid;  
  
-        console.log('Received data for appointment creation:', { doctorid, requesteddate, requestedtime, patientid, cliniclocation });
+        console.log('Received data for appointment creation:', { doctorid, requesteddate, requestedtime, patientid , cliniclocation, appointmenttype });
 
         if (!doctorid || !requesteddate || !requestedtime || !patientid || !cliniclocation) {
             return res.status(400).json("Missing required fields." );
@@ -163,11 +163,12 @@ const createAppointment = async (req, res) => {
         }
 
         const appointment = await Appointments.create({ 
-            doctorid,  
+            doctorid: parseInt(doctorid, 10),  
             requesteddate, 
             requestedtime: formattedTime, 
             patientid,
             cliniclocation,
+            appointmenttype
         });
 
         console.log('Appointment created:', appointment);
@@ -181,7 +182,7 @@ const createAppointment = async (req, res) => {
 
 const createAppointmentReceptionist = async (req, res) => {
     try {
-        const { doctorid, requesteddate, requestedtime , patientid} = req.body;
+        const { doctorid, requesteddate, requestedtime , patientid, appointmenttype} = req.body;
 
         console.log('Searching for receptionist with email:', req.user.email); 
         const receptionist = await Receptionists.findOne({ where: { email: req.user.email } });
@@ -191,7 +192,7 @@ const createAppointmentReceptionist = async (req, res) => {
 
         const receptionistid = receptionist.dataValues.receptionistid;  
     
-        console.log('Received data for appointment creation:', { doctorid, requesteddate, requestedtime, patientid , receptionistid});
+        console.log('Received data for appointment creation:', { doctorid, requesteddate, requestedtime, patientid , receptionistid, appointmenttype});
 
         if (!doctorid || !requesteddate || !requestedtime || !patientid || !receptionistid) {
             return res.status(400).json({ message: "Missing required fields." });
@@ -202,6 +203,7 @@ const createAppointmentReceptionist = async (req, res) => {
                 patientid,
                 requesteddate,
                 requestedtime,
+                appointmenttype
             },
         });
         if (existingAppointment) {
@@ -220,7 +222,8 @@ const createAppointmentReceptionist = async (req, res) => {
             requesteddate, 
             requestedtime, 
             patientid,
-            receptionistid
+            receptionistid,
+            appointmenttype
         });
 
         console.log('Appointment created:', appointment);

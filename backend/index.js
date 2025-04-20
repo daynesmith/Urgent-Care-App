@@ -36,6 +36,8 @@ const visitinfoRouter = require('./routes/VisitInfo');
 app.use("/visitinfo", visitinfoRouter);
 const specialistRouter = require('./routes/Specialist');
 app.use("/specialists", specialistRouter)
+const nurseRouter = require('./routes/Nurses');
+app.use("/nurses", nurseRouter);
 
 app.use('/api/stripe', require('./routes/stripe'));
 

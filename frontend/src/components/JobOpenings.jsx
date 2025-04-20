@@ -68,6 +68,26 @@ const jobOpenings = [
       'Strong clinical and diagnostic skills',
     ]
   },
+  {
+    id: 5,
+    title: 'Registered Nurse',
+    department: 'Nursing',
+    jobtype: 'nurse',
+    location: 'General Ward',
+    type: 'Full-time',
+    description: 'Compassionate and dedicated RN needed to provide high-quality patient care in a fast-paced hospital environment.',
+    board: {
+      name: 'State Board of Nursing',
+      certificationRequired: true,
+      boardCertificationLink: '[Link to state nursing board website]',
+    },
+    requirements: [
+      'Active RN license',
+      'BSN preferred',
+      'Minimum 2 years of clinical experience',
+      'Excellent communication and critical thinking skills',
+    ]
+  },  
 ];
 
 function JobOpenings() {

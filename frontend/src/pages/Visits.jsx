@@ -3,7 +3,6 @@ import {UserContext} from '../context/Usercontext';
 import { jwtDecode } from "jwt-decode"; 
 import Appointments from '../components/Appointments';
 
-
 export default function Visits(){
     const [userData, setUserData] = useState(null);
     const [error, setError] = useState(null);
@@ -14,8 +13,8 @@ export default function Visits(){
             const token = localStorage.getItem("accessToken");
 
             if (token) {
-                 const decoded = jwtDecode(token);
-                 console.log(decoded);
+                const decoded = jwtDecode(token);
+                console.log(decoded);
                 setUserData(token);
             } else {
                 setError("No token found");

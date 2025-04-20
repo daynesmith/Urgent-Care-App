@@ -1,5 +1,5 @@
 const { Op, where } = require("sequelize");
-const {Doctors,Users, Appointments, Patients} = require('../models');
+const {Doctors,Users, Appointments, Specialists, Patients} = require('../models');
 
 
 
@@ -208,5 +208,105 @@ const getAppointmentByDateRange = async (req, res) => {
     }
 };
 
+//To update the receptionist table after accepting the application
+const syncDoctors = async (req, res) => {
+    try {
+      // Get all users who are receptionists
+      const doctorUsers = await Users.findAll({
+        where: { role: 'doctor' , status: 'accepted'}
+      });
+  
+      for (const user of doctorUsers) {
+        // Ensure user data is available and valid
+        const { firstname, lastname, dateofbirth, phonenumber, email, userid } = user;
+  
+        // Log and check the retrieved data
+        console.log('User data:', { firstname, lastname, dateofbirth, phonenumber, email });
+  
+        if (!firstname || !lastname || !dateofbirth || !phonenumber) {
+          console.log(`Skipping user due to missing fields: ${email}`);
+          continue;  // Skip this user if any field is missing
+        }
+  
+        // Check if already added to avoid duplicates
+        const exists = await Doctors.findOne({
+          where: { email }
+        });
+  
+        if (!exists) {
+          await Doctors.create({
+            doctorid: userid,
+            firstname,
+            lastname,
+            dateofbirth,
+            phonenumber,
+            doctortype: "Primary Care",
+            email
+          });
+          console.log(`Added doctor: ${firstname} ${lastname}`);
+        } else {
+          console.log(`Doctor ${email} already exists.`);
+        }
+      }
+        
+      console.log('Doctor sync complete.');
+      res.status(200).json({ message: 'Doctor sync complete.' });
+    } catch (error) {
+      console.error('Error syncing doctors:', error);
+      res.status(500).json({ message: 'Error syncing doctors', error: error.message });
+    }
+  };
 
-module.exports = {inputInfoForFirstTime, getIfDoctorInfo, editDoctorInfo, getDoctorsNames, getAppointmentByDateRange}; 
+
+    //To update the receptionist table after accepting the application
+    const syncSpecialists = async (req, res) => {
+        try {
+        // Get all users who are receptionists
+        const specialistUsers = await Users.findAll({
+            where: { role: 'specialist' , status: 'accepted'}
+        });
+    
+        for (const user of specialistUsers) {
+            // Ensure user data is available and valid
+            const { firstname, lastname, dateofbirth, phonenumber, email, userid } = user;
+    
+            // Log and check the retrieved data
+            console.log('User data:', { firstname, lastname, dateofbirth, phonenumber, email, userid });
+    
+            if (!firstname || !lastname || !dateofbirth || !phonenumber) {
+            console.log(`Skipping user due to missing fields: ${email}`);
+            continue;  // Skip this user if any field is missing
+            }
+    
+            // Check if already added to avoid duplicates
+            const exists = await Specialists.findOne({
+            where: { email }
+            });
+    
+            if (!exists) {
+            await Specialists.create({
+                user_id: userid,
+                firstname: firstname,
+                lastname: lastname,
+                dateofbirth: dateofbirth,
+                phonenumber:phonenumber,
+                specialty: "None",
+                email: email
+            });
+            console.log(`Added specialist: ${firstname} ${lastname}`);
+            } else {
+            console.log(`specialist ${email} already exists.`);
+            }
+        }
+    
+        console.log('specialist sync complete.');
+        res.status(200).json({ message: 'specialist sync complete.' });
+        } catch (error) {
+        console.error('Error syncing specialist:', error);
+        res.status(500).json({ message: 'Error syncing specialist', error: error.message });
+        }
+    };
+      
+
+
+module.exports = {inputInfoForFirstTime, syncSpecialists, getIfDoctorInfo, editDoctorInfo, getDoctorsNames, getAppointmentByDateRange, syncDoctors}; 

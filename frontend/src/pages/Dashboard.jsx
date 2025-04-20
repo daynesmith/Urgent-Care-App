@@ -5,6 +5,7 @@ import AdminDashboard from '../components/AdminDashboard.jsx';
 import DoctorDashboard from '../components/DoctorDashboard.jsx';
 import ReceptionistDashboard from '../components/ReceptionistDashboard.jsx';
 import SpecialistDashboard from '../components/SpecialistDashboard.jsx';
+import NurseDashboard from '../components/NurseDashboard.jsx';
 
 
 export default function Dashboard(){
@@ -28,6 +29,7 @@ export default function Dashboard(){
             {role === 'admin' && <AdminDashboard />}
             {role === 'doctor' && <DoctorDashboard />}
             {role === 'specialist' && <SpecialistDashboard />}
+            {role === 'nurse' && <NurseDashboard />}
         </div>
     )
 }

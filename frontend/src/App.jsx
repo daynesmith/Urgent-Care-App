@@ -33,9 +33,12 @@ import PatientBilling from './pages/PatientBilling.jsx';
 import PaymentSuccess from './pages/PaymentSucess.jsx';
 import PaymentCancelled from './pages/PaymentCancelled.jsx';
 import ReceptionistShift from './pages/ReceptionistShift.jsx';
+import PatientDetail from './pages/PatientDetail.jsx';
+import ReceptionistBilling from './pages/ReceptionistBilling.jsx'
 import StaffViewShifts from './pages/StaffViewShifts.jsx';
 import DoctorAppointmentsReport from './pages/DoctorAppointmentsReport.jsx';
-
+import ReceptionistBillingPage from './pages/ReceptionistBillingPage.jsx';
+import ShiftReport from './pages/ShiftReport.jsx';
 
 
 function App() {
@@ -62,7 +65,8 @@ function App() {
             <Route path = '/medical-history' element = {<MedicalHistory />} />
             <Route path = '/ReceptionistProfile' element = {<ReceptionistProfile />} />
             <Route path = '/ReceptionistAppointment' element = {<ReceptionistAppointment />} />
-
+            <Route path="/patients/:id"element={<PatientDetail />}/>
+            <Route path = '/ReceptionistBillingPage/:id' element = {<ReceptionistBillingPage />} />
             <Route path = '/DoctorPatients' element = {<DoctorPatients />} />
             <Route path = '/createreferral' element = {<CreateReferral/> } />
             <Route path = '/CheckInCheckOut' element = {<CheckInCheckOut />} />
@@ -71,18 +75,23 @@ function App() {
             <Route path = '/ApplicationForm' element = {<ApplicationForm />} />
             <Route path = '/AdminDasboard' element = {<AdminDasboard />} />
             <Route path = '/homepage' element = {<Homepage />} />
+            <Route path = '/' element = {<Homepage />} />
             <Route path = '/ReceptionistPatients' element = {<ReceptionistPatients />} />
             <Route path = '/AddStockModal' element = {<AddStockModal />} />
             <Route path = '/AddAppointmentTypes' element = {<AddAppointmentTypes />} />
             <Route path = '/AddDoctorTypes' element = {<AddDoctorTypes />} />
             <Route path = '/visits/:apptid' element = {<SingleAppointment />} />
+            <Route path = '/ReceptionistShift' element = {<ReceptionistShift />} />
+            <Route path = '/ReceptionistBilling' element = {<ReceptionistBilling />} />
             <Route path = '/patient-billing' element = {<PatientBilling />}/>
             <Route path='/payment-success/:billingId' element={<PaymentSuccess />} />
             <Route path='/payment-cancelled' element={<PaymentCancelled />} />
 
             <Route path = '/ReceptionistShift' element = {<ReceptionistShift />} />
             <Route path = '/StaffViewShifts' element = {<StaffViewShifts />} />
+            
             <Route path = '/adminreport' element = {<DoctorAppointmentsReport/>}/>
+            <Route path = '/shiftreport' element = {<ShiftReport/>}/>
           </Routes>
       </Router>    
     </UserProvider>
