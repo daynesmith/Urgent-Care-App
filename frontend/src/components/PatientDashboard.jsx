@@ -14,6 +14,8 @@ export default function PatientDashboard(){
         <Link to="/PatientInfo"  className="border rounded-l shadow-lg p-3 h-full text-center min-w-3xs"><h4>Patient Profile</h4> </Link> 
         <Link as={Link} to='/patient-billing' className="border rounded-l shadow-lg p-3 h-full text-center min-w-3xs"><h4>Billing</h4> </Link> 
 
+        <Link as={Link} to='/SpecialistTests' className="border rounded-l shadow-lg p-3 h-full text-center min-w-3xs"><h4>SpecialistTests</h4> </Link> 
+
         
     </div>
     

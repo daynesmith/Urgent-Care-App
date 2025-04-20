@@ -302,4 +302,36 @@ const clinicLocations = async (req, res) => {
   };
 }
 
-module.exports = { registerUser, loginUser, gettingApplications, sendingApplications, creatingUser, updateApplicationStatus, getStaffUsers, getStaffShifts, clinicLocations};
+const getShiftsByStaffId = async (req, res) => {
+  try {
+      const { staffid } = req.params; // Assuming staffid is passed as a URL parameter
+
+      if (!staffid) {
+          return res.status(400).json({ message: "Staff ID is required." });
+      }
+
+      const staffShifts = await Shifts.findAll({
+          where: {
+              staffid: staffid,
+          },
+          include: [
+              {
+                  model: Users,
+                  as: 'staff',
+                  attributes: ['firstname', 'lastname', 'role'],
+              },
+          ],
+      });
+
+      if (!staffShifts || staffShifts.length === 0) {
+          return res.status(404).json({ message: "No shifts found for this staff member." });
+      }
+
+      res.status(200).json(staffShifts);
+  } catch (error) {
+      console.error("Error fetching shifts by staff ID:", error);
+      res.status(500).json({ message: "Server error" });
+  }
+};
+
+module.exports = { registerUser, loginUser, gettingApplications, sendingApplications, creatingUser, updateApplicationStatus, getStaffUsers, getStaffShifts, clinicLocations, getShiftsByStaffId};

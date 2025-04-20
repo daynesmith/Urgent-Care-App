@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { useEffect, useState, useContext} from "react";
 import axios from "axios";
 import { UserContext } from "../context/Usercontext";
+import StaffViewShifts from '../pages/StaffViewShifts';
 
 const apiUrl = import.meta.env.VITE_API_URL;
 
@@ -46,6 +47,13 @@ export default function SpecialistDashboard() {
 
   return (
     <div className="p-6">
+      <div className="mb-6">
+        <Link to="/StaffViewShifts">
+          <button className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+            View My Shifts
+          </button>
+        </Link>
+      </div>
       <h1 className="text-3xl font-bold mb-4">Pending Referrals</h1>
       {referrals.length === 0 ? (
         <p>No referrals pending at this time.</p>

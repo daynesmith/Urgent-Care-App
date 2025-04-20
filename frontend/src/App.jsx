@@ -1,11 +1,11 @@
 import './styles/App.css'
 import {BrowserRouter as Router, Routes, Route} from 'react-router-dom';
-import Homepage from './pages/Homepage.jsx'
-import Navbar from './components/Navbar.jsx'
+import Homepage from './pages/Homepage.jsx';
+import Navbar from './components/Navbar.jsx';
 import RegistrationForm from './pages/Registrationpage.jsx';
-import LoginPage from './pages/Loginpage.jsx'
+import LoginPage from './pages/Loginpage.jsx';
 import Dashboard from './pages/Dashboard.jsx';
-import { UserProvider } from './context/Usercontext.jsx'
+import { UserProvider } from './context/Usercontext.jsx';
 import RoleForm from './pages/RoleForm.jsx';
 import ScheduleAppointment from './pages/ScheduleAppointment.jsx';
 import DoctorInfoForm from './pages/DoctorInfoForm.jsx';
@@ -15,14 +15,9 @@ import DoctorAppointments from './pages/DoctorAppointments.jsx';
 import MedicalHistory from './pages/MedicalHistory.jsx';
 import ReceptionistProfile from './pages/ReceptionistProfile.jsx';
 import ReceptionistAppointment from './pages/ReceptionistAppoinment.jsx';
-
 import DoctorPatients from './pages/DoctorPatients.jsx';
 import CreateReferral from './pages/CreateReferral.jsx'
 import CheckInCheckOut from './pages/CheckInCheckOut.jsx';
-import SpecialistDashboard from './components/SpecialistDashboard.jsx';
-import JobOpenings from './components/JobOpenings.jsx';
-import JoinTheTeam from './pages/JoinTheTeam.jsx'
-import ApplicationForm from './components/ApplicationForm.jsx';
 import AdminDasboard from './components/AdminDashboard.jsx';
 import ReceptionistPatients from './pages/ReceptionistPatients.jsx'
 import AddStockModal from './pages/AddStockModal.jsx'
@@ -35,7 +30,8 @@ import PaymentCancelled from './pages/PaymentCancelled.jsx';
 import ReceptionistShift from './pages/ReceptionistShift.jsx';
 import StaffViewShifts from './pages/StaffViewShifts.jsx';
 import DoctorAppointmentsReport from './pages/DoctorAppointmentsReport.jsx';
-
+import JoinTheTeam from './pages/JoinTheTeam.jsx';
+import SpecialistTests from './pages/SpecialistTests.jsx';
 
 
 function App() {
@@ -62,16 +58,11 @@ function App() {
             <Route path = '/medical-history' element = {<MedicalHistory />} />
             <Route path = '/ReceptionistProfile' element = {<ReceptionistProfile />} />
             <Route path = '/ReceptionistAppointment' element = {<ReceptionistAppointment />} />
-
             <Route path = '/DoctorPatients' element = {<DoctorPatients />} />
             <Route path = '/createreferral' element = {<CreateReferral/> } />
             <Route path = '/CheckInCheckOut' element = {<CheckInCheckOut />} />
-            <Route path = '/JoinTheTeam' element = {<JoinTheTeam />} />
-            <Route path = '/JobOpenings' element = {<JobOpenings />} />
-            <Route path = '/ApplicationForm' element = {<ApplicationForm />} />
             <Route path = '/AdminDasboard' element = {<AdminDasboard />} />
             <Route path = '/homepage' element = {<Homepage />} />
-            <Route path = '/' element = {<Homepage />} />
             <Route path = '/ReceptionistPatients' element = {<ReceptionistPatients />} />
             <Route path = '/AddStockModal' element = {<AddStockModal />} />
             <Route path = '/AddAppointmentTypes' element = {<AddAppointmentTypes />} />
@@ -84,6 +75,11 @@ function App() {
             <Route path = '/ReceptionistShift' element = {<ReceptionistShift />} />
             <Route path = '/StaffViewShifts' element = {<StaffViewShifts />} />
             <Route path = '/adminreport' element = {<DoctorAppointmentsReport/>}/>
+            <Route path="/JoinTheTeam" element={<JoinTheTeam />} />
+
+            <Route path="/SpecialistTests" element={<SpecialistTests />} />
+
+
           </Routes>
       </Router>    
     </UserProvider>

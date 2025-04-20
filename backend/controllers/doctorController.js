@@ -156,8 +156,12 @@ const getAppointmentByDateRange = async (req, res) => {
             return res.status(400).json({ message: "Doctor ID not found." });
         }
 
+        let whereCondition = {
+            doctorid,
+            specialistid: { [Op.is]: null } //exclude appointments where specialistid is NOT null
+        };
+
         //condition that for only providing params if  start date and end date provided
-        let whereCondition = { doctorid };
         if (startDate && endDate) {
             if (startDate > endDate) {
                 return res.status(400).json({ message: "Start date must be before end date." });

@@ -1,6 +1,6 @@
 const express = require('express')
 const router = express.Router()
-const { registerUser, loginUser, gettingApplications, creatingUser, updateApplicationStatus, sendingApplications, getStaffUsers, getStaffShifts, clinicLocations} = require('../controllers/usersController')
+const { registerUser, loginUser, gettingApplications, creatingUser, updateApplicationStatus, sendingApplications, getStaffUsers, getStaffShifts, clinicLocations, getShiftsByStaffId} = require('../controllers/usersController')
 const { validateToken } = require('../middlewares/Authmiddleware');
 
 
@@ -13,5 +13,6 @@ router.post("/updateApplicationStatus", updateApplicationStatus);
 router.get('/getStaffUsers', getStaffUsers); 
 router.get('/getStaffShifts', validateToken(), getStaffShifts); 
 router.get('/clinicLocations', clinicLocations); 
+router.get('/getShiftsByStaffId/:staffid', getShiftsByStaffId); 
 
 module.exports = router;
