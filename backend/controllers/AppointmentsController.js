@@ -349,9 +349,7 @@ const cancelAppointment = async (req,res) => {
             return res.status(404).json({ message: 'Appointment not found' });
         }
 
-        await appointment.update({
-            appointmentstatus: "cancelled"
-        });
+        await appointment.destroy();
 
         console.log("Database update successful:");
         res.json({ success: true });

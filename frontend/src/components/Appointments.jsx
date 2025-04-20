@@ -31,8 +31,6 @@ export default function Appointments(props){
 
                 const future = [];
                 const past = [];
-                const canceled = [];
-                const requested = [];
 
                 // setAppointments(response.data);
 
@@ -44,17 +42,10 @@ export default function Appointments(props){
                     } else if (appointment.appointmentstatus == "completed") {
                         past.push(appointment);
                     }
-                    else if (appointment.appointmentstatus == "cancelled") {
-                        canceled.push(appointment);
-                    } else if (appointment.appointmentstatus == "requested") {
-                        requested.push(appointment);
-                    }
                 });
 
                 setFutureAppointments(future);
                 setPastAppointments(past);
-                setCanceledAppointments(canceled);
-                setRequestedAppointments(requested);
 
             } catch (err) {
                 setError(err.message); 
@@ -80,7 +71,7 @@ export default function Appointments(props){
 
     return (
         <div>
-            <h2 className="text-2xl">Upcoming visits</h2>
+            <h2 className="text-2xl">Scheduled visits</h2>
             {futureAppointments.length > 0 ? (
                 <ul className="flex flex-row gap-2 bg-gray-200 p-2">
                     {futureAppointments.map((appointment) => (
@@ -100,28 +91,6 @@ export default function Appointments(props){
                 </ul>
             ) : (
                 <p>No past appointments.</p>
-            )}
-            <h2 className="text-2xl">Canceled visits</h2>
-            {canceledAppointments.length > 0 ? (
-                <ul className="flex flex-row gap-2 bg-gray-100 p-2">
-                    {canceledAppointments.map((appointment) => (
-                        <SingleAppointment key={appointment.appointmentid} data={appointment} date={appointment.requesteddate} time={appointment.requestedtime} />
-
-                    ))}
-                </ul>
-            ) : (
-                <p>No canceled appointments.</p>
-            )}
-                        <h2 className="text-2xl">Requested visits</h2>
-            {requestedAppointments.length > 0 ? (
-                <ul className="flex flex-row gap-2 bg-gray-100 p-2">
-                    {requestedAppointments.map((appointment) => (
-                        <SingleAppointment key={appointment.appointmentid} data={appointment} date={appointment.requesteddate} time={appointment.requestedtime} />
-
-                    ))}
-                </ul>
-            ) : (
-                <p>No requested appointments.</p>
             )}
 
         </div>

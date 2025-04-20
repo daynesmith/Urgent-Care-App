@@ -13,7 +13,7 @@ router.post('/appointments-actions/:appointmentid', validateToken('patient'), up
 router.get('/getappointments', getAllAppointments);
 router.post('/updateStatus', updateStatus);
 router.get('/appointment/:appointmentid', validateToken('patient'), getSingleAppointment);
-router.patch('/cancel-appointment/:appointmentid', validateToken('patient'), cancelAppointment );
+router.delete('/cancel-appointment/:appointmentid', validateToken('patient'), cancelAppointment );
 router.patch('/reschedule-appointment/:appointmentid', validateToken('patient'), rescheduleAppointment );
 
 module.exports = router;
