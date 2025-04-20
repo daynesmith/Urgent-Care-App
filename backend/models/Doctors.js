@@ -35,11 +35,6 @@ module.exports = (sequelize, DataTypes)=>{
                 }
             }
         },
-        doctortype: {
-            type: DataTypes.STRING,
-            allowNull: true,
-            defaultValue: "Primary Care"
-        },
         email: {
             type: DataTypes.STRING,
             allowNull: false, // Ensures the email is required
@@ -50,6 +45,7 @@ module.exports = (sequelize, DataTypes)=>{
             },
         }
     })
+    
     Doctors.associate = (models) => {
         
         Doctors.belongsTo(models.Users,{
@@ -63,6 +59,5 @@ module.exports = (sequelize, DataTypes)=>{
         }); 
     };
     
-
     return Doctors;
 }

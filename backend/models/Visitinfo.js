@@ -51,7 +51,7 @@ module.exports = (sequelize, DataTypes)=>{
         },
       },
       {
-        tableName: 'Visitinfos',         // Ensure correct table
+        tableName: 'Visitinfo',         // Ensure correct table
         freezeTableName: true,          // Disable automatic pluralization
         underscored: true,              // If your DB uses snake_case
         timestamps: true,

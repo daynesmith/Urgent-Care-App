@@ -35,6 +35,20 @@ module.exports = (sequelize, DataTypes) => {
           type: DataTypes.ENUM("Pending Review", "Approved"),
           allowNull: true,
           defaultValue: "N/A"
+      },
+      status: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        defaultValue: 'unpaid'
+      },
+      dueDate: {
+        type: DataTypes.DATE
+      },
+      paymentDate: {
+        type: DataTypes.DATE
+      },
+      method: {
+        type: DataTypes.STRING
       }
     });
     

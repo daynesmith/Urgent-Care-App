@@ -6,6 +6,8 @@ export default function ReceptionistBilling() {
   const [searchQuery, setSearchQuery] = useState("")
   const [sortOption, setSortOption] = useState("recent")
 
+  
+
   // Sample data for bills
   const bills = {
     pending: [
@@ -254,6 +256,7 @@ export default function ReceptionistBilling() {
                     >
                       Review Bill
                       <ArrowRight className="ml-2 h-4 w-4" />
+                      Link to = '/ReceptionistBillingPage'
                     </button>
                     {bill.status === "Approved" && (
                       <button 

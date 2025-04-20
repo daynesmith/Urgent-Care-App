@@ -9,7 +9,7 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.INTEGER,
         allowNull: false,
         references: {
-          model: 'Visitinfos', // Match the actual table name if pluralized
+          model: 'Visitinfo', // Match the actual table name if pluralized
           key: 'visitinfoid',
         },
       },

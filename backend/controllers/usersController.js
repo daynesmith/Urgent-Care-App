@@ -275,11 +275,16 @@ const getEmployeeUsers = async (req, res) => {
 
 const getStaffShifts = async (req, res) => {
     try {
-        const staffid = req.user.id;
+        console.log("Decoded Token (req.user):", req.user);
 
-        if (!staffid) {
-            return res.status(400).json({ message: "User ID is missing in the token." });
+        const email = req.user.email; // Use email from the token
+        const user = await Users.findOne({ where: { email } });
+
+        if (!user) {
+            return res.status(404).json({ message: "User not found." });
         }
+
+        const staffid = user.userid;
 
         const staffShifts = await Shifts.findAll({
             where: {
@@ -289,11 +294,10 @@ const getStaffShifts = async (req, res) => {
                 {
                     model: Users,
                     as: 'staff',
-                    attributes: ['firstname', 'lastname', 'role'], 
+                    attributes: ['firstname', 'lastname', 'role'],
                 },
             ],
         });
-
         res.status(200).json(staffShifts);
     } catch (error) {
         console.error("Error fetching staff shifts:", error);
@@ -409,5 +413,27 @@ const updateEmployeeUsers = async (req, res) => {
 
   
 
+const clinicLocations = async (req, res) => {
+  try {
+    const clinicLocations = await Shifts.findAll({
+      attributes: ['cliniclocation'],
+      include: [
+        {
+          model: Users, 
+          as: 'staff', 
+          attributes: [], 
+          where: {
+            role: ['doctor', 'specialist'], 
+          },
+        },
+      ],
+      group: ['cliniclocation'], //avoid dupes
+    });
+    res.status(200).json(clinicLocations);
+  } catch (error) {
+    console.error("Error fetching clinic locations:", error);
+    res.status(500).json({ message: "Server error" });
+  };
+}
 
-module.exports = { registerUser, loginUser, getSpeciality, updateEmployeeUsers, gettingApplications, getEmployeeUsers, sendingApplications, creatingUser, updateApplicationStatus, getStaffUsers, getStaffShifts};
+module.exports = { registerUser, loginUser, getSpeciality, clinicLocations, updateEmployeeUsers, gettingApplications, getEmployeeUsers, sendingApplications, creatingUser, updateApplicationStatus, getStaffUsers, getStaffShifts};

@@ -7,7 +7,6 @@ import EditDoctorProfile from './EditDoctorProfile';
 
 
 export default function DoctorProfile(props){
-    // const token = props.token;
 
     const [isEditing, setIsEditing] = useState(false);
     const [loading, setLoading] = useState(true);
@@ -18,7 +17,6 @@ export default function DoctorProfile(props){
     const [lastname, setLastname] = useState(props.doctorData.lastname);
     const [dateofbirth, setDateofbirth] = useState(props.doctorData.dateofbirth);
     const [phonenumber, setPhonenumber] = useState(props.doctorData.phonenumber);
-    const [doctortype, setDoctortype] = useState(props.doctorData.doctortype);
 
     useEffect(() => {
         const fetchDoctorInfo = async () => {
@@ -54,9 +52,6 @@ export default function DoctorProfile(props){
                     if (response.data.doctorInfo.phonenumber) {
                         setPhonenumber(response.data.doctorInfo.phonenumber);
                     }
-                    if (response.data.doctorInfo.doctortype) {
-                        setDoctortype(response.data.doctorInfo.doctortype);
-                    }
                 } else {
                     console.log("No patient info found.");
                 }
@@ -80,18 +75,18 @@ export default function DoctorProfile(props){
 
     return (
         <>
-        {isEditing ? (<EditDoctorProfile setIsEditing={setIsEditing} firstname={firstname} lastname={lastname} dateofbirth={dateofbirth} phonenumber={phonenumber} doctortype={doctortype}
-            setFirstname={setFirstname} setLastname={setLastname} setDateofbirth={setDateofbirth} setPhonenumber={setPhonenumber} setDoctortype={setDoctortype}/>) :
+        {isEditing ? (<EditDoctorProfile setIsEditing={setIsEditing} firstname={firstname} lastname={lastname} dateofbirth={dateofbirth} phonenumber={phonenumber}
+            setFirstname={setFirstname} setLastname={setLastname} setDateofbirth={setDateofbirth} setPhonenumber={setPhonenumber} />) :
              (
             <div className="space-y-4">
             <div><strong>First Name:</strong> {firstname}</div>
             <div><strong>Last Name:</strong> {lastname}</div>
             <div><strong>Date of Birth:</strong> {dateofbirth}</div>
             <div><strong>Phone Number:</strong> {phonenumber}</div>
-            <div><strong>Doctor Type:</strong> {doctortype}</div>
             <div className="mt-3"><button onClick={() => setIsEditing(true)} className="border bg-white shadow-lg rounded-lg w-20 p-2 cursor-pointer">Edit</button></div>
         </div>
         )}
         </>
     );
 }
+

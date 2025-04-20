@@ -308,6 +308,24 @@ const getAvailableTimeSlots = (date, doctorid) => {
               <Settings className="h-5 w-5" />
               <span>Settings</span>
             </Link>
+            <Link
+              to="/ReceptionistShift"
+              className={`w-full flex items-center space-x-3 px-4 py-2.5 rounded-lg ${
+                isActive('/Appointments') ? 'bg-blue-50 text-blue-600' : 'text-gray-600 hover:bg-gray-50'
+              }`}
+            >
+              <CalendarClock className="h-5 w-5" />
+              <span>Schedule Shifts</span>
+            </Link>
+            <Link
+              to="/StaffViewShifts"
+              className={`w-full flex items-center space-x-3 px-4 py-2.5 rounded-lg ${
+                isActive('/Appointments') ? 'bg-blue-50 text-blue-600' : 'text-gray-600 hover:bg-gray-50'
+              }`}
+            >
+              <CalendarClock className="h-5 w-5" />
+              <span>View Receptionist Shifts</span>
+            </Link>
           </nav>
         </div>
         {/* Main Content */}

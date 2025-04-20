@@ -25,6 +25,8 @@ const appointmentsRouter = require('./routes/Appointments');
 app.use('/appointments', appointmentsRouter);
 const inventoryRouter = require('./routes/Inventory');
 app.use('/inventory', inventoryRouter);
+const reportsRoute = require('./routes/Reports');
+app.use('/api/reports', reportsRoute);
 
 
 const referralRoutes = require('./routes/Referral');
@@ -36,6 +38,9 @@ const specialistRouter = require('./routes/Specialist');
 app.use("/specialists", specialistRouter)
 const nurseRouter = require('./routes/Nurses');
 app.use("/nurses", nurseRouter);
+
+app.use('/api/stripe', require('./routes/stripe'));
+
 
 db.sequelize.sync()
   .then(() => {

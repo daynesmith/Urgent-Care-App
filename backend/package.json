@@ -24,6 +24,7 @@
     "react-big-calendar": "^1.18.0",
     "sequelize": "^6.37.6",
     "sequelize-cli": "^6.6.2",
-    "sonner": "^2.0.3"
+    "sonner": "^2.0.3",
+    "stripe": "^18.0.0"
   }
 }
