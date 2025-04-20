@@ -293,7 +293,7 @@ const getAvailableTimeSlots = (date, doctorid) => {
             <Link
               to="/ReceptionistBilling"
               className={`w-full flex items-center space-x-3 px-4 py-2.5 rounded-lg ${
-                isActive('/Billing') ? 'bg-blue-50 text-blue-600' : 'text-gray-600 hover:bg-gray-50'
+                isActive('/ReceptionistBilling"') ? 'bg-blue-50 text-blue-600' : 'text-gray-600 hover:bg-gray-50'
               }`}
             >
               <Receipt  className="h-5 w-5" />

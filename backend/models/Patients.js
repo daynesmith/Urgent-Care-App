@@ -1,14 +1,13 @@
-module.exports = (sequelize, DataTypes)=>{
-    
-    const Patients = sequelize.define("Patients",{
+module.exports = (sequelize, DataTypes) => {
+    const Patients = sequelize.define("Patients", {
         patientid: {
             type: DataTypes.INTEGER,
             primaryKey: true,
-            references:{
-                model:'Users',
+            references: {
+                model: 'Users',
                 key: 'userid'
             },
-            allowNull: false   
+            allowNull: false
         },
         firstname: {
             type: DataTypes.STRING,
@@ -21,15 +20,15 @@ module.exports = (sequelize, DataTypes)=>{
         dateofbirth: {
             type: DataTypes.DATE,
             allowNull: false,
-            validate:{
+            validate: {
                 isDate: true
             },
         },
         phonenumber: {
             type: DataTypes.STRING,
-            allowNull: false, 
-            validate:{
-                is:{
+            allowNull: false,
+            validate: {
+                is: {
                     args: /^[0-9]{3}-[0-9]{3}-[0-9]{4}$/,
                     msg: 'Phone number must be in the format XXX-XXX-XXXX'
                 }
@@ -37,11 +36,11 @@ module.exports = (sequelize, DataTypes)=>{
         },
         email: {
             type: DataTypes.STRING,
-            allowNull: false, 
-            unique: true, 
+            allowNull: false,
+            unique: true,
             validate: {
-                isEmail: true, 
-                notEmpty: true, 
+                isEmail: true,
+                notEmpty: true,
             },
         },
         chronic_conditions: {
@@ -52,7 +51,7 @@ module.exports = (sequelize, DataTypes)=>{
             type: DataTypes.TEXT,
             allowNull: true
         },
-        current_medications:{
+        current_medications: {
             type: DataTypes.TEXT,
             allowNull: true
         },
@@ -68,20 +67,19 @@ module.exports = (sequelize, DataTypes)=>{
             type: DataTypes.TEXT,
             allowNull: true
         }
-    })
+    });
+
     Patients.associate = (models) => {
-        
-        Patients.belongsTo(models.Users,{
+        Patients.belongsTo(models.Users, {
             foreignKey: 'patientid',
             targetKey: 'userid'
-        })
+        });
 
         Patients.hasMany(models.Appointments, {
-          foreignKey: 'patientid',
-          as: 'appointments',       
-        }); 
+            foreignKey: 'patientid',
+            as: 'appointments',
+        });
     };
-    
 
     return Patients;
-}
+};

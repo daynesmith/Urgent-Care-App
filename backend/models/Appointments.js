@@ -23,6 +23,10 @@ module.exports = (sequelize, DataTypes) => {
                 key: 'doctorid'
             }
         },
+        appointmenttype:{
+            type: DataTypes.STRING,
+            allowNull: true
+        }, 
         requesteddate:{
             type: DataTypes.DATEONLY,
             allowNull: false

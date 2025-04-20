@@ -47,7 +47,7 @@ module.exports = (sequelize, DataTypes)=>{
             },
         },
         role: {
-            type: DataTypes.ENUM('admin', 'patient', 'doctor', 'receptionist', 'specialist'),
+            type: DataTypes.ENUM('admin', 'patient', 'doctor', 'receptionist', 'specialist', 'nurse'),
             allowNull: false,
             defaultValue: 'patient'
         },
@@ -105,6 +105,11 @@ module.exports = (sequelize, DataTypes)=>{
             as: 'shifts', 
             foreignKey: 'staffid'
          });
+         Users.hasOne(models.Specialists, {
+            foreignKey: 'user_id',
+            as: 'specialist'
+          });
+          
     };   
 
     //insert nurse role once completed
@@ -141,6 +146,16 @@ module.exports = (sequelize, DataTypes)=>{
                     email: user.email,
                 });
                 console.log("Receptionist row created successfully for user:", user.userid);
+            } else if (user.role === "nurse") {
+                await Nurse.create({
+                    nurseid: user.userid,
+                    firstname: user.firstname,
+                    lastname: user.lastname,
+                    dateofbirth: user.dateofbirth,
+                    phonenumber: user.phonenumber,
+                    email: user.email,
+                });
+                console.log("Nurse row created successfully for user:", user.userid);    
             } else if (user.role === "specialist") {
                 await Specialists.create({
                     user_id: user.userid,

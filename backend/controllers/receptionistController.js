@@ -1,4 +1,4 @@
-const { Receptionists, Users, Shifts} = require('../models'); // Import the Receptionist model
+const { Receptionists, Users, Shifts, Patients} = require('../models'); // Import the Receptionist model
 
 const getIfReceptionistInfo = async (req, res) => {
     const email = req.user.email; // Get the email of the currently authenticated user.
@@ -237,6 +237,32 @@ const getAllShifts = async (req, res) => {
     }
 };
 
+const getPatientsNames = async (req, res) => {
+  try {
+      // Fetch all patients with their patientid, firstname, and lastname
+      const patients = await Patients.findAll({
+          attributes: ['patientid', 'firstname', 'lastname']
+      });
 
-module.exports = { getIfReceptionistInfo, inputReceptionistInfoForFirstTime, syncReceptionists, updateProfile, addNewShift, getAllShifts};
+      // Format the patient data
+      const formatted = patients.map((p) => ({
+          patientid: p.patientid,
+          name: `${p.firstname} ${p.lastname}`
+      }));
+
+      // Send the formatted response
+      res.json(formatted);
+  } catch (error) {
+      console.error("Error fetching patient names:", error);
+      res.status(500).json({ error: "Internal server error." });
+  }
+};
+
+const getBillingInfo= async (req, res) => {
+  //get the appointment id
+  //Should be able to get the appointment (doctor and appointment type)
+  //go to visitinfosupplies to get the price of the materials used
+};
+
+module.exports = { getIfReceptionistInfo, getBillingInfo, getPatientsNames, inputReceptionistInfoForFirstTime, syncReceptionists, updateProfile, addNewShift, getAllShifts};
 

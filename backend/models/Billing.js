@@ -1,5 +1,5 @@
 module.exports = (sequelize, DataTypes) => {
-    const Billing = sequelize.define("Billing", {
+    const Billing = sequelize.define("Billings", {
       billingid: {
         type: DataTypes.INTEGER,
         primaryKey: true,
@@ -31,6 +31,11 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.DATE,
         defaultValue: DataTypes.NOW,
       },
+      billingstatus: {
+          type: DataTypes.ENUM("Pending Review", "Approved"),
+          allowNull: true,
+          defaultValue: "N/A"
+      },
       status: {
         type: DataTypes.STRING,
         allowNull: false,
@@ -45,7 +50,6 @@ module.exports = (sequelize, DataTypes) => {
       method: {
         type: DataTypes.STRING
       }
-
     });
     
     return Billing;
