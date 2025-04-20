@@ -6,8 +6,7 @@ module.exports = (sequelize, DataTypes)=>{
             references:{
                 model:'Users',
                 key: 'userid'
-            },
-            allowNull: true   
+            },  
         },
         firstname: {
             type: DataTypes.STRING,
