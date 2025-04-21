@@ -19,7 +19,6 @@ db.Billing = require('./Billing')(sequelize, Sequelize.DataTypes);
 db.Doctors = require('./Doctors')(sequelize, Sequelize.DataTypes);
 db.Insurance = require('./Insurance')(sequelize, Sequelize.DataTypes);
 db.Inventory = require('./Inventory')(sequelize, Sequelize.DataTypes);
-db.Notifications = require('./Notifications')(sequelize, Sequelize.DataTypes)
 db.Patients = require('./Patients')(sequelize, Sequelize.DataTypes);
 db.Receptionists = require('./Receptionists')(sequelize, Sequelize.DataTypes);
 db.Specialists = require('./Specialist')(sequelize, Sequelize.DataTypes); 
