@@ -2,7 +2,7 @@ const express = require('express')
 const router = express.Router()
 
 const {validateToken} = require('../middlewares/Authmiddleware');
-const { getPatientAppointments,getAllAppointments, createAppointmentReceptionist, updateAppointmentReceptionist, updateStatus, createAppointment, updateAppointment, getSingleAppointment, cancelAppointment, rescheduleAppointment } = require('../controllers/AppointmentsController')
+const { getPatientAppointments,getAllAppointments, createAppointmentReceptionist, updateAppointmentReceptionist, updateStatus, createAppointment, updateAppointment, getSingleAppointment, cancelAppointment, rescheduleAppointment, createAppointmentSpecialist } = require('../controllers/AppointmentsController')
 
 
 router.get('/patient-appointments', validateToken('patient'), getPatientAppointments);  
@@ -15,5 +15,7 @@ router.post('/updateStatus', updateStatus);
 router.get('/appointment/:appointmentid', validateToken('patient'), getSingleAppointment);
 router.delete('/cancel-appointment/:appointmentid', validateToken('patient'), cancelAppointment );
 router.patch('/reschedule-appointment/:appointmentid', validateToken('patient'), rescheduleAppointment );
+
+router.post('/createAppointmentsSpecialists', validateToken('patient'), createAppointmentSpecialist);
 
 module.exports = router;

@@ -62,7 +62,15 @@ module.exports = (sequelize, DataTypes) => {
         isLate: {
             type: DataTypes.BOOLEAN,
             allowNull: true,
-        }
+        },
+        specialistid: {
+            type: DataTypes.INTEGER,
+            allowNull: true, // allowNull = true so only one of doctor or specialist is required
+            references: {
+              model: 'Specialists',
+              key: 'user_id' // or your equivalent key
+            }
+        },
     })
 
         Appointments.associate = (models) => {
@@ -80,6 +88,11 @@ module.exports = (sequelize, DataTypes) => {
             foreignKey: 'receptionistid',
             as: 'receptionist'
         })
+
+        Appointments.belongsTo(models.Specialists, {
+            foreignKey: 'specialistid',
+            as: 'specialist'
+          });
     }
     
     Appointments.afterUpdate(async (appointment, options)=>{

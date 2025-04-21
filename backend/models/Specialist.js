@@ -19,14 +19,14 @@ module.exports = (sequelize, DataTypes) => {
         },
         dateofbirth: {
             type: DataTypes.DATE,
-            allowNull: false,
+            allowNull: true,
             validate:{
                 isDate: true
             },
         },
         phonenumber: {
             type: DataTypes.STRING,
-            allowNull: false, 
+            allowNull: true, 
             validate:{
                 is:{
                     args: /^[0-9]{3}-[0-9]{3}-[0-9]{4}$/,
@@ -36,7 +36,7 @@ module.exports = (sequelize, DataTypes) => {
         },
         email: {
             type: DataTypes.STRING,
-            allowNull: false, 
+            allowNull: true, 
             unique: true, 
             validate: {
                 isEmail: true, 

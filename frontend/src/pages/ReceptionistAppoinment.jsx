@@ -15,6 +15,7 @@ import {
 import { jwtDecode } from 'jwt-decode';
 import PatientDropDown from '../components/PatientDropDown'
 import DoctorDropDown from '../components/DoctorDropDown';
+import ClinicLocationDropDown from '../components/ClinicLocationDropDown';
 import {
   format,
   startOfMonth,
@@ -44,6 +45,7 @@ export default function ReceptionistAppointment() {
     const [appointmentStatus, setAppointmentStatus] = useState('');
     const [typeOfAppointment, setTypeOfAppointment] = useState([]);
     const [selectedAppointmentType, setSelectedAppointmentType] = useState('');
+    const [clinicLocation, setClinicLocation] = useState('');
     const [currentMonth, setCurrentMonth] = useState(new Date());
     const [loading, setLoading] = useState(true);
     const [appointments, setAppointments] = useState([]);
@@ -207,8 +209,8 @@ export default function ReceptionistAppointment() {
           return;
         }
       
-        if (!formData.date || !formData.time || !formData.doctorid || !patient || !selectedAppointmentType ) {
-          setError('Please select a doctor, patient, date, and time.');
+        if (!formData.date || !formData.time || !formData.doctorid || !patient || !selectedAppointmentType || !clinicLocation ) {
+          setError('Please select a doctor, patient, date, location, and time.');
           return;
         }
       
@@ -221,7 +223,8 @@ export default function ReceptionistAppointment() {
           requesteddate: formData.date,
           requestedtime: formattedTime,
           receptionistEmail: decoded.email,
-          appointmenttype: selectedAppointmentType
+          appointmenttype: selectedAppointmentType,
+          cliniclocation: clinicLocation,
         };
       
         // Log info
@@ -448,6 +451,17 @@ export default function ReceptionistAppointment() {
                         ))}
                     </select>
                     </div>
+
+                <div>
+                  <label htmlFor="clinicLocation" className="block text-lg font-medium text-gray-700">
+                      Select a Clinic Location:
+                  </label>
+                  <ClinicLocationDropDown
+                      location={clinicLocation}
+                      setLocation={setClinicLocation}
+                  />
+              </div>
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Date

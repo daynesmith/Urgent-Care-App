@@ -1,4 +1,4 @@
-const { Patients, Users, Appointments, Billing } = require('../models');
+const { Patients, Users, Appointments, Billing, Referral, Doctors, Specialists } = require('../models');
 
 const getIfPatientInfo = async (req,res) =>{
     const email = req.user.email
@@ -316,6 +316,45 @@ const getPatientsByDoctor = async (req, res) => {
     }
   };
 
+  const getPatientSpecialists = async (req, res) => {
+    try {
+        console.log("Decoded Token (req.user):", req.user);
+
+        const email = req.user.email; 
+        const patient = await Patients.findOne({ where: { email } });
+
+        if (!patient) {
+            return res.status(404).json({ message: "Patient not found." });
+        }
+
+        const patientId = patient.patientid;
+
+        const patientReferrals = await Referral.findAll({
+            where: {
+                status: "approved",
+                patient_id: patientId,
+            },
+            include: [
+                {
+                    model: Doctors,
+                    as: 'doctor',
+                    attributes: ['firstname', 'lastname'],
+                },
+                {
+                    model: Specialists,
+                    as: 'specialist',
+                    attributes: ['firstname', 'lastname', 'user_id', 'specialty'],
+                },
+            ],
+        });
+
+        res.status(200).json(patientReferrals);
+    } catch (error) {
+        console.error("Error fetching patient referrals:", error);
+        res.status(500).json({ message: "Server error" });
+    }
+};
+
   
 
 module.exports = {
@@ -329,5 +368,5 @@ module.exports = {
   getPatientsByDoctor,
   getPatientBilling,
   getSinglePatientBill,
-  updateBillStatus
+  updateBillStatus, getPatientSpecialists
 };

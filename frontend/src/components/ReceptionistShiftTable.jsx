@@ -12,6 +12,7 @@ export default function ReceptionistShiftTable({ shifts, setShifts }) {
     staff: '',
     clinicLocation: '',
     role: '',
+    sortOrder: 'asc', 
   });
   const [filteredShifts, setFilteredShifts] = useState([]);
 
@@ -63,6 +64,12 @@ export default function ReceptionistShiftTable({ shifts, setShifts }) {
         );
       }
 
+      filtered.sort((a, b) => {
+        const dateA = new Date(a.date);
+        const dateB = new Date(b.date);
+        return filters.sortOrder === 'asc' ? dateA - dateB : dateB - dateA;
+      });
+
       setFilteredShifts(filtered);
     };
 
@@ -98,6 +105,7 @@ export default function ReceptionistShiftTable({ shifts, setShifts }) {
       staff: '',
       clinicLocation: '',
       role: '',
+      sortOrder: 'asc', 
     });
   };
 
@@ -105,7 +113,7 @@ export default function ReceptionistShiftTable({ shifts, setShifts }) {
     <div className="bg-white p-6 rounded-lg shadow-sm">
       <h3 className="text-lg font-medium mb-4">Scheduled Shifts</h3>
 
-      {/*filter */}
+      {/* filter */}
       <div className="grid grid-cols-12 gap-4 mb-4">
         <div className="col-span-3">
           <label className="block text-sm font-medium text-gray-700">Date</label>
@@ -148,6 +156,17 @@ export default function ReceptionistShiftTable({ shifts, setShifts }) {
             className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
           />
         </div>
+        <div className="col-span-3">
+          <label className="block text-sm font-medium text-gray-700">Sort Order</label>
+          <select
+            value={filters.sortOrder}
+            onChange={(e) => setFilters({ ...filters, sortOrder: e.target.value })}
+            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+          >
+            <option value="asc">Ascending</option>
+            <option value="desc">Descending</option>
+          </select>
+        </div>
       </div>
       <div className="flex justify-end mb-4">
         <button
@@ -158,7 +177,7 @@ export default function ReceptionistShiftTable({ shifts, setShifts }) {
         </button>
       </div>
 
-      {/*table */}
+      {/* table section */}
       <table className="min-w-full divide-y divide-gray-200">
         <thead className="bg-gray-50">
           <tr>
@@ -187,7 +206,7 @@ export default function ReceptionistShiftTable({ shifts, setShifts }) {
         </thead>
         <tbody className="bg-white divide-y divide-gray-200">
           {filteredShifts.map((shift) => (
-            <tr key={shift.staffid}>
+            <tr key={`${shift.staffid}-${shift.date}-${shift.startshift}-${shift.cliniclocation}`}>              
               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                 {capitalize(`${shift.staff?.firstname} ${shift.staff?.lastname}`)}
               </td>

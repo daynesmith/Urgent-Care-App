@@ -52,7 +52,7 @@ export default function ClinicLocationDropDown({ location, setLocation }) {
             id="location"
             value={location}
             onChange={(e) => setLocation(e.target.value)}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+            className="mt-1 w-full border border-gray-300 rounded-md p-2"
         >
             <option value="">Select a Clinic Location</option>
             {locationList.map((user) => (

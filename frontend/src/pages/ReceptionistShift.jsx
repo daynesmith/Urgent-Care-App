@@ -1,15 +1,23 @@
 import React, { useState } from 'react';
 import { format } from 'date-fns';
 import axios from 'axios';
+import { DateRangePicker } from 'react-date-range';
 import StaffDropDown from '../components/StaffDropDown';
 import ReceptionistShiftTable from '../components/ReceptionistShiftTable';
+
+import 'react-date-range/dist/styles.css'; // Main style file for react-date-range
+import 'react-date-range/dist/theme/default.css'; // Default theme for react-date-range
 
 const apiUrl = import.meta.env.VITE_API_URL;
 
 export default function ReceptionistShift() {
   const [staff, setStaff] = useState('');
   const [shifts, setShifts] = useState([]);
-  const [selectedDates, setSelectedDates] = useState([]); // Array to store multiple selected dates
+  const [selectedRange, setSelectedRange] = useState({
+    startDate: new Date(),
+    endDate: new Date(),
+    key: 'selection',
+  });
   const [newShift, setNewShift] = useState({
     startTime: '',
     endTime: '',
@@ -20,15 +28,8 @@ export default function ReceptionistShift() {
   const [timeError, setTimeError] = useState('');
   const [popupMessage, setPopupMessage] = useState('');
 
-  const handleDateChange = (e) => {
-    const selectedDate = e.target.value;
-    if (!selectedDates.includes(selectedDate)) {
-      setSelectedDates([...selectedDates, selectedDate]);
-    }
-  };
-
-  const removeDate = (date) => {
-    setSelectedDates(selectedDates.filter((d) => d !== date));
+  const handleRangeChange = (ranges) => {
+    setSelectedRange(ranges.selection);
   };
 
   const handleSubmit = async (e) => {
@@ -50,17 +51,20 @@ export default function ReceptionistShift() {
       return;
     }
 
-    if (selectedDates.length === 0) {
-      setLocationError('Please select at least one date.');
-      return;
-    }
-
     setLocationError('');
     setTimeError('');
 
     try {
+      // Generate all dates in the selected range
+      const startDate = new Date(selectedRange.startDate);
+      const endDate = new Date(selectedRange.endDate);
+      const dateArray = [];
+      for (let date = startDate; date <= endDate; date.setDate(date.getDate() + 1)) {
+        dateArray.push(format(new Date(date), 'yyyy-MM-dd'));
+      }
+
       // Prepare the array of shifts
-      const shiftData = selectedDates.map((date) => ({
+      const shiftData = dateArray.map((date) => ({
         staffid: staff,
         startshift: newShift.startTime,
         endshift: newShift.endTime,
@@ -83,7 +87,11 @@ export default function ReceptionistShift() {
         notes: '',
       });
       setStaff('');
-      setSelectedDates([]);
+      setSelectedRange({
+        startDate: new Date(),
+        endDate: new Date(),
+        key: 'selection',
+      });
     } catch (error) {
       console.error('Error submitting shifts:', error);
       showPopup('Failed to submit shifts. Please try again.');
@@ -117,76 +125,74 @@ export default function ReceptionistShift() {
           >
             <h3 className="text-lg font-medium mb-4">Add New Shifts</h3>
             <div className="grid grid-cols-12 gap-4">
-              <div className="col-span-3">
-                <label className="block text-sm font-medium text-gray-700">Staff Member</label>
-                <StaffDropDown staff={staff} setStaff={setStaff} />
+              {/* Left Side */}
+              <div className="col-span-6 space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Staff Member</label>
+                  <StaffDropDown staff={staff} setStaff={setStaff} />
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Start Time</label>
+                    <input
+                      type="time"
+                      value={newShift.startTime}
+                      onChange={(e) => setNewShift({ ...newShift, startTime: e.target.value })}
+                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">End Time</label>
+                    <input
+                      type="time"
+                      value={newShift.endTime}
+                      onChange={(e) => setNewShift({ ...newShift, endTime: e.target.value })}
+                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                      required
+                    />
+                    {timeError && (
+                      <p className="text-red-500 text-sm mt-1">{timeError}</p>
+                    )}
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Clinic Location</label>
+                  <input
+                    type="text"
+                    value={newShift.cliniclocation}
+                    onChange={(e) => setNewShift({ ...newShift, cliniclocation: e.target.value })}
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                    placeholder="Enter clinic location (e.g., Houston, TX)"
+                    required
+                  />
+                  {locationError && (
+                    <p className="text-red-500 text-sm mt-1">{locationError}</p>
+                  )}
+                </div>
               </div>
-              <div className="col-span-3">
-                <label className="block text-sm font-medium text-gray-700">Select Dates</label>
-                <input
-                  type="date"
-                  onChange={handleDateChange}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                />
-                <ul className="mt-2">
-                  {selectedDates.map((date) => (
-                    <li key={date} className="flex items-center justify-between">
-                      <span>{date}</span>
-                      <button
-                        type="button"
-                        onClick={() => removeDate(date)}
-                        className="text-red-500 hover:underline"
-                      >
-                        Remove
-                      </button>
-                    </li>
-                  ))}
-                </ul>
+
+              {/* Right Side */}
+              <div className="col-span-6">
+                <label className="block text-sm font-medium text-gray-700">Select Date Range</label>
+                <div className="mt-1">
+                  <DateRangePicker
+                    ranges={[selectedRange]}
+                    onChange={handleRangeChange}
+                    className="w-full"
+                  />
+                </div>
               </div>
-              <div className="col-span-3">
-                <label className="block text-sm font-medium text-gray-700">Start Time</label>
-                <input
-                  type="time"
-                  value={newShift.startTime}
-                  onChange={(e) => setNewShift({ ...newShift, startTime: e.target.value })}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                  required
-                />
-              </div>
-              <div className="col-span-3">
-                <label className="block text-sm font-medium text-gray-700">End Time</label>
-                <input
-                  type="time"
-                  value={newShift.endTime}
-                  onChange={(e) => setNewShift({ ...newShift, endTime: e.target.value })}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                  required
-                />
-                {timeError && (
-                  <p className="text-red-500 text-sm mt-1">{timeError}</p>
-                )}
-              </div>
-              <div className="col-span-3">
-                <label className="block text-sm font-medium text-gray-700">Clinic Location</label>
-                <input
-                  type="text"
-                  value={newShift.cliniclocation}
-                  onChange={(e) => setNewShift({ ...newShift, cliniclocation: e.target.value })}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                  placeholder="Enter clinic location (e.g., Houston, TX)"
-                  required
-                />
-                {locationError && (
-                  <p className="text-red-500 text-sm mt-1">{locationError}</p>
-                )}
-              </div>
+
+              {/* Notes (Bottom Section) */}
               <div className="col-span-12">
                 <label className="block text-sm font-medium text-gray-700">Notes</label>
                 <textarea
                   value={newShift.notes}
                   onChange={(e) => setNewShift({ ...newShift, notes: e.target.value })}
                   className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                  rows={2}
+                  rows={3}
+                  placeholder="Add any relevant notes (optional)"
                 />
               </div>
             </div>
@@ -207,4 +213,3 @@ export default function ReceptionistShift() {
     </div>
   );
 }
-

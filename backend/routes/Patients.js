@@ -1,7 +1,7 @@
 const express = require('express')
 const router = express.Router()
 
-const{getIfPatientInfo, inputPatientInfoForFirstTime, getPatientsNames, getMedicalHistory, editMedicalHistory, getPatientsByDoctor, getPatientInfo, editPatientInfo, getPatientBilling, getSinglePatientBill, updateBillStatus } = require('../controllers/patientController')
+const{getIfPatientInfo, inputPatientInfoForFirstTime, getPatientsNames, getMedicalHistory, editMedicalHistory, getPatientsByDoctor, getPatientInfo, editPatientInfo, getPatientBilling, getSinglePatientBill, updateBillStatus, getPatientSpecialists } = require('../controllers/patientController')
 const {validateToken} = require('../middlewares/Authmiddleware');
 
 router.post('/checkpatienttable', validateToken('patient'), getIfPatientInfo)
@@ -17,6 +17,8 @@ router.get('/patient-billing/:billingid', validateToken('patient'), getSinglePat
 router.patch('/update-bill-status/:billingid', validateToken('patient'), updateBillStatus);
 router.get('/by-doctor', getPatientsByDoctor);
 router.patch('/medical-history', validateToken('patient'), editMedicalHistory);
+
+router.get('/patientSpecialists', validateToken('patient'),getPatientSpecialists);
 
 
 module.exports = router;
