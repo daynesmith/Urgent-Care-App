@@ -4,10 +4,10 @@ module.exports = (sequelize, DataTypes)=>{
             type: DataTypes.INTEGER,
             primaryKey: true,
             references:{
+                
                 model:'Users',
                 key: 'userid'
-            },
-            allowNull: true   
+            },  
         },
         firstname: {
             type: DataTypes.STRING,

@@ -36,6 +36,8 @@ import JoinTheTeam from './pages/JoinTheTeam.jsx';
 import SpecialistTests from './pages/SpecialistTests.jsx';
 import ReceptionistBillingPage from './pages/ReceptionistBillingPage.jsx';
 import ShiftReport from './pages/ShiftReport.jsx';
+import ReceptionistNotification from './pages/ReceptionistNotification.jsx';
+import RevenueReport from './pages/RevenueReport.jsx';
 
 
 function App() {
@@ -87,6 +89,8 @@ function App() {
             <Route path="/JoinTheTeam" element={<JoinTheTeam />} />
             <Route path="/SpecialistTests" element={<SpecialistTests />} />
             <Route path = '/shiftreport' element = {<ShiftReport/>}/>
+            <Route path = '/ReceptionistNotification' element = {<ReceptionistNotification />} />
+            <Route path = '/revenuereport' element = {<RevenueReport/>}/>
           </Routes>
       </Router>    
     </UserProvider>
