@@ -1,4 +1,4 @@
-const { Receptionists, Users, Shifts, Patients, Billing, sequelize} = require('../models'); // Import the Receptionist model
+const { Receptionists, Users, Shifts, Patients, Inventory, sequelize,VisitinfoSupplies, Billing} = require('../models'); // Import the Receptionist model
 
 const getIfReceptionistInfo = async (req, res) => {
     const email = req.user.email; // Get the email of the currently authenticated user.
@@ -258,10 +258,52 @@ const getPatientsNames = async (req, res) => {
   }
 };
 
-const getBillingInfo= async (req, res) => {
-  //get the appointment id
-  //Should be able to get the appointment (doctor and appointment type)
-  //go to visitinfosupplies to get the price of the materials used
+
+const createBilling = async (req, res) => {
+  try {
+    const {
+      patientid,
+      appointmentid,
+      amount,
+      dueDate,
+      paymentDate,
+      method,
+      billingstatus,
+      status,
+    } = req.body;
+
+    // Check if the billing record already exists for the same appointmentid
+    const existingBilling = await Billing.findOne({
+      where: { appointmentid }, // Adjust this condition based on your requirement
+    });
+
+    // If a record exists, skip creation and return a success message
+    if (existingBilling) {
+      console.log("Billing record already exists, skipping creation.");
+      return res.status(200).json({
+        billing: existingBilling,
+      });
+    }
+
+    // If no existing record, create the new billing record
+    const newBilling = await Billing.create({
+      patientid,
+      appointmentid,
+      amount,
+      dueDate,
+      paymentDate,
+      method,
+      billingstatus,
+      status,
+    });
+
+    return res.status(201).json({
+      billing: newBilling,
+    });
+  } catch (error) {
+    console.error("❌ Error creating billing:", error);
+    return res.status(500).json({ error: "Internal server error" });
+  }
 };
 
 
@@ -334,5 +376,5 @@ const getRevenueReport = async (req, res) => {
   }
 };
 
-module.exports = { getIfReceptionistInfo, getBillingInfo, getPatientsNames, inputReceptionistInfoForFirstTime, syncReceptionists, updateProfile, addNewShift, getAllShifts, getRevenueReport};
+module.exports = { getIfReceptionistInfo, getPatientsNames, inputReceptionistInfoForFirstTime, syncReceptionists, updateProfile, addNewShift, getAllShifts, getRevenueReport};
 

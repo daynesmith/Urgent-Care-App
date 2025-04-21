@@ -8,7 +8,6 @@ const apiUrl = import.meta.env.VITE_API_URL;
 
 export default function PatientDetail({ onSubmit }) {
   const { id } = useParams();
-  const navigate = useNavigate();
   const [patient, setPatient] = useState(null);
   const [symptoms, setSymptoms] = useState('');
   const [nurseNotes, setNurseNotes] = useState('');
@@ -21,7 +20,7 @@ export default function PatientDetail({ onSubmit }) {
   const [supplies, setSupplies] = useState([]);
   const [error, setError] = useState('');
   const [newSupply, setNewSupply] = useState({ name: '', quantity: 1, notes: '' });
-
+  const navigate = useNavigate(); 
   const handleAddSupply = () => {
     if (!newSupply.name || !newSupply.quantity) return;
   
@@ -67,6 +66,7 @@ export default function PatientDetail({ onSubmit }) {
       supplies: usedSupplies, // assumed to be an array of { name, quantity, notes }
     };
     console.log("Before submitting Supplies log:",suppliesPayload )
+    navigate('/dashboard'); 
     try {
       // First: send the vitals and nurse notes
       const responseVisit = await axios.post(`${apiUrl}/nurses/createVisitInfo`, vitalsPayload);

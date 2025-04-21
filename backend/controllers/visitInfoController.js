@@ -1,5 +1,5 @@
 const { Op } = require("sequelize");
-const {Doctors, Users, Appointments, Patients, Visitinfo} = require('../models');
+const {Doctors, Users, Appointments, Patients, Visitinfo, VisitinfoSupplies, Inventory} = require('../models');
 
 
 //given the appointmentid from the row, input that as the appointmentid/ visitinfo id
@@ -45,4 +45,28 @@ const getVisitInfo = async (req, res) => {
     }
 };
 
-module.exports = {updateInsertVisitInfo, getVisitInfo}; 
+  
+  const getAllVisitSupplies = async (req, res) => {
+    try {
+      const visitSupplies = await VisitinfoSupplies.findAll({
+        include: {
+          model: Inventory,
+          as: 'inventory',
+          attributes: ['itemname', 'cost']
+        }
+      });
+  
+      if (!visitSupplies.length) {
+        return res.status(404).json({ message: "No visit supplies found" });
+      }
+  
+      return res.status(200).json({ visitSupplies });
+    } catch (error) {
+      console.error("Error fetching visit supplies:", error);
+      return res.status(500).json({ message: "Internal server error" });
+    }
+  };
+  
+  
+  
+module.exports = {updateInsertVisitInfo, getVisitInfo, getAllVisitSupplies}; 

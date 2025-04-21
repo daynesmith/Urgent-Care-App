@@ -1,4 +1,4 @@
-const { Appointments , Patients, Receptionists, Specialists, Shifts, Doctors, Referral } = require('../models'); 
+const { Appointments , Patients, Receptionists, Billing, Specialists, Shifts, Doctors, Referral } = require('../models'); 
 const { Op } = require("sequelize");
 
 const getPatientAppointments = async (req, res) => {
@@ -511,5 +511,56 @@ const rescheduleAppointment = async (req, res) => {
         res.status(500).json({ message: 'Server error' });
     }
 };
+const billingStatus = async (req, res) => {
+    const { appointmentid, billingstatus } = req.body;  // Get appointment ID and billing status from the request body
 
-module.exports = {getAllAppointments, getPatientAppointments, isDoctorAvailable, createAppointmentReceptionist, createAppointment,  updateAppointment, updateAppointmentReceptionist, updateStatus , getSingleAppointment, cancelAppointment, rescheduleAppointment, createAppointmentSpecialist};
+    if (!appointmentid || !billingstatus) {
+        return res.status(400).json({ error: "Appointment ID and billing status are required." });
+    }
+
+    try {
+        // Assuming you have a database function to update the billingstatus column
+        const updatedAppointment = await Billing.update(
+            { billingstatus }, // Update billingstatus field
+            { where: { appointmentid } } // Find by appointment ID
+        );
+
+        if (updatedAppointment[0] === 0) {
+            // No rows were affected, meaning the appointment wasn't found
+            return res.status(404).json({ error: "Appointment not found." });
+        }
+
+        // Successfully updated the billing status
+        return res.status(200).json({ message: "Appointment billing status updated successfully." });
+    } catch (err) {
+        console.error("Error updating billing status:", err);
+        return res.status(500).json({ error: "Failed to update billing status." });
+    }
+};
+
+const getBillingStatus = async (req, res) => {
+    const { appointmentid } = req.params;
+  
+    if (!appointmentid) {
+      return res.status(400).json({ error: "Appointment ID is required." });
+    }
+  
+    try {
+      const appointment = await Billing.findOne({
+        where: { appointmentid },
+        attributes: ['billingstatus'],
+      });
+  
+      if (!appointment) {
+        return res.status(404).json({ error: "Appointment not found." });
+      }
+  
+      return res.status(200).json({ billingstatus: appointment.billingstatus });
+    } catch (err) {
+      console.error("Error fetching billing status:", err);
+      return res.status(500).json({ error: "Failed to retrieve billing status." });
+    }
+  };
+  
+
+module.exports = {getAllAppointments, billingStatus,getBillingStatus, getPatientAppointments, isDoctorAvailable, createAppointmentReceptionist, createAppointment,  updateAppointment, updateAppointmentReceptionist, createAppointmentSpecialist, updateStatus , getSingleAppointment, cancelAppointment, rescheduleAppointment};
