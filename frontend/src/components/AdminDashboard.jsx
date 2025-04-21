@@ -1219,7 +1219,11 @@ const handleClearFilters = () => {
           ))}
         </div>
       </div>
+      <Link to="/adminreport" className="border rounded shadow-lg p-4 min-w-[150px] text-center flex-1 sm:flex-none">
+    <div className="font-mono text-sm">Appointment Report</div>
+    </Link>
     </div>
+    
   );
 
   const renderAnalytics = () => (
