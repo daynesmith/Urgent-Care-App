@@ -2,7 +2,7 @@ import { useParams, useNavigate } from 'react-router';
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import ClinicLocationDropDown from '../components/ClinicLocationDropDown';
-import ProviderDropDown from '../components/ProviderDropdown';
+import ProviderDropDown from '../components/ProviderDropDown';
 const apiUrl = import.meta.env.VITE_API_URL;
 
 export default function SingleAppointment(props) {
