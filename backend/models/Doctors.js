@@ -10,10 +10,7 @@ module.exports = (sequelize, DataTypes)=>{
             },
             allowNull: false   
         },
-        firstname: {
-            type: DataTypes.STRING,
-            allowNull: false
-        },
+        
         lastname: {
             type: DataTypes.STRING,
             allowNull: false
@@ -34,6 +31,11 @@ module.exports = (sequelize, DataTypes)=>{
                     msg: 'Phone number must be in the format XXX-XXX-XXXX'
                 }
             }
+        },
+        doctortype: {
+            type: DataTypes.STRING,
+            allowNull: true,
+            defaultValue: "Primary Care"
         },
         email: {
             type: DataTypes.STRING,

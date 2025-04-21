@@ -28,6 +28,7 @@ db.Shifts = require('./Shifts')(sequelize, Sequelize.DataTypes)
 db.Users = require('./Users')(sequelize, Sequelize.DataTypes);
 db.Visitinfo = require('./Visitinfo')(sequelize, Sequelize.DataTypes); 
 db.Nurses = require('./Nurses')(sequelize, Sequelize.DataTypes); 
+db.Notifications = require('./Notifications')(sequelize, Sequelize.DataTypes); 
 db.VisitinfoSupplies = require('./VisitinfoSupplies')(sequelize, Sequelize.DataTypes); 
 
 Object.keys(db).forEach(modelName => {

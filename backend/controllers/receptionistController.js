@@ -1,4 +1,4 @@
-const { Receptionists, Users, Shifts, Patients, Inventory, VisitinfoSupplies, Billing} = require('../models'); // Import the Receptionist model
+const { Receptionists, Users, Shifts, Patients, Inventory, sequelize,VisitinfoSupplies, Billing} = require('../models'); // Import the Receptionist model
 
 const getIfReceptionistInfo = async (req, res) => {
     const email = req.user.email; // Get the email of the currently authenticated user.
@@ -308,91 +308,73 @@ const createBilling = async (req, res) => {
 
 
 
-// Get billing info by appointment ID or all
-const getBillingInfo = async (req, res) => {
+// const getRevenueReport = async (req, res) => {
+//   const { patientid } = req.query;
+
+//   try {
+//     const query = `
+//       SELECT 
+//         b.billingid,
+//         b.amount,
+//         b.status,
+//         b.createdAt AS billingDate,
+//         p.firstname,
+//         p.lastname,
+//         p.email
+//       FROM Billings b
+//       LEFT JOIN Patients p ON p.patientid = b.patientid
+//       WHERE b.status = 'paid'
+//       ${patientid ? `AND b.patientid = ${patientid}` : ''}
+//       ORDER BY b.createdAt DESC
+//     `;
+
+//     const result = await sequelize.query(query, {
+//       type: sequelize.QueryTypes.SELECT
+//     });
+
+//     res.json({ bills: result });
+//   } catch (error) {
+//     console.error('Error fetching revenue data:', error);
+//     res.status(500).json({ message: 'Error fetching revenue data' });
+//   }
+// };
+
+const getRevenueReport = async (req, res) => {
+  const { firstname, lastname } = req.query;
+
   try {
-    const { appointmentid } = req.params;
+    const query = `
+      SELECT 
+        b.billingid,
+        b.amount,
+        b.status,
+        b.createdAt AS billingDate,
+        p.firstname,
+        p.lastname,
+        p.email
+      FROM Billings b
+      LEFT JOIN Patients p ON p.patientid = b.patientid
+      WHERE b.status = 'paid'
+      ${firstname ? `AND p.firstname LIKE :firstname` : ''}
+      ${lastname ? `AND p.lastname LIKE :lastname` : ''}
+      ORDER BY b.createdAt DESC
+    `;
 
-    if (appointmentid) {
-      const billing = await Billing.findOne({
-        where: { appointmentid },
-      });
+    const replacements = {};
+    if (firstname) replacements.firstname = `%${firstname}%`;
+    if (lastname) replacements.lastname = `%${lastname}%`;
 
-      if (!billing) {
-        return res.status(404).json({ message: "Billing not found" });
-      }
-
-      return res.status(200).json(billing);
-    } else {
-      const allBillings = await Billing.findAll();
-      return res.status(200).json(allBillings);
-    }
-  } catch (error) {
-    console.error("❌ Error fetching billing:", error);
-    return res.status(500).json({ error: "Internal server error" });
-  }
-};
-
-const getBillingStatus = async (req, res) => {
-  try {
-    const { appointmentid } = req.query;  // Get appointmentid from query params
-    console.log("📥 Incoming request query:", req.query);
-
-    let billing;
-
-    if (appointmentid) {
-      console.log("🔍 Searching by appointmentid:", appointmentid);
-      billing = await Billing.findOne({ where: { appointmentid } });
-    } else {
-      console.warn("⚠️ No appointmentid provided");
-      return res.status(400).json({ message: "Provide appointmentid" });
-    }
-
-    if (!billing) {
-      console.warn("❌ Billing record not found");
-      return res.status(404).json({ message: "Billing record not found" });
-    }
-
-    console.log("✅ Billing found:", billing.toJSON());
-
-    return res.status(200).json({
-      billingstatus: billing.billingstatus,
+    const result = await sequelize.query(query, {
+      type: sequelize.QueryTypes.SELECT,
+      replacements
     });
+
+    res.json({ bills: result });
   } catch (error) {
-    console.error("❌ Error fetching billing status:", error);
-    return res.status(500).json({ error: "Internal server error" });
+    console.error('Error fetching revenue data:', error);
+    res.status(500).json({ message: 'Error fetching revenue data' });
   }
 };
 
-
-
-// UPDATE billing status (by billing ID)
-const updateBillingStatus = async (req, res) => {
-  try {
-    const { billingid } = req.params;
-    const { status, billingstatus } = req.body;
-
-    const billing = await Billing.findByPk(billingid);
-
-    if (!billing) {
-      return res.status(404).json({ message: "Billing record not found" });
-    }
-
-    if (status) billing.status = status;
-    if (billingstatus) billing.billingstatus = billingstatus;
-
-    await billing.save();
-
-    return res.status(200).json({
-      message: "Billing status updated successfully",
-      status: billing.status,
-      billingstatus: billing.billingstatus,
-    });
-  } catch (error) {
-    console.error("❌ Error updating billing status:", error);
-    return res.status(500).json({ error: "Internal server error" });
-  }
-};
-
-module.exports = { getIfReceptionistInfo, getBillingStatus, updateBillingStatus, createBilling, getBillingInfo, getPatientsNames, inputReceptionistInfoForFirstTime, syncReceptionists, updateProfile, addNewShift, getAllShifts};
+module.exports = { getIfReceptionistInfo, getPatientsNames, inputReceptionistInfoForFirstTime, syncReceptionists, updateProfile, addNewShift, getAllShifts, getRevenueReport};
 

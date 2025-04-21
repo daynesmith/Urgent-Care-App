@@ -32,7 +32,7 @@ module.exports = (sequelize, DataTypes) => {
         defaultValue: DataTypes.NOW,
       },//need to add this in migration file
       billingstatus: {
-          type: DataTypes.ENUM("Pending Review", "Approved"),
+          type: DataTypes.ENUM("Pending Review", "Approved","N/A"),
           allowNull: true,
           defaultValue: "Pending Review"
       },

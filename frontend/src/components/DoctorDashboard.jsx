@@ -1,20 +1,23 @@
 import { Link } from 'react-router-dom';
 
-
-export default function DoctorDashboard(){
-
-
-    return(
-    <div className="flex justify-center flex-row flex-nowrap gap-2 text-sm font-mono">
-        
-        {/* will need to add links to all buttons later */}
-        <Link to="/DoctorInfoForm" className="border rounded-l shadow-lg p-3 h-full text-center min-w-3xs"><h4>View Profile</h4> </Link> 
-        <Link to="/DoctorAppointments" className="border rounded-l shadow-lg p-3 h-full text-center min-w-3xs"><h4>View Scheduled Appointments</h4> </Link> 
-        <Link to="/DoctorPatients" className="border rounded-l shadow-lg p-3 h-full text-center min-w-3xs"><h4>View Patients</h4> </Link> 
-        <Link to="/CreateReferral" className="border rounded-l shadow-lg p-3 h-full text-center min-w-3xs"><h4>Create Referrals</h4> </Link> 
-        <Link to="/StaffViewShifts" className="border rounded-l shadow-lg p-3 h-full text-center min-w-3xs"><h4>View Shifts</h4> </Link> 
-        
-    </div>
-    )
+export default function DoctorDashboard() {
+    return (
+        <div className="flex flex-wrap justify-center gap-4 p-4">
+            <Link to="/DoctorInfoForm" className="border rounded shadow-lg p-4 min-w-[150px] text-center flex-1 sm:flex-none">
+                <h4 className="font-mono text-sm">View Profile</h4>
+            </Link>
+            <Link to="/DoctorAppointments" className="border rounded shadow-lg p-4 min-w-[150px] text-center flex-1 sm:flex-none">
+                <h4 className="font-mono text-sm">View Scheduled Appointments</h4>
+            </Link>
+            <Link to="/DoctorPatients" className="border rounded shadow-lg p-4 min-w-[150px] text-center flex-1 sm:flex-none">
+                <h4 className="font-mono text-sm">View Patients</h4>
+            </Link>
+            <Link to="/CreateReferral" className="border rounded shadow-lg p-4 min-w-[150px] text-center flex-1 sm:flex-none">
+                <h4 className="font-mono text-sm">Create Referrals</h4>
+            </Link>
+            <Link to="/StaffViewShifts" className="border rounded shadow-lg p-4 min-w-[150px] text-center flex-1 sm:flex-none">
+                <h4 className="font-mono text-sm">View Shifts</h4>
+            </Link>
+        </div>
+    );
 }
-

@@ -3,7 +3,9 @@ import { useParams } from 'react-router-dom';
 import { Stethoscope, Plus, X, AlertCircle, Send } from 'lucide-react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+
 const apiUrl = import.meta.env.VITE_API_URL;
+
 export default function PatientDetail({ onSubmit }) {
   const { id } = useParams();
   const [patient, setPatient] = useState(null);

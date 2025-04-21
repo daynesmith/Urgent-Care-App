@@ -1,9 +1,15 @@
-const { Appointments , Patients, Receptionists, Specialists, Shifts, Doctors, Billing } = require('../models'); 
+const { Appointments , Patients, Receptionists, Billing, Specialists, Shifts, Doctors, Referral } = require('../models'); 
 const { Op } = require("sequelize");
 
 const getPatientAppointments = async (req, res) => {
     try {
+
+        console.log("req.user", req.user);
+        
+
         const patient = await Patients.findOne({where:{email: req.user.email}})
+
+        console.log("patient", patient);
             
         if (!patient) {
             return res.status(400).json({ message: "patient not found with token." });
@@ -16,7 +22,7 @@ const getPatientAppointments = async (req, res) => {
         if (!appointments.length) {
             return res.status(404).json({ message: "No appointments found for this patient." });
         }
-
+        console.log(appointments);
         res.status(200).json(appointments);
     } catch (error) {
         res.status(500).json({ message: "Internal Server Error", error });
@@ -47,6 +53,7 @@ const getAllAppointments = async (req, res) => {
     }
   };
 
+  //add appointment type in here?
 const getSingleAppointment = async (req, res) => {
     const apptPageId = parseInt(req.params.appointmentid)
 
@@ -109,7 +116,44 @@ const isDoctorAvailable = async (doctorid, requesteddate, requestedtime, appoint
     });
 
     if (!doctorShift) {
-        console.log("Doctor or specialist does not have shift during the requested time or location.");
+        console.log("Doctor does not have shift during the requested time or location.");
+        return false;
+    }
+
+    const conflictingAppointment = await Appointments.findOne({
+        where: conflictCondition,
+    });
+
+    return conflictingAppointment ? false : true;
+};
+
+//INCLUDE THIS 
+const isSpecialistAvailable = async (specialistid, requesteddate, requestedtime, appointmentid, cliniclocation) => {
+    const conflictCondition = {
+        specialistid,
+        requesteddate,
+        requestedtime,
+        cliniclocation
+    };
+
+    if (appointmentid) {
+        conflictCondition.appointmentid = { [Op.lte]: appointmentid };
+    }
+
+    const formattedTime = convertTo24HourFormat(requestedtime);
+
+    const specialistShift = await Shifts.findOne({
+        where: {
+            staffid: specialistid,
+            date: requesteddate,
+            startshift: { [Op.lte]: formattedTime }, 
+            endshift: { [Op.gte]: formattedTime },   
+            cliniclocation: cliniclocation,
+        },
+    });
+
+    if (!specialistShift) {
+        console.log("Specialist does not have shift during the requested time or location.");
         return false;
     }
 
@@ -124,7 +168,7 @@ const isDoctorAvailable = async (doctorid, requesteddate, requestedtime, appoint
 
 const createAppointment = async (req, res) => {
     try {
-        const { doctorid, requesteddate, requestedtime, cliniclocation, appointmenttype } = req.body;
+        const { doctorid, requesteddate, requestedtime, cliniclocation, appointmenttype} = req.body;
         const patient = await Patients.findOne({ where: { email: req.user.email } });
         console.log("The patient:", patient)
         if (!patient) {
@@ -134,7 +178,7 @@ const createAppointment = async (req, res) => {
  
         console.log('Received data for appointment creation:', { doctorid, requesteddate, requestedtime, patientid , cliniclocation, appointmenttype });
 
-        if (!doctorid || !requesteddate || !requestedtime || !patientid || !cliniclocation) {
+        if ( !doctorid|| !requesteddate || !requestedtime || !patientid || !cliniclocation) {
             return res.status(400).json("Missing required fields." );
         }
 
@@ -173,10 +217,76 @@ const createAppointment = async (req, res) => {
     }
 };
 
+//add appointmenttype in here
+const createAppointmentSpecialist = async (req, res) => {
+    try {
+        const { specialistid, requesteddate, requestedtime, cliniclocation } = req.body;
+
+        const patient = await Patients.findOne({ where: { email: req.user.email } });
+
+        if (!patient) {
+            return res.status(400).json("Patient not authenticated or not found. Please fill out the patient info form.");
+        }
+
+        const patientid = patient.dataValues.patientid;
+
+        if (!specialistid || !requesteddate || !requestedtime || !cliniclocation) {
+            return res.status(400).json("Missing required fields.");
+        }
+
+        const formattedTime = convertTo24HourFormat(requestedtime);
+
+        const existingAppointment = await Appointments.findOne({
+            where: {
+                patientid,
+                requesteddate,
+                requestedtime: formattedTime,
+            },
+        });
+
+        if (existingAppointment) {
+            return res.status(400).json("Patient already has an appointment scheduled at this time.");
+        }
+
+        const available = await isSpecialistAvailable(specialistid, requesteddate, requestedtime, { appointmentid: null }, cliniclocation);
+
+        if (!available) {
+            return res.status(400).json("Specialist not available at this time or location.");
+        }
+
+        const referral = await Referral.findOne({
+            where: {
+                patient_id: patientid,
+                specialist_id: specialistid,
+                status: "approved"
+            }
+        });
+
+        if (!referral) {
+            return res.status(400).json("Referral not yet approved or no referral has been made for this patient and specialist.");
+        }
+
+        const appointment = await Appointments.create({
+            specialistid: specialistid,
+            requesteddate,
+            requestedtime: formattedTime,
+            patientid,
+            cliniclocation,
+            doctorid: referral.doctor_id
+        });
+
+        console.log('Appointment created:', appointment);
+        res.status(201).json("Appointment created successfully");
+    } catch (error) {
+        console.error('Error creating appointment:', error);
+        res.status(500).json("Internal Server Error");
+    }
+};
+
 
 const createAppointmentReceptionist = async (req, res) => {
     try {
-        const { doctorid, requesteddate, requestedtime , patientid, appointmenttype} = req.body;
+        const { doctorid, requesteddate, requestedtime , patientid, appointmenttype, cliniclocation} = req.body;
 
         console.log('Searching for receptionist with email:', req.user.email); 
         const receptionist = await Receptionists.findOne({ where: { email: req.user.email } });
@@ -186,17 +296,19 @@ const createAppointmentReceptionist = async (req, res) => {
 
         const receptionistid = receptionist.dataValues.receptionistid;  
     
-        console.log('Received data for appointment creation:', { doctorid, requesteddate, requestedtime, patientid , receptionistid, appointmenttype});
+        console.log('Received data for appointment creation:', { doctorid, requesteddate, requestedtime, patientid , receptionistid, appointmenttype, cliniclocation});
 
-        if (!doctorid || !requesteddate || !requestedtime || !patientid || !receptionistid) {
+        if (!doctorid || !requesteddate || !requestedtime || !patientid || !receptionistid || !cliniclocation) {
             return res.status(400).json({ message: "Missing required fields." });
         }
+
+        const formattedTime = convertTo24HourFormat(requestedtime);
 
         const existingAppointment = await Appointments.findOne({
             where: {
                 patientid,
                 requesteddate,
-                requestedtime,
+                requestedtime: formattedTime,
                 appointmenttype
             },
         });
@@ -206,7 +318,7 @@ const createAppointmentReceptionist = async (req, res) => {
             });
         }
 
-        const available = await isDoctorAvailable(doctorid, requesteddate, requestedtime);
+        const available = await isDoctorAvailable(doctorid, requesteddate, requestedtime, { appointmentid: null }, cliniclocation);
         if (!available) {
             return res.status(400).json({ message: "Doctor not available at this time." });
         }
@@ -217,7 +329,8 @@ const createAppointmentReceptionist = async (req, res) => {
             requestedtime, 
             patientid,
             receptionistid,
-            appointmenttype
+            appointmenttype,
+            cliniclocation
         });
 
         console.log('Appointment created:', appointment);
@@ -308,6 +421,7 @@ const updateAppointment = async (req, res) => {
     } 
 };
 
+
 const updateStatus = async (req, res) => {
     try {
       const { appointmentid, appointmentstatus } = req.body;
@@ -346,9 +460,7 @@ const cancelAppointment = async (req,res) => {
             return res.status(404).json({ message: 'Appointment not found' });
         }
 
-        await appointment.update({
-            appointmentstatus: "cancelled"
-        });
+        await appointment.destroy();
 
         console.log("Database update successful:");
         res.json({ success: true });
@@ -451,4 +563,4 @@ const getBillingStatus = async (req, res) => {
   };
   
 
-module.exports = {getAllAppointments, billingStatus,getBillingStatus, getPatientAppointments, isDoctorAvailable, createAppointmentReceptionist, createAppointment,  updateAppointment, updateAppointmentReceptionist, updateStatus , getSingleAppointment, cancelAppointment, rescheduleAppointment};
+module.exports = {getAllAppointments, billingStatus,getBillingStatus, getPatientAppointments, isDoctorAvailable, createAppointmentReceptionist, createAppointment,  updateAppointment, updateAppointmentReceptionist, createAppointmentSpecialist, updateStatus , getSingleAppointment, cancelAppointment, rescheduleAppointment};

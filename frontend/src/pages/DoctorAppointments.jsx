@@ -180,8 +180,6 @@ export default function DoctorAppointments() {
                                     <td className="border border-gray-300 p-2">{appointment.requesteddate}</td>
                                     <td className="border border-gray-300 p-2">{appointment.requestedtime}</td>
                                     <td className="border border-gray-300 p-2">{appointment.appointmentstatus}</td>
-                                    <td className="border border-gray-300 p-2">{appointment.recommendedspecialist || 'N/A'}</td>
-
                                     <td className="border border-gray-300 p-2">
                                         <button
                                             onClick={() => setSelectedAppointment(appointment)}
