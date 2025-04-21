@@ -76,7 +76,7 @@ export default function DoctorAppointmentsReport() {
                 <h2 className="text-xl font-semibold text-gray-800">{doc.doctor_name}</h2>
                 <p className="text-sm text-gray-500">Doctor ID: {doc.doctorid}</p>
               </div>
-              <div className="text-lg font-bold text-blue-600 text-right">
+              <div className="text-lg font-bold text-blue-600 text-right" >
                 {doc.total_appointments} {doc.total_appointments === 1 ? "appointment" : "appointments"}
               </div>
             </div>
