@@ -1,48 +1,33 @@
+'use strict';
 module.exports = (sequelize, DataTypes) => {
-    const Notifications = sequelize.define('Notifications', {
-        notificationid: {
-            type: DataTypes.INTEGER,
-            autoIncrement: true,
-            primaryKey: true
-        },
-        recipientid: {
-            type: DataTypes.INTEGER,
-            allowNull: false,
-        },
-        senderid: {
-            type: DataTypes.INTEGER,
-            allowNull: true,
-        },
-        message: {
-            type: DataTypes.TEXT,
-            allowNull: false,
-        },
-        type: {
-            type: DataTypes.ENUM('referral', 'appointment', 'general'),
-            defaultValue: 'general'
-        },
-        is_read: {
-            type: DataTypes.BOOLEAN,
-            defaultValue: false
-        },
-    }, {
-        timestamps: true,    // creates createdAt and updatedAt
-        updatedAt: 'updatedAt',
-        createdAt: 'createdAt',
-        tableName: 'Notifications'  // match table name exactly
+  const Notifications = sequelize.define('Notifications', {
+    notificationid: {
+      type: DataTypes.INTEGER,
+      primaryKey: true,
+      autoIncrement: true
+    },
+    recipientid: DataTypes.INTEGER,
+    senderid: DataTypes.INTEGER,
+    message: DataTypes.TEXT,
+    type: DataTypes.ENUM('referral', 'appointment', 'general'),
+    is_read: DataTypes.BOOLEAN
+  }, {
+    tableName: 'Notifications',
+    timestamps: true
+  });
+
+  Notifications.associate = function(models) {
+    Notifications.belongsTo(models.Users, {
+      foreignKey: 'recipientid',
+      as: 'recipient',
+      onDelete: 'CASCADE'
     });
-
-    Notifications.associate = (models) => {
-        Notifications.belongsTo(models.Users, {
-            foreignKey: 'recipientid',
-            as: 'recipient'
-        });
-
-        Notifications.belongsTo(models.Users, {
-            foreignKey: 'senderid',
-            as: 'sender'
-        });
-    };
-
-    return Notifications;
+  
+    Notifications.belongsTo(models.Users, {
+      foreignKey: 'senderid',
+      as: 'sender',
+      onDelete: 'SET NULL'
+    });
+  };
+  return Notifications;
 };

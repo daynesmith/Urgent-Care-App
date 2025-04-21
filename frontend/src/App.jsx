@@ -39,6 +39,8 @@ import StaffViewShifts from './pages/StaffViewShifts.jsx';
 import DoctorAppointmentsReport from './pages/DoctorAppointmentsReport.jsx';
 import ReceptionistBillingPage from './pages/ReceptionistBillingPage.jsx';
 import ShiftReport from './pages/ShiftReport.jsx';
+import ReceptionistNotification from './pages/ReceptionistNotification.jsx';
+import RevenueReport from './pages/RevenueReport.jsx';
 
 
 function App() {
@@ -92,6 +94,8 @@ function App() {
             
             <Route path = '/adminreport' element = {<DoctorAppointmentsReport/>}/>
             <Route path = '/shiftreport' element = {<ShiftReport/>}/>
+            <Route path = '/ReceptionistNotification' element = {<ReceptionistNotification />} />
+            <Route path = '/revenuereport' element = {<RevenueReport/>}/>
           </Routes>
       </Router>    
     </UserProvider>
