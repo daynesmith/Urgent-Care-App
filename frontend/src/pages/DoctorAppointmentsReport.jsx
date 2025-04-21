@@ -82,7 +82,7 @@ export default function DoctorAppointmentsReport() {
             </div>
           ))}
         </div>
-      )}
+      )} 
     </div>
   );
 }
