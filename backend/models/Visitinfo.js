@@ -70,4 +70,6 @@ module.exports = (sequelize, DataTypes)=>{
   
     return Visitinfo;
   };
+
+  //Show up in visitinfos
   

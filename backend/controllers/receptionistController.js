@@ -1,4 +1,4 @@
-const { Receptionists, Users, Shifts, Patients} = require('../models'); // Import the Receptionist model
+const { Receptionists, Users, Shifts, Patients, Inventory, VisitinfoSupplies, Billing} = require('../models'); // Import the Receptionist model
 
 const getIfReceptionistInfo = async (req, res) => {
     const email = req.user.email; // Get the email of the currently authenticated user.
@@ -258,11 +258,141 @@ const getPatientsNames = async (req, res) => {
   }
 };
 
-const getBillingInfo= async (req, res) => {
-  //get the appointment id
-  //Should be able to get the appointment (doctor and appointment type)
-  //go to visitinfosupplies to get the price of the materials used
+
+const createBilling = async (req, res) => {
+  try {
+    const {
+      patientid,
+      appointmentid,
+      amount,
+      dueDate,
+      paymentDate,
+      method,
+      billingstatus,
+      status,
+    } = req.body;
+
+    // Check if the billing record already exists for the same appointmentid
+    const existingBilling = await Billing.findOne({
+      where: { appointmentid }, // Adjust this condition based on your requirement
+    });
+
+    // If a record exists, skip creation and return a success message
+    if (existingBilling) {
+      console.log("Billing record already exists, skipping creation.");
+      return res.status(200).json({
+        billing: existingBilling,
+      });
+    }
+
+    // If no existing record, create the new billing record
+    const newBilling = await Billing.create({
+      patientid,
+      appointmentid,
+      amount,
+      dueDate,
+      paymentDate,
+      method,
+      billingstatus,
+      status,
+    });
+
+    return res.status(201).json({
+      billing: newBilling,
+    });
+  } catch (error) {
+    console.error("❌ Error creating billing:", error);
+    return res.status(500).json({ error: "Internal server error" });
+  }
 };
 
-module.exports = { getIfReceptionistInfo, getBillingInfo, getPatientsNames, inputReceptionistInfoForFirstTime, syncReceptionists, updateProfile, addNewShift, getAllShifts};
+
+
+// Get billing info by appointment ID or all
+const getBillingInfo = async (req, res) => {
+  try {
+    const { appointmentid } = req.params;
+
+    if (appointmentid) {
+      const billing = await Billing.findOne({
+        where: { appointmentid },
+      });
+
+      if (!billing) {
+        return res.status(404).json({ message: "Billing not found" });
+      }
+
+      return res.status(200).json(billing);
+    } else {
+      const allBillings = await Billing.findAll();
+      return res.status(200).json(allBillings);
+    }
+  } catch (error) {
+    console.error("❌ Error fetching billing:", error);
+    return res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+const getBillingStatus = async (req, res) => {
+  try {
+    const { appointmentid } = req.query;  // Get appointmentid from query params
+    console.log("📥 Incoming request query:", req.query);
+
+    let billing;
+
+    if (appointmentid) {
+      console.log("🔍 Searching by appointmentid:", appointmentid);
+      billing = await Billing.findOne({ where: { appointmentid } });
+    } else {
+      console.warn("⚠️ No appointmentid provided");
+      return res.status(400).json({ message: "Provide appointmentid" });
+    }
+
+    if (!billing) {
+      console.warn("❌ Billing record not found");
+      return res.status(404).json({ message: "Billing record not found" });
+    }
+
+    console.log("✅ Billing found:", billing.toJSON());
+
+    return res.status(200).json({
+      billingstatus: billing.billingstatus,
+    });
+  } catch (error) {
+    console.error("❌ Error fetching billing status:", error);
+    return res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+
+
+// UPDATE billing status (by billing ID)
+const updateBillingStatus = async (req, res) => {
+  try {
+    const { billingid } = req.params;
+    const { status, billingstatus } = req.body;
+
+    const billing = await Billing.findByPk(billingid);
+
+    if (!billing) {
+      return res.status(404).json({ message: "Billing record not found" });
+    }
+
+    if (status) billing.status = status;
+    if (billingstatus) billing.billingstatus = billingstatus;
+
+    await billing.save();
+
+    return res.status(200).json({
+      message: "Billing status updated successfully",
+      status: billing.status,
+      billingstatus: billing.billingstatus,
+    });
+  } catch (error) {
+    console.error("❌ Error updating billing status:", error);
+    return res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+module.exports = { getIfReceptionistInfo, getBillingStatus, updateBillingStatus, createBilling, getBillingInfo, getPatientsNames, inputReceptionistInfoForFirstTime, syncReceptionists, updateProfile, addNewShift, getAllShifts};
 

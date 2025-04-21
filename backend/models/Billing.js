@@ -30,11 +30,11 @@ module.exports = (sequelize, DataTypes) => {
       date: {
         type: DataTypes.DATE,
         defaultValue: DataTypes.NOW,
-      },
+      },//need to add this in migration file
       billingstatus: {
           type: DataTypes.ENUM("Pending Review", "Approved"),
           allowNull: true,
-          defaultValue: "N/A"
+          defaultValue: "Pending Review"
       },
       status: {
         type: DataTypes.STRING,

@@ -18,7 +18,7 @@ export default function PatientDetail({ onSubmit }) {
   const [supplies, setSupplies] = useState([]);
   const [error, setError] = useState('');
   const [newSupply, setNewSupply] = useState({ name: '', quantity: 1, notes: '' });
-
+  const navigate = useNavigate(); 
   const handleAddSupply = () => {
     if (!newSupply.name || !newSupply.quantity) return;
   
@@ -64,7 +64,7 @@ export default function PatientDetail({ onSubmit }) {
       supplies: usedSupplies, // assumed to be an array of { name, quantity, notes }
     };
     console.log("Before submitting Supplies log:",suppliesPayload )
-    const navigate = useNavigate(); 
+    navigate('/dashboard'); 
     try {
       // First: send the vitals and nurse notes
       const responseVisit = await axios.post(`${apiUrl}/nurses/createVisitInfo`, vitalsPayload);

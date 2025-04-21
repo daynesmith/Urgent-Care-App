@@ -1,288 +1,396 @@
-import React, { useState } from "react"
-import { ArrowRight, CreditCard, DollarSign, FileText, Filter, Search } from 'lucide-react'
+import { useState, useEffect } from "react"
+import axios from "axios"
+import { ArrowRight, CreditCard, FileText, Filter, Search } from "lucide-react"
+import { useNavigate } from "react-router-dom";
+
+const apiUrl = import.meta.env.VITE_API_URL;
 
 export default function ReceptionistBilling() {
   const [activeTab, setActiveTab] = useState("pending")
   const [searchQuery, setSearchQuery] = useState("")
   const [sortOption, setSortOption] = useState("recent")
+  const [billingStatusByAppointment, setBillingStatusByAppointment] = useState({});
+  const [appointments, setAppointments] = useState([])
+  const [suppliesByAppointment, setSuppliesByAppointment] = useState({})
+  const [inventory, setInventory] = useState({})
+  const [error, setError] = useState("")
+  const [loading, setLoading] = useState(true)
+  const [costByAppointment, setCostByAppointment] = useState({})
+  const navigate = useNavigate();
+  const groupBy = (array, key) => {
+    if (!array || !Array.isArray(array)) return {}
 
-  
-
-  // Sample data for bills
-  const bills = {
-    pending: [
-      {
-        patientName: "Sarah Johnson",
-        patientId: "PT-78945",
-        status: "Pending Review",
-        appointmentDate: "April 15, 2025",
-        doctor: "Dr. Michael Chen",
-        doctorType: "Specialist",
-        amount: 150.00,
-        insurance: "Blue Cross"
-      },
-      {
-        patientName: "Robert Martinez",
-        patientId: "PT-65432",
-        status: "Pending Review",
-        appointmentDate: "April 14, 2025",
-        doctor: "Dr. Sarah Williams",
-        doctorType: "General",
-        amount: 85.00,
-        insurance: "Aetna"
-      },
-      {
-        patientName: "Emily Thompson",
-        patientId: "PT-92371",
-        status: "Pending Review",
-        appointmentDate: "April 13, 2025",
-        doctor: "Dr. James Wilson",
-        doctorType: "Specialist",
-        amount: 320.00,
-        insurance: null,
-        selfPay: true
+    return array.reduce((result, item) => {
+      const keyValue = item[key]
+      if (keyValue) {
+        ;(result[keyValue] = result[keyValue] || []).push(item)
       }
-    ],
-    approved: [
-      {
-        patientName: "David Wilson",
-        patientId: "PT-45678",
-        status: "Approved",
-        appointmentDate: "April 12, 2025",
-        doctor: "Dr. Lisa Johnson",
-        doctorType: "General",
-        amount: 120.00,
-        insurance: "United Healthcare"
+      return result
+    }, {})
+  }
+
+  // Fetch appointments
+  useEffect(() => {
+    const fetchAppointments = async () => {
+      try {
+        setLoading(true)
+        const response = await axios.get(`${apiUrl}/appointments/getappointments`)
+
+        if (response.data && Array.isArray(response.data)) {
+          const completedAppointments = response.data
+            .filter((appointment) => appointment.appointmentstatus === "completed")
+            .map((appointment) => ({
+              ...appointment,
+              patientName: appointment.patient
+                ? `${appointment.patient.firstname || ""} ${appointment.patient.lastname || ""}`
+                : "Unknown Patient",
+            }))
+
+          setAppointments(completedAppointments)
+        } else {
+          console.error("Invalid appointment data format:", response.data)
+          setError("Failed to load appointments: Invalid data format")
+        }
+      } catch (err) {
+        console.error("Failed to fetch appointments:", err)
+        setError("Failed to load appointments: " + (err.message || "Unknown error"))
+      } finally {
+        setLoading(false)
       }
-    ],
-    paid: [],
-    all: [] // This would be populated with all bills
+    }
+
+    fetchAppointments()
+  }, [apiUrl])
+
+  // Fetch supplies
+  useEffect(() => {
+    const fetchSupplies = async () => {
+      try {
+        const res = await axios.get(`${apiUrl}/visitinfo/getAllVisitSupplies`)
+
+        if (res.data && res.data.visitSupplies && Array.isArray(res.data.visitSupplies)) {
+          const grouped = groupBy(res.data.visitSupplies, "visitinfoid")
+          setSuppliesByAppointment(grouped)
+        } else {
+          console.error("Invalid supplies data format:", res.data)
+        }
+      } catch (err) {
+        console.error("Failed to fetch supplies:", err)
+        setError((prevError) => prevError + " Failed to load supplies.")
+      }
+    }
+
+    fetchSupplies()
+  }, [apiUrl])
+
+  // Fetch inventory
+  useEffect(() => {
+    const fetchInventory = async () => {
+      try {
+        const res = await axios.get(`${apiUrl}/inventory/getInventory`)
+
+        if (res.data && Array.isArray(res.data)) {
+          const inventoryMap = res.data.reduce((acc, item) => {
+            if (item && item.itemname) {
+              acc[item.itemname] = item.cost || 0
+            }
+            return acc
+          }, {})
+
+          setInventory(inventoryMap)
+        } else {
+          console.error("Invalid inventory data format:", res.data)
+        }
+      } catch (err) {
+        console.error("Failed to fetch inventory:", err)
+        setError((prevError) => prevError + " Failed to load inventory.")
+      }
+    }
+
+    fetchInventory()
+  }, [apiUrl])
+
+  // Calculate total cost
+  const calculateTotalCost = () => {
+    const costByAppointment = {}
+
+    if (!appointments.length) {
+      return costByAppointment
+    }
+
+    appointments.forEach((appointment) => {
+      if (!appointment) return
+
+      const { appointmentid, doctorid, specialistid, appointmenttype } = appointment
+      let totalCost = 0
+
+      // Base costs
+      if (doctorid) {
+        totalCost += inventory["Primary Care"] || 0
+      }
+
+      if (specialistid && specialistid !== "undefined") {
+        totalCost += inventory["Specialist Care"] || 0
+      }
+
+      // Appointment type cost
+      if (appointmenttype && inventory[appointmenttype]) {
+        totalCost += inventory[appointmenttype] || 0
+      }
+
+      // Supplies cost
+      const supplies = suppliesByAppointment[appointmentid]
+
+      if (supplies && Array.isArray(supplies) && supplies.length > 0) {
+        supplies.forEach((supply) => {
+          if (!supply) return
+
+          const itemname = supply.inventory?.itemname || supply.name
+          const unitCost = supply.inventory?.cost || 0
+          const quantity = supply.quantity || 0
+          const supplyCost = unitCost * quantity
+
+          if (!isNaN(supplyCost)) {
+            totalCost += supplyCost
+          }
+        })
+      }
+
+      // Store the cost per appointment
+      costByAppointment[appointmentid] = Number.parseFloat(totalCost.toFixed(2))
+    })
+
+    return costByAppointment
   }
 
-  // Populate the "all" category with all bills
-  bills.all = [...bills.pending, ...bills.approved, ...bills.paid]
+  // Update costs when data changes
+  useEffect(() => {
+    if (appointments.length > 0 && Object.keys(inventory).length > 0) {
+      const appointmentCosts = calculateTotalCost()
+      setCostByAppointment(appointmentCosts)
+    }
+  }, [appointments, suppliesByAppointment, inventory])
 
-  // Handle tab change
-  const handleTabChange = (tab) => {
-    setActiveTab(tab)
+  // Filter appointments based on search query
+  const filterAppointments = (appointments, query) => {
+    if (!query) return appointments
+
+    return appointments.filter((appointment) => {
+      if (!appointment) return false
+
+      return (
+        appointment.patientName?.toLowerCase().includes(query.toLowerCase()) ||
+        appointment.patientid?.toLowerCase().includes(query.toLowerCase())
+      )
+    })
   }
 
-  // Handle search
-  const handleSearch = (event) => {
-    setSearchQuery(event.target.value)
-  }
+  // Sort appointments based on selected option
+  const sortAppointments = (appointments, option) => {
+    if (!appointments || !Array.isArray(appointments)) return []
 
-  // Handle sort change
-  const handleSortChange = (option) => {
-    setSortOption(option)
-  }
+    const sortedAppointments = [...appointments]
 
-  // Filter bills based on search query
-  const filterBills = (bills, query) => {
-    if (!query) return bills
-    
-    return bills.filter(bill => 
-      bill.patientName.toLowerCase().includes(query.toLowerCase()) ||
-      bill.patientId.toLowerCase().includes(query.toLowerCase())
-    )
-  }
-
-  // Sort bills based on selected option
-  const sortBills = (bills, option) => {
-    switch(option) {
+    switch (option) {
       case "recent":
-        return [...bills]
+        return sortedAppointments.sort((a, b) => new Date(b.requesteddate || 0) - new Date(a.requesteddate || 0))
       case "oldest":
-        return [...bills].reverse()
+        return sortedAppointments.sort((a, b) => new Date(a.requesteddate || 0) - new Date(b.requesteddate || 0))
       case "highest":
-        return [...bills].sort((a, b) => b.amount - a.amount)
+        return sortedAppointments.sort(
+          (a, b) => (costByAppointment[b.appointmentid] || 0) - (costByAppointment[a.appointmentid] || 0),
+        )
       case "lowest":
-        return [...bills].sort((a, b) => a.amount - b.amount)
+        return sortedAppointments.sort(
+          (a, b) => (costByAppointment[a.appointmentid] || 0) - (costByAppointment[b.appointmentid] || 0),
+        )
       default:
-        return bills
+        return sortedAppointments
     }
   }
 
-  // Get current bills based on active tab, search, and sort
-  const getCurrentBills = () => {
-    const filteredBills = filterBills(bills[activeTab], searchQuery)
-    return sortBills(filteredBills, sortOption)
-  }
-
-  // Handle review bill
-  const handleReviewBill = (patientId) => {
-    console.log(`Reviewing bill for patient: ${patientId}`)
+  // Get current appointments based on active tab, search, and sort
+  const getCurrentAppointments = () => {
+    const filteredAppointments = filterAppointments(appointments, searchQuery)
+    return sortAppointments(filteredAppointments, sortOption)
   }
 
   // Handle collect payment
-  const handleCollectPayment = (patientId) => {
-    console.log(`Collecting payment for patient: ${patientId}`)
+  const handleCollectPayment = (appointmentId) => {
+    console.log(`Collecting payment for appointment: ${appointmentId}`)
+    // Implement your payment collection logic here
   }
 
-  // Handle create new bill
-  const handleCreateNewBill = () => {
-    console.log("Creating new bill")
-  }
+  // Get current appointments
+  const currentAppointments = getCurrentAppointments()
 
-  // Get current bills
-  const currentBills = getCurrentBills()
+  // Format date for display
+  const formatDate = (dateString) => {
+    if (!dateString) return "N/A";
+  
+    try {
+      const date = new Date(dateString);
+      // Add one day (in milliseconds)
+      date.setDate(date.getDate() + 1);
+  
+      return date.toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+      });
+    } catch (error) {
+      return dateString;
+    }
+  };
+
+  const handleReviewBill = (appointmentid) => {
+    navigate(`/ReceptionistBillingPage/${appointmentid}`);
+  };
+
+  
+  
+
+  
+  //create billing
+  const createBilling = async (appointment) => {
+    try {
+      const billingPayload = {
+        patientid: appointment.patientid,
+        appointmentid: appointment.appointmentid,
+        amount: costByAppointment[appointment.appointmentid] || 0,
+        date: new Date(),
+        status: "unpaid",
+        billingstatus: billingStatusByAppointment,
+      };
+  
+      const response = await axios.post(`${apiUrl}/receptionist/create`, billingPayload);
+  
+      if (response.data) {
+        console.log("✅ Billing created successfully:", response.data);
+      }
+    } catch (error) {
+      console.error("❌ Failed to create billing:", error);
+    }
+  };
+  
 
   return (
     <div className="flex-1 space-y-4 p-6 bg-white">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold tracking-tight">Billing</h1>
+        <h1 className="text-2xl font-bold tracking-tight">Billing Management</h1>
         <div className="flex items-center gap-2">
-          <button 
-            className="inline-flex items-center justify-center rounded-md border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-900 shadow-sm hover:bg-gray-50"
-            onClick={() => console.log("Filter clicked")}
-          >
-            <Filter className="mr-2 h-4 w-4" />
-            Filter
-          </button>
-          <button 
-            className="inline-flex items-center justify-center rounded-md bg-gray-900 px-3 py-2 text-sm font-medium text-white shadow hover:bg-gray-800"
-            onClick={handleCreateNewBill}
-          >
-            <FileText className="mr-2 h-4 w-4" />
-            Create New Bill
-          </button>
         </div>
       </div>
 
-      <div className="space-y-4">
-        <div className="flex border-b">
-          <button 
-            className={`px-4 py-2 text-sm font-medium ${activeTab === "pending" ? "border-b-2 border-gray-900 text-gray-900" : "text-gray-500 hover:text-gray-700"}`}
-            onClick={() => handleTabChange("pending")}
-          >
-            Pending Review
-          </button>
-          <button 
-            className={`px-4 py-2 text-sm font-medium ${activeTab === "approved" ? "border-b-2 border-gray-900 text-gray-900" : "text-gray-500 hover:text-gray-700"}`}
-            onClick={() => handleTabChange("approved")}
-          >
-            Approved
-          </button>
-          <button 
-            className={`px-4 py-2 text-sm font-medium ${activeTab === "paid" ? "border-b-2 border-gray-900 text-gray-900" : "text-gray-500 hover:text-gray-700"}`}
-            onClick={() => handleTabChange("paid")}
-          >
-            Paid
-          </button>
-          <button 
-            className={`px-4 py-2 text-sm font-medium ${activeTab === "all" ? "border-b-2 border-gray-900 text-gray-900" : "text-gray-500 hover:text-gray-700"}`}
-            onClick={() => handleTabChange("all")}
-          >
-            All Bills
-          </button>
+      {error && (
+        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded relative" role="alert">
+          <strong className="font-bold">Error: </strong>
+          <span className="block sm:inline">{error}</span>
         </div>
-        
-        <div className="space-y-4">
-          <div className="flex items-center gap-2">
-            <div className="relative flex-1">
-              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-400" />
-              <input 
-                type="search" 
-                placeholder="Search bills by patient name or ID..." 
-                value={searchQuery}
-                onChange={handleSearch}
-                className="w-full rounded-md border border-gray-200 pl-8 py-2 text-sm outline-none focus:border-gray-300 focus:ring-1 focus:ring-gray-300"
-              />
-            </div>
-            <select 
-              value={sortOption}
-              onChange={(e) => handleSortChange(e.target.value)}
-              className="rounded-md border border-gray-200 py-2 pl-3 pr-10 text-sm outline-none focus:border-gray-300 focus:ring-1 focus:ring-gray-300"
-            >
-              <option value="recent">Most Recent</option>
-              <option value="oldest">Oldest First</option>
-              <option value="highest">Highest Amount</option>
-              <option value="lowest">Lowest Amount</option>
-            </select>
-          </div>
+      )}
 
-          <div className="grid gap-4">
-            {currentBills.map((bill, index) => (
-              <div key={index} className="rounded-lg border border-gray-200 bg-white shadow-sm">
-                <div className="p-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h2 className="text-lg font-semibold">{bill.patientName}</h2>
-                      <p className="text-sm text-gray-500">Patient ID: {bill.patientId}</p>
-                    </div>
-                    <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
-                      bill.status === "Approved" 
-                        ? "bg-green-50 text-green-700" 
-                        : "bg-yellow-50 text-yellow-800"
-                    }`}>
-                      {bill.status}
-                    </span>
-                  </div>
-                </div>
-                <div className="p-4 pt-0">
-                  <div className="grid grid-cols-3 gap-4">
-                    <div>
-                      <p className="text-sm font-medium">Appointment Date</p>
-                      <p className="text-sm text-gray-500">{bill.appointmentDate}</p>
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium">Doctor</p>
-                      <p className="text-sm text-gray-500">{bill.doctor} ({bill.doctorType})</p>
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium">Total Amount</p>
-                      <p className="text-sm font-semibold">${bill.amount.toFixed(2)}</p>
-                    </div>
-                  </div>
-                </div>
-                <div className="p-4 pt-0 flex justify-between border-t border-gray-100 mt-2">
-                  <div className="flex items-center text-sm text-gray-500">
-                    {bill.insurance ? (
-                      <>
-                        <CreditCard className="mr-1 h-4 w-4" />
-                        Insurance: {bill.insurance}
-                      </>
-                    ) : (
-                      <>
-                        <DollarSign className="mr-1 h-4 w-4" />
-                        Self-pay
-                      </>
-                    )}
-                  </div>
-                  <div className="flex gap-2">
-                    <button 
-                      className="inline-flex items-center justify-center rounded-md border border-gray-200 bg-white px-3 py-1.5 text-sm font-medium text-gray-900 shadow-sm hover:bg-gray-50"
-                      onClick={() => handleReviewBill(bill.patientId)}
-                    >
-                      Review Bill
-                      <ArrowRight className="ml-2 h-4 w-4" />
-                      Link to = '/ReceptionistBillingPage'
-                    </button>
-                    {bill.status === "Approved" && (
-                      <button 
-                        className="inline-flex items-center justify-center rounded-md bg-gray-900 px-3 py-1.5 text-sm font-medium text-white shadow hover:bg-gray-800"
-                        onClick={() => handleCollectPayment(bill.patientId)}
+      {loading ? (
+        <div className="flex justify-center items-center h-40">
+          <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-gray-900"></div>
+        </div>
+      ) : (
+        <>
+          <div className="space-y-4">
+
+            <div className="space-y-4">
+              <div className="flex items-center gap-2">
+                <select
+                  value={sortOption}
+                  onChange={(e) => setSortOption(e.target.value)}
+                  className="rounded-md border border-gray-200 py-2 pl-3 pr-10 text-sm outline-none focus:border-gray-300 focus:ring-1 focus:ring-gray-300"
+                >
+                  <option value="recent">Most Recent</option>
+                  <option value="oldest">Oldest First</option>
+                  <option value="highest">Highest Amount</option>
+                  <option value="lowest">Lowest Amount</option>
+                </select>
+              </div>
+
+              {currentAppointments.length > 0 ? (
+                <div className="grid gap-4">
+                  {currentAppointments.map((apt) => (
+                    <div key={apt.appointmentid} className="rounded-lg border border-gray-200 bg-white shadow-sm">
+                      <div className="p-4">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <h2 className="text-lg font-semibold">{apt.patientName || "Unknown Patient"}</h2>
+                            <p className="text-sm text-gray-500">Patient ID: {apt.patientid || "N/A"}</p>
+                          </div>
+                          
+                          {/* Display billing status */}
+                
+                        </div>
+                      </div>
+
+
+                      <div className="p-4 pt-0">
+                        <div className="grid grid-cols-3 gap-4">
+                          <div>
+                            <p className="text-sm font-medium">Appointment Date</p>
+                            <p className="text-sm text-gray-500">{formatDate(apt.requesteddate)}</p>
+                          </div>
+                          <div>
+                            <p className="text-sm font-medium">Doctor</p>
+                            <p className="text-sm text-gray-500">
+                              {apt.doctor
+                                ? `Dr. ${apt.doctor.firstname || ""} ${apt.doctor.lastname || ""}`
+                                : "Not Assigned"}
+                            </p>
+                          </div>
+                          <div>
+                            <p className="text-sm font-medium">Total Amount</p>
+                            <p className="text-sm font-semibold">
+                              $
+                              {costByAppointment[apt.appointmentid] !== undefined
+                                ? costByAppointment[apt.appointmentid].toFixed(2)
+                                : "0.00"}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="p-4 pt-0 flex justify-between border-t border-gray-100 mt-2">
+                        <div className="flex items-center text-sm text-gray-500">
+                        </div>
+                        <div className="flex gap-2">
+                        <button
+                        className="inline-flex items-center justify-center rounded-md border border-gray-200 bg-white px-3 py-1.5 text-sm font-medium text-gray-900 shadow-sm hover:bg-gray-50"
+                        onClick={() => {
+                          createBilling(apt);           // 🕵️ create the bill sneakily...
+                          handleReviewBill(apt.appointmentid); // then navigate
+                        }}
                       >
-                        Collect Payment
+                        Review Bill 
+                        <ArrowRight className="ml-2 h-4 w-4" />
                       </button>
-                    )}
+
+
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="flex h-[400px] items-center justify-center rounded-md border border-dashed border-gray-300">
+                  <div className="flex flex-col items-center gap-1 text-center">
+                    <FileText className="h-10 w-10 text-gray-400" />
+                    <h3 className="text-lg font-medium">No bills found</h3>
+                    <p className="text-sm text-gray-500">
+                      {searchQuery
+                        ? "No results match your search criteria."
+                        : "Completed appointments will appear here."}
+                    </p>
                   </div>
                 </div>
-              </div>
-            ))}
-            
-            {currentBills.length === 0 && (
-              <div className="flex h-[400px] items-center justify-center rounded-md border border-dashed border-gray-300">
-                <div className="flex flex-col items-center gap-1 text-center">
-                  <FileText className="h-10 w-10 text-gray-400" />
-                  <h3 className="text-lg font-medium">No {activeTab} bills</h3>
-                  <p className="text-sm text-gray-500">{activeTab === "all" ? "All" : activeTab} bills will appear here.</p>
-                </div>
-              </div>
-            )}
+              )}
+            </div>
           </div>
-        </div>
-      </div>
+        </>
+      )}
     </div>
   )
 }

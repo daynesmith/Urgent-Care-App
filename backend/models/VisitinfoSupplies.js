@@ -28,6 +28,11 @@ module.exports = (sequelize, DataTypes) => {
     });
   
     VisitinfoSupplies.associate = (models) => {
+      VisitinfoSupplies.belongsTo(models.Inventory, {
+        foreignKey: 'name',
+        targetKey: 'itemname',
+        as: 'inventory'
+      });
       VisitinfoSupplies.belongsTo(models.Visitinfo, {
         foreignKey: 'visitinfoid',
         targetKey: 'visitinfoid',

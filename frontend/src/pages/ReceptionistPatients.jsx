@@ -1,513 +1,492 @@
-import React, { useState, Fragment, useEffect } from 'react';
-
-import { format, isWithinInterval, startOfDay, endOfDay, parseISO } from 'date-fns';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import {
   Search,
+  Plus,
+  MoreVertical,
   Filter,
-  Edit2,
-  Trash2,
-  ChevronDown,
+  Download,
   Calendar,
-  Clock,
-  User,
   Phone,
   Mail,
-  AlertCircle,
-  UserCircle,
+  Clock,
+  X
 } from 'lucide-react';
-import { Dialog } from '@headlessui/react';
+import { format, parse } from 'date-fns';
 
-import {  Transition } from '@headlessui/react';
-import { TransitionChild } from '@headlessui/react';
-//npm install @headlessui/react
-
-const doctors = [
-  { id: 'd1', name: 'Dr. Sarah Johnson', specialty: 'General Practice' },
-  { id: 'd2', name: 'Dr. Michael Chen', specialty: 'Pediatrics' },
-  { id: 'd3', name: 'Dr. Emily Williams', specialty: 'Cardiology' },
-];
-
-const initialPatients = [
-  {
-    id: '1',
-    firstName: 'John',
-    lastName: 'Doe',
-    email: 'john.doe@example.com',
-    phone: '(555) 123-4567',
-    appointments: [
-      {
-        id: 'a1',
-        date: '2025-03-15',
-        time: '09:00',
-        reason: 'Annual checkup',
-        status: 'scheduled',
-        isNewPatient: false,
-        doctorId: 'd1',
-      },
-      {
-        id: 'a2',
-        date: '2025-03-20',
-        time: '14:30',
-        reason: 'Follow-up',
-        status: 'scheduled',
-        isNewPatient: false,
-        doctorId: 'd2',
-      },
-    ],
-  },
-  {
-    id: '2',
-    firstName: 'Jane',
-    lastName: 'Smith',
-    email: 'jane.smith@example.com',
-    phone: '(555) 987-6543',
-    appointments: [
-      {
-        id: 'a3',
-        date: '2025-03-16',
-        time: '11:00',
-        reason: 'Consultation',
-        status: 'scheduled',
-        isNewPatient: true,
-        doctorId: 'd3',
-      },
-    ],
-  },
-];
+const apiUrl = import.meta.env.VITE_API_URL;
 
 export default function ReceptionistPatients() {
-  const [patients, setPatients] = useState(initialPatients);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState('all');
-  const [selectedPatient, setSelectedPatient] = useState(null);
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [editingAppointment, setEditingAppointment] = useState(null);
-  const [startDate, setStartDate] = useState('');
-  const [endDate, setEndDate] = useState('');
-  const [selectedDoctor, setSelectedDoctor] = useState('all');
-  const [showTodayOnly, setShowTodayOnly] = useState(false);
+    const [searchTerm, setSearchTerm] = useState('');
+    const [showFilters, setShowFilters] = useState(false);
+    const [currentMonth, setCurrentMonth] = useState(new Date());
+    const [appointments, setAppointments] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [selectedAppointment, setSelectedAppointment] = useState(null);
 
-  const filteredPatients = patients.filter((patient) => {
+  const [filters, setFilters] = useState({
+    status: 'All',
+    hasAppointment: null,
+    startDate: '',
+    endDate: '',
+    doctor: 'All'
+  });
+
+  useEffect(() => {
+    const fetchAppointments = async () => {
+      try {
+        const response = await axios.get(`${apiUrl}/appointments/getappointments`);
+        setAppointments(response.data);
+        setError(null);
+      } catch (err) {
+        console.error('Failed to fetch appointments:', err);
+        setError('Failed to load appointments');
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchAppointments();
+  }, [currentMonth]);
+
+  const filteredAppointments = appointments.filter(apt => {
+    const patient = apt.patient || {};
+    const doctor = apt.doctor || {};
+  
     const matchesSearch =
-      patient.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      patient.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      patient.email.toLowerCase().includes(searchTerm.toLowerCase());
-
-    const filteredAppointments = patient.appointments.filter((appointment) => {
-      const appointmentDate = parseISO(appointment.date);
-      const today = new Date();
-
-      const matchesStatus = statusFilter === 'all' || appointment.status === statusFilter;
-
-      let withinDateRange = true;
-      if (startDate && endDate) {
-        withinDateRange = isWithinInterval(appointmentDate, {
-          start: startOfDay(parseISO(startDate)),
-          end: endOfDay(parseISO(endDate)),
-        });
-      }
-
-      const matchesToday = !showTodayOnly || (
-        appointmentDate.getDate() === today.getDate() &&
-        appointmentDate.getMonth() === today.getMonth() &&
-        appointmentDate.getFullYear() === today.getFullYear()
-      );
-
-      const matchesDoctor = selectedDoctor === 'all' || appointment.doctorId === selectedDoctor;
-
-      return matchesStatus && withinDateRange && matchesToday && matchesDoctor;
-    });
-
-    return matchesSearch && filteredAppointments.length > 0;
-  }).map(patient => ({
-    ...patient,
-    appointments: patient.appointments.filter(appointment => {
-      const appointmentDate = parseISO(appointment.date);
-      const today = new Date();
-
-      const matchesStatus = statusFilter === 'all' || appointment.status === statusFilter;
-
-      let withinDateRange = true;
-      if (startDate && endDate) {
-        withinDateRange = isWithinInterval(appointmentDate, {
-          start: startOfDay(parseISO(startDate)),
-          end: endOfDay(parseISO(endDate)),
-        });
-      }
-
-      const matchesToday = !showTodayOnly || (
-        appointmentDate.getDate() === today.getDate() &&
-        appointmentDate.getMonth() === today.getMonth() &&
-        appointmentDate.getFullYear() === today.getFullYear()
-      );
-
-      const matchesDoctor = selectedDoctor === 'all' || appointment.doctorId === selectedDoctor;
-
-      return matchesStatus && withinDateRange && matchesToday && matchesDoctor;
-    })
-  }));
-
-  const handleEditAppointment = (patient, appointment) => {
-    setSelectedPatient(patient);
-    setEditingAppointment({ ...appointment });
-    setIsEditModalOpen(true);
-  };
-
-  const handleSaveAppointment = () => {
-    if (!selectedPatient || !editingAppointment) return;
-
-    setPatients((prevPatients) =>
-      prevPatients.map((patient) => {
-        if (patient.id === selectedPatient.id) {
-          return {
-            ...patient,
-            appointments: patient.appointments.map((apt) =>
-              apt.id === editingAppointment.id ? editingAppointment : apt
-            ),
-          };
-        }
-        return patient;
+      patient.firstname?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      patient.lastname?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      patient.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      patient.phonenumber?.includes(searchTerm);
+  
+    const matchesStatus =
+      filters.status === 'All' || apt.appointmentstatus === filters.status;
+  
+    const matchesAppointment =
+      filters.hasAppointment === null ||
+      (filters.hasAppointment ? apt.nextAppointment !== '' : apt.nextAppointment === '');
+  
+    const matchesDoctor =
+      filters.doctor === 'All' || doctor.firstname?.toLowerCase() === filters.doctor.toLowerCase();
+  
+    const matchesDateRange = () => {
+      if (!filters.startDate && !filters.endDate) return true;
+      const appointmentDate = new Date(apt.nextAppointment);
+      const afterStart = filters.startDate ? appointmentDate >= new Date(filters.startDate) : true;
+      const beforeEnd = filters.endDate ? appointmentDate <= new Date(filters.endDate) : true;
+      return afterStart && beforeEnd;
+    };
+  
+    return matchesSearch && matchesStatus && matchesAppointment && matchesDoctor && matchesDateRange();
+  });
+  
+  // Deduplicate by patientid
+  const uniquePatientsMap = new Map();
+  filteredAppointments.forEach((apt) => {
+    const patientid = apt.patientid;
+    if (!uniquePatientsMap.has(patientid)) {
+      uniquePatientsMap.set(patientid, apt);
+    }
+  });
+  const filteredPatients = Array.from(uniquePatientsMap.values());
+  
+  const getLastAppointment = (appointments, patientid) => {
+    const pastAppointments = appointments
+      .filter((apt) => apt.patientid === patientid)
+      .filter((apt) => {
+        const appointmentDate = new Date(`${apt.requesteddate}T${apt.requestedtime}`);
+        return appointmentDate < new Date(); // Only past appointments
       })
-    );
-
-    setIsEditModalOpen(false);
-    setSelectedPatient(null);
-    setEditingAppointment(null);
+      .sort((a, b) => {
+        const dateA = new Date(`${a.requesteddate}T${a.requestedtime}`);
+        const dateB = new Date(`${b.requesteddate}T${b.requestedtime}`);
+        return dateB - dateA; // Most recent first
+      });
+  
+    return pastAppointments[0] || null;
   };
+  
 
-  const handleDeleteAppointment = (patientId, appointmentId) => {
-    if (confirm('Are you sure you want to delete this appointment?')) {
-      setPatients((prevPatients) =>
-        prevPatients.map((patient) => {
-          if (patient.id === patientId) {
-            return {
-              ...patient,
-              appointments: patient.appointments.filter((apt) => apt.id !== appointmentId),
-            };
-          }
-          return patient;
-        })
-      );
+
+  const getStatusColor = (status) => {
+    switch (status) {
+      case 'Scheduled':
+        return 'bg-blue-100 text-blue-800';
+      case 'Waiting':
+        return 'bg-yellow-100 text-yellow-800';
+      case 'Completed':
+        return 'bg-green-100 text-green-800';
+      case 'Cancelled':
+        return 'bg-red-100 text-red-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
     }
   };
-
-  const getDoctorName = (doctorId) => {
-    const doctor = doctors.find(d => d.id === doctorId);
-    return doctor ? doctor.name : 'Unknown Doctor';
+  const getNextAppointment = (appointments, patientid) => {
+    console.log("Appointments of patientId", patientid, ":", appointments);
+    
+    const now = new Date();
+    console.log("Current Date:", now);
+  
+    const futureAppointments = appointments
+      .filter((apt) => {
+        // Log for debugging
+        console.log("Checking appointment for patientId:", apt.patientid);
+        console.log("Appointment date:", `${apt.requesteddate}T${apt.requestedtime}`);
+        const appointmentDate = new Date(`${apt.requesteddate}T${apt.requestedtime}`);
+        console.log("Appointment Date:", appointmentDate);
+  
+        // Filter future appointments
+        return apt.patientid === patientid && appointmentDate > now;
+      })
+      .sort((a, b) => {
+        const dateA = new Date(`${a.requesteddate}T${a.requestedtime}`);
+        const dateB = new Date(`${b.requesteddate}T${b.requestedtime}`);
+        return dateA - dateB; // Sort by the earliest date
+      });
+  
+    console.log("Future appointments for patient:", futureAppointments);
+  
+    // Return the first future appointment if exists
+    return futureAppointments[0] || null;
   };
 
-  return (
-    <div className=" bg-gray-50">
+    
+    
 
-      {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
-        {/* Filters */}
-        <div className="mb-8 space-y-4">
-          {/* Search and Status Filters */}
-          <div className="flex flex-col sm:flex-row gap-4">
-            <div className="flex-1">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 h-5 w-5" />
-                <input
-                  type="text"
-                  placeholder="Search patients..."
-                  className="pl-10 pr-4 py-2 w-full rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                />
-              </div>
-            </div>
-            <div className="flex items-center gap-2">
-              <Filter className="text-gray-400 h-5 w-5" />
-              <select
-                className="rounded-lg border border-gray-300 py-2 px-4 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value)}
-              >
-                <option value="all">All Status</option>
-                <option value="scheduled">Scheduled</option>
-                <option value="completed">Completed</option>
-                <option value="cancelled">Cancelled</option>
-              </select>
+  const exportPatients = () => {
+    const csv = [
+      ['Name', 'Email', 'Phone', 'Last Visit', 'Next Appointment', 'Status'],
+      ...filteredPatients.map(apt => [
+        `${apt.patient?.firstname || 'N/A'} ${apt.patient?.lastname || 'N/A'}`,
+        apt.patient?.email || '',
+        apt.patient?.phonenumber || '',
+        apt.patient?.lastVisit || '',
+        apt.patient?.nextAppointment || '',
+        apt.patient?.status || ''
+      ])
+    ].map(row => row.join(',')).join('\n');
+
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'patients.csv';
+    a.click();
+    window.URL.revokeObjectURL(url);
+  };
+
+
+  // Modal Component
+  const Modal = ({ isOpen, closeModal, appointmentDetails, allappointments }) => {
+    if (!isOpen) return null;
+  
+    console.log("All Appointments:", allappointments);
+    console.log("Appointment Details:", appointmentDetails);
+  
+    const filteredAppointments = allappointments
+  ?.filter((appt) => appt.patientid === appointmentDetails?.patientid)
+  .sort((a, b) => {
+    // First, compare dates (in descending order)
+    const dateA = new Date(a.requesteddate);
+    const dateB = new Date(b.requesteddate);
+
+    // If the dates are the same, compare times (in descending order)
+    if (dateA.getTime() === dateB.getTime()) {
+      const timeA = parse(a.requestedtime, 'HH:mm:ss', new Date());
+      const timeB = parse(b.requestedtime, 'HH:mm:ss', new Date());
+      return timeB - timeA;  // Compare times in descending order (most recent first)
+    }
+
+    return dateB - dateA;  // Compare dates in descending order (most recent first)
+  });
+
+console.log("Filtered and Sorted (Descending) Appointments:", filteredAppointments);
+
+  
+    const getStatusColor = (status) => {
+      if (!status) return 'bg-gray-100 text-gray-700';
+      switch (status.toLowerCase()) {
+        case 'completed':
+          return 'bg-green-100 text-green-700';
+        case 'in progress':
+          return 'bg-yellow-100 text-yellow-700';
+        case 'waiting':
+          return 'bg-blue-100 text-blue-700';
+        case 'scheduled':
+          return 'bg-gray-100 text-gray-700';
+        case 'cancelled':
+          return 'bg-red-100 text-red-700';
+        default:
+          return 'bg-gray-100 text-gray-700';
+      }
+    };
+  
+    return (
+      <div className="fixed top-0 left-0 bottom-0 right-0 w-full h-screen bg-gray-900 bg-opacity-40 backdrop-blur-[2px] z-50 flex items-center justify-center p-20">
+        <div className="bg-white rounded-lg shadow-xl w-full max-w-md p-6 relative">
+          <button onClick={closeModal} className="absolute top-4 right-4 text-gray-500 hover:text-black">
+            ✕
+          </button>
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold flex items-center gap-2">
+              <Calendar size={20} />
+              All Appointments for {appointmentDetails?.patientName}
+            </h3>
+  
+            <div className="space-y-2 max-h-72 overflow-y-auto pr-2">
+              {filteredAppointments?.map((appt) => (
+                <div
+                  key={appt.appointmentid}
+                  className="bg-white rounded-lg p-4 shadow-sm border border-gray-200 hover:border-blue-500 transition-colors"
+                >
+                  <div className="flex justify-between items-start">
+                    {/* Left Side Info */}
+                    <div className="flex flex-col space-y-2">
+                      <div className="text-sm text-gray-500">
+                        Doctor: Dr. {appt.doctor?.firstname} {appt.doctor?.lastname || 'Not assigned'}
+                      </div>
+                      <div className="text-sm text-gray-600">
+                        Date: {new Date(appt.requesteddate).toLocaleDateString()}
+                      </div>
+                      <div className="text-sm text-gray-600">
+                        Time: {appt.requestedtime
+                          ? format(parse(appt.requestedtime, 'HH:mm:ss', new Date()), 'h:mm a')
+                          : 'N/A'}
+                      </div>
+                    </div>
+  
+                    {/* Right Side - Status + Edit (side by side) */}
+                    <div className="flex flex-col items-end gap-2">
+                      <span
+                        className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(
+                          appt.appointmentstatus
+                        )}`}
+                      >
+                        {appt.appointmentstatus
+                          ? appt.appointmentstatus.charAt(0).toUpperCase() + appt.appointmentstatus.slice(1)
+                          : 'Unknown'}
+                      </span>
+                      <button
+                        onClick={() => alert('Edit appointment')}
+                        className="text-blue-600 hover:text-blue-800 text-sm font-medium"
+                      >
+                        Edit
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+  
+              {filteredAppointments?.length === 0 && (
+                <p className="text-sm text-gray-500 italic">No other appointments found for this patient.</p>
+              )}
             </div>
           </div>
+        </div>
+      </div>
+    );
+  };
+  
 
-          {/* Date Range and Doctor Filters */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Start Date</label>
-              <input
-                type="date"
-                className="w-full rounded-lg border border-gray-300 py-2 px-4 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                value={startDate}
-                onChange={(e) => setStartDate(e.target.value)}
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">End Date</label>
-              <input
-                type="date"
-                className="w-full rounded-lg border border-gray-300 py-2 px-4 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                value={endDate}
-                onChange={(e) => setEndDate(e.target.value)}
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Doctor</label>
-              <select
-                className="w-full rounded-lg border border-gray-300 py-2 px-4 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                value={selectedDoctor}
-                onChange={(e) => setSelectedDoctor(e.target.value)}
-              >
-                <option value="all">All Doctors</option>
-                {doctors.map((doctor) => (
-                  <option key={doctor.id} value={doctor.id}>
-                    {doctor.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div className="flex items-end">
-              <button
-                className={`w-full py-2 px-4 rounded-lg border ${
-                  showTodayOnly
-                    ? 'bg-blue-600 text-white border-blue-600'
-                    : 'bg-white text-gray-700 border-gray-300'
-                } hover:bg-blue-700 hover:text-white transition-colors duration-200`}
-                onClick={() => setShowTodayOnly(!showTodayOnly)}
-              >
-                Today's Appointments
+
+  return (
+    <div className="bg-[#F8F9FA] shadow w-full h-screen">
+      <main className="max-w-7xl mx-auto px-4 py-6">
+        {/* Actions Bar */}
+        <div className="mb-6 flex flex-col sm:flex-row gap-4 items-center justify-between">
+          <div className="relative flex-1 max-w-md">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 h-5 w-5" />
+            <input
+              type="text"
+              placeholder="Search patients..."
+              className="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
+          <div className="flex gap-3">
+            <button
+              onClick={() => setShowFilters(!showFilters)}
+              className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
+            >
+              <Filter className="h-4 w-4 mr-2" />
+              Filter
+            </button>
+            <button
+              onClick={exportPatients}
+              className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
+            >
+              <Download className="h-4 w-4 mr-2" />
+              Export
+            </button>
+          </div>
+        </div>
+  
+        {/* Filters Panel */}
+        {showFilters && (
+          <div className="mb-6 p-4 bg-white rounded-lg shadow">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-lg font-medium">Filters</h2>
+              <button onClick={() => setShowFilters(false)} className="text-gray-400 hover:text-gray-500">
+                <X className="h-5 w-5" />
               </button>
             </div>
-          </div>
-        </div>
-
-        {/* Patient List */}
-        <div className="bg-white shadow-lg rounded-lg overflow-hidden">
-          {filteredPatients.map((patient) => (
-            <div key={patient.id} className="border-b border-gray-200 last:border-0">
-              {/* Patient Info */}
-              <div className="p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <div>
-                    <h2 className="text-xl font-semibold text-gray-900">
-                      {patient.firstName} {patient.lastName}
-                    </h2>
-                    <div className="mt-1 flex items-center gap-4 text-sm text-gray-500">
-                      <div className="flex items-center gap-1">
-                        <Mail className="h-4 w-4" />
-                        {patient.email}
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <Phone className="h-4 w-4" />
-                        {patient.phone}
-                      </div>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm text-gray-500">
-                      {patient.appointments.length} appointments
-                    </span>
-                    <ChevronDown className="h-5 w-5 text-gray-400" />
-                  </div>
-                </div>
-
-                {/* Appointments */}
-                <div className="space-y-4">
-                  {patient.appointments.map((appointment) => (
-                    <div
-                      key={appointment.id}
-                      className="bg-gray-50 rounded-lg p-4 flex items-center justify-between"
-                    >
-                      <div className="flex items-center gap-6">
-                        <div className="flex items-center gap-2">
-                          <Calendar className="h-5 w-5 text-gray-400" />
-                          <span>{format(new Date(appointment.date), 'MMM d, yyyy')}</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <Clock className="h-5 w-5 text-gray-400" />
-                          <span>{format(new Date(`2000-01-01T${appointment.time}`), 'h:mm a')}</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <UserCircle className="h-5 w-5 text-gray-400" />
-                          <span>{getDoctorName(appointment.doctorId)}</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <AlertCircle className="h-5 w-5 text-gray-400" />
-                          <span>{appointment.reason}</span>
-                        </div>
-                        {appointment.isNewPatient && (
-                          <span className="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded">
-                            New Patient
-                          </span>
-                        )}
-                        <span
-                          className={`px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                            appointment.status === 'scheduled'
-                              ? 'bg-green-100 text-green-800'
-                              : appointment.status === 'completed'
-                              ? 'bg-gray-100 text-gray-800'
-                              : 'bg-red-100 text-red-800'
-                          }`}
-                        >
-                          {appointment.status.charAt(0).toUpperCase() + appointment.status.slice(1)}
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <button
-                          onClick={() => handleEditAppointment(patient, appointment)}
-                          className="p-2 text-gray-400 hover:text-gray-600"
-                        >
-                          <Edit2 className="h-5 w-5" />
-                        </button>
-                        <button
-                          onClick={() => handleDeleteAppointment(patient.id, appointment.id)}
-                          className="p-2 text-gray-400 hover:text-red-600"
-                        >
-                          <Trash2 className="h-5 w-5" />
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                <select
+                  value={filters.status}
+                  onChange={(e) => setFilters(prev => ({ ...prev, status: e.target.value }))}
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                >
+                  <option value="All">All</option>
+                  <option value="Scheduled">Scheduled</option>
+                  <option value="Waiting">Waiting</option>
+                  <option value="In progress">In progress</option>
+                  <option value="Completed">Completed</option>
+                  <option value="Cancelled">Cancelled</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Appointment</label>
+                <select
+                  value={filters.hasAppointment === null ? 'all' : filters.hasAppointment.toString()}
+                  onChange={(e) =>
+                    setFilters(prev => ({
+                      ...prev,
+                      hasAppointment: e.target.value === 'all' ? null : e.target.value === 'true',
+                    }))
+                  }
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                >
+                  <option value="all">All</option>
+                  <option value="true">Has Appointment</option>
+                  <option value="false">No Appointment</option>
+                </select>
               </div>
             </div>
-          ))}
-        </div>
-      </main>
-
-      {/* Edit Appointment Modal */}
-      <Transition show={isEditModalOpen} as={Fragment}>
-        <Dialog
-          as="div"
-          className="fixed inset-0 z-10 overflow-y-auto"
-          onClose={() => setIsEditModalOpen(false)}
-        >
-          <div className="min-h-screen px-4 text-center">
-            <TransitionChild
-              as={Fragment}
-              enter="ease-out duration-300"
-              enterFrom="opacity-0"
-              enterTo="opacity-100"
-              leave="ease-in duration-200"
-              leaveFrom="opacity-100"
-              leaveTo="opacity-0"
-            >
-              <Dialog className="fixed inset-0 bg-black opacity-30" />
-            </TransitionChild>
-
-            <span className="inline-block h-screen align-middle" aria-hidden="true">
-              &#8203;
-            </span>
-
-            <TransitionChild
-                as={Fragment}
-                enter="ease-out duration-300"
-                enterFrom="opacity-0"
-                enterTo="opacity-100"
-                leave="ease-in duration-200"
-                leaveFrom="opacity-100"
-                leaveTo="opacity-0"
-                >
- 
-
-              <div className="inline-block w-full max-w-md p-6 my-8 overflow-hidden text-left align-middle transition-all transform bg-white shadow-xl rounded-2xl">
-                <Dialog as="h3" className="text-lg font-medium leading-6 text-gray-900">
-                  Edit Appointment
-                </Dialog>
-
-                {editingAppointment && (
-                  <div className="mt-4 space-y-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700">Date</label>
-                      <input
-                        type="date"
-                        value={editingAppointment.date}
-                        onChange={(e) =>
-                          setEditingAppointment({ ...editingAppointment, date: e.target.value })
-                        }
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700">Time</label>
-                      <input
-                        type="time"
-                        value={editingAppointment.time}
-                        onChange={(e) =>
-                          setEditingAppointment({ ...editingAppointment, time: e.target.value })
-                        }
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700">Doctor</label>
-                      <select
-                        value={editingAppointment.doctorId}
-                        onChange={(e) =>
-                          setEditingAppointment({ ...editingAppointment, doctorId: e.target.value })
-                        }
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                      >
-                        {doctors.map((doctor) => (
-                          <option key={doctor.id} value={doctor.id}>
-                            {doctor.name}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700">Reason</label>
-                      <input
-                        type="text"
-                        value={editingAppointment.reason}
-                        onChange={(e) =>
-                          setEditingAppointment({ ...editingAppointment, reason: e.target.value })
-                        }
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700">Status</label>
-                      <select
-                        value={editingAppointment.status}
-                        onChange={(e) =>
-                            setEditingAppointment({
-                              ...editingAppointment,
-                              status: e.target.value,
-                            })
-                        }
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                      >
-                        <option value="scheduled">Scheduled</option>
-                        <option value="completed">Completed</option>
-                        <option value="cancelled">Cancelled</option>
-                      </select>
-                    </div>
-                  </div>
-                )}
-
-                <div className="mt-6 flex justify-end gap-3">
-                  <button
-                    type="button"
-                    className="px-4 py-2 text-sm font-medium text-gray-700 hover:text-gray-900"
-                    onClick={() => setIsEditModalOpen(false)}
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="button"
-                    className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                    onClick={handleSaveAppointment}
-                  >
-                    Save Changes
-                  </button>
-                </div>
-              </div>
-            </TransitionChild>
           </div>
-        </Dialog>
-      </Transition>
+        )}
+  
+        {/* Status Messages */}
+        {loading ? (
+          <div className="text-center text-gray-500">Loading patients...</div>
+        ) : error ? (
+          <div className="text-center text-red-500">{error}</div>
+        ) : filteredPatients.length === 0 ? (
+          <div className="text-center text-gray-500">No patients found.</div>
+        ) : (
+          <div className="bg-white rounded-lg shadow overflow-hidden">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Patient
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Contact
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Last Visit
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Next Appointment
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Status
+                  </th>
+                  <th className="relative px-6 py-3">
+                    <span className="sr-only">Actions</span>
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {filteredPatients.map((apt) => {
+                    const nextAppointment = getNextAppointment(appointments, apt.patientid);
+                    const nextAppointmentDate = nextAppointment
+                    ? new Date(`${nextAppointment.requesteddate}T${nextAppointment.requestedtime}`).toLocaleDateString('en-US')
+                    : null;
+                    
+                    const lastAppointment = getLastAppointment(appointments, apt.patientid);
+                    const lastAppointmentDate = lastAppointment
+                    ? new Date(`${lastAppointment.requesteddate}T${lastAppointment.requestedtime}`).toLocaleDateString('en-US')
+                    : 'No previous appointment';
+
+                    const handleModalOpen = () => {
+                        setSelectedAppointment({
+                            patientid: apt.patientid,
+                            patientName: `${apt.patient?.firstname} ${apt.patient?.lastname}`,
+                            appointmentDate: nextAppointmentDate,
+                            status: apt.appointmentstatus,
+                            // Add any other details you'd like to show in the modal
+                        });
+                        setIsModalOpen(true);
+                      };
+
+                    return (
+                    <tr key={apt.appointmentid} className="hover:bg-gray-50">
+                        <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm font-medium text-gray-900">
+                            {apt.patient
+                            ? `${apt.patient.firstname || 'N/A'} ${apt.patient.lastname || 'N/A'}`
+                            : 'N/A'}
+                        </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="flex flex-col">
+                            <div className="flex items-center text-sm text-gray-500">
+                            <Mail className="h-4 w-4 mr-1" />
+                            {apt.patient?.email || 'N/A'}
+                            </div>
+                            <div className="flex items-center text-sm text-gray-500">
+                            <Phone className="h-4 w-4 mr-1" />
+                            {apt.patient?.phonenumber || 'N/A'}
+                            </div>
+                        </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="flex items-center text-sm text-gray-500">
+                            <Clock className="h-4 w-4 mr-1" />
+                            {lastAppointmentDate}
+                        </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="flex items-center text-sm text-gray-500">
+                            <Calendar className="h-4 w-4 mr-1" />
+                            {nextAppointmentDate || 'No upcoming appointment'}
+                        </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                        <span
+                            className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(
+                            apt.patient?.status || ''
+                            )}`}
+                        >
+                            {apt.appointmentstatus || 'N/A'}
+                        </span>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        <button onClick={handleModalOpen} className="text-gray-400 hover:text-gray-500">
+                            <MoreVertical className="h-5 w-5" />
+                        </button>
+                        </td>
+                    </tr>
+                    );
+                })}
+                </tbody>
+
+            </table>
+          </div>
+        )}
+      </main>
+      <Modal
+        isOpen={isModalOpen}
+        closeModal={() => setIsModalOpen(false)}
+        appointmentDetails={selectedAppointment}
+        allappointments = {appointments}
+      />
     </div>
   );
-}
+}  
