@@ -335,6 +335,15 @@ const getAvailableTimeSlots = (date, doctorid) => {
               <CalendarClock className="h-5 w-5" />
               <span>View Shift Report</span>
             </Link>
+            <Link
+              to="/revenuereport"
+              className={`w-full flex items-center space-x-3 px-4 py-2.5 rounded-lg ${
+                isActive('/Appointments') ? 'bg-blue-50 text-blue-600' : 'text-gray-600 hover:bg-gray-50'
+              }`}
+            >
+              <CalendarClock className="h-5 w-5" />
+              <span>View Revenue Report</span>
+            </Link>
           </nav>
         </div>
         {/* Main Content */}

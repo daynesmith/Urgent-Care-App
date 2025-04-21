@@ -1,4 +1,4 @@
-const { Receptionists, Users, Shifts, Patients} = require('../models'); // Import the Receptionist model
+const { Receptionists, Users, Shifts, Patients, Billing, sequelize} = require('../models'); // Import the Receptionist model
 
 const getIfReceptionistInfo = async (req, res) => {
     const email = req.user.email; // Get the email of the currently authenticated user.
@@ -264,5 +264,75 @@ const getBillingInfo= async (req, res) => {
   //go to visitinfosupplies to get the price of the materials used
 };
 
-module.exports = { getIfReceptionistInfo, getBillingInfo, getPatientsNames, inputReceptionistInfoForFirstTime, syncReceptionists, updateProfile, addNewShift, getAllShifts};
+
+
+// const getRevenueReport = async (req, res) => {
+//   const { patientid } = req.query;
+
+//   try {
+//     const query = `
+//       SELECT 
+//         b.billingid,
+//         b.amount,
+//         b.status,
+//         b.createdAt AS billingDate,
+//         p.firstname,
+//         p.lastname,
+//         p.email
+//       FROM Billings b
+//       LEFT JOIN Patients p ON p.patientid = b.patientid
+//       WHERE b.status = 'paid'
+//       ${patientid ? `AND b.patientid = ${patientid}` : ''}
+//       ORDER BY b.createdAt DESC
+//     `;
+
+//     const result = await sequelize.query(query, {
+//       type: sequelize.QueryTypes.SELECT
+//     });
+
+//     res.json({ bills: result });
+//   } catch (error) {
+//     console.error('Error fetching revenue data:', error);
+//     res.status(500).json({ message: 'Error fetching revenue data' });
+//   }
+// };
+
+const getRevenueReport = async (req, res) => {
+  const { firstname, lastname } = req.query;
+
+  try {
+    const query = `
+      SELECT 
+        b.billingid,
+        b.amount,
+        b.status,
+        b.createdAt AS billingDate,
+        p.firstname,
+        p.lastname,
+        p.email
+      FROM Billings b
+      LEFT JOIN Patients p ON p.patientid = b.patientid
+      WHERE b.status = 'paid'
+      ${firstname ? `AND p.firstname LIKE :firstname` : ''}
+      ${lastname ? `AND p.lastname LIKE :lastname` : ''}
+      ORDER BY b.createdAt DESC
+    `;
+
+    const replacements = {};
+    if (firstname) replacements.firstname = `%${firstname}%`;
+    if (lastname) replacements.lastname = `%${lastname}%`;
+
+    const result = await sequelize.query(query, {
+      type: sequelize.QueryTypes.SELECT,
+      replacements
+    });
+
+    res.json({ bills: result });
+  } catch (error) {
+    console.error('Error fetching revenue data:', error);
+    res.status(500).json({ message: 'Error fetching revenue data' });
+  }
+};
+
+module.exports = { getIfReceptionistInfo, getBillingInfo, getPatientsNames, inputReceptionistInfoForFirstTime, syncReceptionists, updateProfile, addNewShift, getAllShifts, getRevenueReport};
 

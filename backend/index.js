@@ -40,6 +40,7 @@ const nurseRouter = require('./routes/Nurses');
 app.use("/nurses", nurseRouter);
 
 app.use('/api/stripe', require('./routes/stripe'));
+app.use("/notifications", require('./routes/Notifications'));
 
 
 db.sequelize.sync()
