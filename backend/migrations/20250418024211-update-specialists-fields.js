@@ -11,21 +11,10 @@ module.exports = {
         key: 'userid'
       }
     });
-    
-
-    await queryInterface.addColumn('Specialists', 'dateofbirth', {
-      type: Sequelize.DATE,
-      allowNull: true,
-    });
-
-    await queryInterface.addColumn('Specialists', 'phonenumber', {
-      type: Sequelize.STRING,
-      allowNull: false,
-    });
 
     await queryInterface.addColumn('Specialists', 'email', {
       type: Sequelize.STRING,
-      allowNull: false,
+      allowNull: true,
       unique: true,
     });
 
@@ -40,7 +29,7 @@ module.exports = {
     // Revert specialty to required
     await queryInterface.changeColumn('Specialists', 'specialty', {
       type: Sequelize.STRING,
-      allowNull: false,
+      allowNull: true,
     });
 
     await queryInterface.changeColumn('Specialists', 'user_id', {

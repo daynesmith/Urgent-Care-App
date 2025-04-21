@@ -2,14 +2,14 @@
 
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    return queryInterface.changeColumn('Visitinfo', 'doctornotes', {
+    return queryInterface.changeColumn('Visitinfos', 'doctornotes', {
       type: Sequelize.TEXT,
       allowNull: true, 
     });
   },
 
   down: async (queryInterface, Sequelize) => {
-    return queryInterface.changeColumn('Visitinfo', 'doctornotes', {
+    return queryInterface.changeColumn('Visitinfos', 'doctornotes', {
       type: Sequelize.TEXT,
       allowNull: false, 
     });

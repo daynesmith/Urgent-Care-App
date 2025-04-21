@@ -3,9 +3,12 @@ import { useParams } from 'react-router-dom';
 import { Stethoscope, Plus, X, AlertCircle, Send } from 'lucide-react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+
 const apiUrl = import.meta.env.VITE_API_URL;
+
 export default function PatientDetail({ onSubmit }) {
   const { id } = useParams();
+  const navigate = useNavigate();
   const [patient, setPatient] = useState(null);
   const [symptoms, setSymptoms] = useState('');
   const [nurseNotes, setNurseNotes] = useState('');
@@ -64,7 +67,6 @@ export default function PatientDetail({ onSubmit }) {
       supplies: usedSupplies, // assumed to be an array of { name, quantity, notes }
     };
     console.log("Before submitting Supplies log:",suppliesPayload )
-    const navigate = useNavigate(); 
     try {
       // First: send the vitals and nurse notes
       const responseVisit = await axios.post(`${apiUrl}/nurses/createVisitInfo`, vitalsPayload);

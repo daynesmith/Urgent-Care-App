@@ -206,7 +206,7 @@ export default function ReceptionistShiftTable({ shifts, setShifts }) {
         </thead>
         <tbody className="bg-white divide-y divide-gray-200">
           {filteredShifts.map((shift) => (
-            <tr key={shift.staffid}>
+            <tr key={`${shift.staffid}-${shift.date}-${shift.startshift}-${shift.cliniclocation}`}>              
               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                 {capitalize(`${shift.staff?.firstname} ${shift.staff?.lastname}`)}
               </td>
