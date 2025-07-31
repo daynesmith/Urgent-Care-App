@@ -56,4 +56,5 @@ This full-stack web application helps manage patients, doctors, appointments, an
 4. Make sure you have a MySQL database created with the same name as specified in your environment variables.  
 5. To start the frontend, navigate to the frontend directory and run:  
    ```bash
-   npm run dev
+   frontend --npm run dev
+   backend  --npm start
