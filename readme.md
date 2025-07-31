@@ -38,8 +38,12 @@ This full-stack web application helps manage patients, doctors, appointments, an
 
 ## Collaborators
 
-- [Your Name]  
-- (Add any teammates if applicable)
+- Dayne Smith
+- Karen Suensom
+- Billy Ngo
+- Charlize Tran
+
+
 
 ---
 
