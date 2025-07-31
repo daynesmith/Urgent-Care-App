@@ -6,7 +6,7 @@
 
 ## Medical App Demo
 
-![MedicalAppGif](path/to/your/medicalapp.gif)
+-![MedicalAppGif](https://github.com/user-attachments/assets/11966565-87fb-4da3-9c7f-48e18bd84d48)
 
 ---
 
