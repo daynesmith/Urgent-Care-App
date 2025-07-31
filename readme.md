@@ -29,8 +29,8 @@ This full-stack web application helps manage patients, doctors, appointments, an
 
 ## Technology Stack
 
-- **Frontend:** Vite + React (or your frontend tech)  
-- **Backend:** Node.js + Express  
+- **Frontend:** Vite + React  
+- **Backend:** Node.js
 - **Database:** MySQL with triggers, views, and stored procedures  
 - **Authentication:** JWT-based secure login
 
