@@ -33,6 +33,7 @@ This full-stack web application helps manage patients, doctors, appointments, an
 - **Backend:** Node.js
 - **Database:** MySQL with triggers, views, and stored procedures  
 - **Authentication:** JWT-based secure login
+- Was originally hosted through azure using Azure Static App, Azure App Service, and Azure MySql server but is not anymore cause we ran out of student credits.
 
 ---
 
