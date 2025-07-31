@@ -1,41 +1,54 @@
-Urgent Care Management System – Medical Clinic Web App
-User Authentication | Role-Based Dashboards | Appointment Scheduling
+# Urgent Care Management System – Medical Clinic Web App
 
--![MedicalAppGif](https://github.com/user-attachments/assets/11966565-87fb-4da3-9c7f-48e18bd84d48)
+**User Authentication | Role-Based Dashboards | Appointment Scheduling**
 
-Overview
+---
+
+## Medical App Demo
+
+![MedicalAppGif](path/to/your/medicalapp.gif)
+
+---
+
+## Overview
+
 This full-stack web application helps manage patients, doctors, appointments, and billing for an urgent care clinic. Built with Node.js, MySQL, and Vite, it offers secure role-based access and streamlined workflows for medical staff and patients.
 
-Features
-User Authentication: Secure login and registration with role-based access (patient, doctor, receptionist).
+---
 
-Patient Dashboard: Schedule appointments, view status, and track visit history.
+## Features
 
-Doctor Dashboard: Review and approve appointment requests, access patient visit summaries.
+- **User Authentication:** Secure login and registration with role-based access (patient, doctor, receptionist).  
+- **Patient Dashboard:** Schedule appointments, view status, and track visit history.  
+- **Doctor Dashboard:** Review and approve appointment requests, access patient visit summaries.  
+- **Receptionist Dashboard:** Manage appointments, walk-ins, and billing processes.  
+- **Appointment Scheduling:** Real-time availability and approval workflows.  
+- **Billing & Visit Tracking:** Integrated billing generation triggered by visit updates.
 
-Receptionist Dashboard: Manage appointments, walk-ins, and billing processes.
+---
 
-Appointment Scheduling: Real-time availability and approval workflows.
+## Technology Stack
 
-Billing & Visit Tracking: Integrated billing generation triggered by visit updates.
+- **Frontend:** Vite + React (or your frontend tech)  
+- **Backend:** Node.js + Express  
+- **Database:** MySQL with triggers, views, and stored procedures  
+- **Authentication:** JWT-based secure login
 
-Technology Stack
-Frontend: Vite + React (or your frontend tech)
+---
 
-Backend: Node.js + Express
+## Collaborators
 
-Database: MySQL with triggers, views, and stored procedures
+- [Your Name]  
+- (Add any teammates if applicable)
 
-Authentication: JWT-based secure login
+---
 
-Collaborators
-[Your Name]
+## Installation & Setup
 
-(Add any teammates if applicable)How to install everything:
-
--run npm install in both backend and frontend directories to install dependencies
---create .env file in root directories that looks like .envexample for both frontend and backend
---replace the environment variables you need to replace
---make sure you have a database named what you put in the environment variables in sql
---run frontend by navigating to directory and running "npm run dev"
---run backend by navigating to directory and running "npm start"
+1. Run `npm install` in **both** the `backend` and `frontend` directories to install dependencies.  
+2. Create a `.env` file in both root directories (backend and frontend) based on the `.envexample` file provided.  
+3. Replace environment variables in the `.env` files with your specific values.  
+4. Make sure you have a MySQL database created with the same name as specified in your environment variables.  
+5. To start the frontend, navigate to the frontend directory and run:  
+   ```bash
+   npm run dev
